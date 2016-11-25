@@ -1,0 +1,2 @@
+EXTRA_DIST = @PACKAGE_NAME@.svg
+

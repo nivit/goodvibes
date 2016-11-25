@@ -1,0 +1,181 @@
+#!/bin/bash -e
+
+type="$1"
+objname="$2"
+parentname="$3"
+
+print_usage()
+{
+    echo "Usage: $(basename $0) <type> <object-name> [<parent-name>]"
+    echo
+    echo "Create a new overcooked (ock) object in './src',"
+    echo "that's to say a .c and a .h skeleton file."
+    echo
+    echo "Parameters:"
+    echo "<type>        might be 'core', 'framework', 'ui', 'feat-core' or 'feat-ui'."
+    echo "<object-name> should contain only lowercase, digits and dashes, and start with 'ock-'."
+    echo "<parent-name> should contain only lowercase, digits and dashes."
+    echo
+    echo "Example:"
+    echo "    $0 ui ock-about-dialog gtk-about-dialog"
+}
+
+name_get_invalid_chars()
+{
+    # Keep only invalid chars 
+    tr -d 'a-z0-9-' <<< "$1"
+}
+
+name_to_lower()
+{
+    # To lowercase, '-' to '_'
+    sed -e 's/-/_/g' <<< "$1"
+}
+
+name_to_upper()
+{
+    # To uppercase, '-' to '_'
+    sed -e 's/-/_/g' -e 's/\([a-z]\)/\U\1/g' <<< "$1"
+}
+
+name_to_camel()
+{
+    # To camelcase, '-' removed
+    sed -e 's/-\([a-z]\)/\U\1/g' -e 's/^\([a-z]\)/\U\1/' <<< "$1"
+}
+
+
+
+# -------------------------------------------------------- #
+# Check and make everything ready                          #
+# -------------------------------------------------------- #
+
+# Check for help arguments
+[ "$1" == "-h" -o "$1" == "--help" ] && \
+    { print_usage; exit 0; }
+
+# Ensure we're in the right directory
+[ -d "src" ] || \
+    { echo >&2 "Please run from project root directory"; exit 1; }
+
+# Sanity check on <objname>
+[ -z "$objname" ] && \
+    { print_usage; exit 1; }
+grep -q '^ock-' <<< "$objname" || \
+    { echo >&2 "'$objname' should start with 'ock-' prefix"; exit 1; }
+[ -z "$(name_get_invalid_chars "$objname")" ] || \
+    { echo >&2 "'$objname' contains invalid characters"; exit 1; }
+
+# Beware that <objname> has no ock prefix from now on.
+# We explicitely add it when needed.
+objname="$(sed 's/^ock-//' <<< $objname)"
+
+# -------------------------------------------------------- #
+# Copy skeleton files to source directory                  #
+# -------------------------------------------------------- #
+
+# Select source depending on the type
+srcdir="scripts/ock-object-templates"
+srcfile=""
+case "$type" in
+    core|framework|ui)
+	srcfile=ock-dummy;;
+    feat-core|feat-ui)
+	srcfile=ock-feature-dummy;;
+esac
+[ -z "$srcfile" ] && \
+    { print_usage; exit 1; }
+
+# Ensure that destination files don't exist
+dstdir=""
+case "$type" in
+    core)
+	dstdir="src/core";;
+    framework)
+	dstdir="src/framework";;
+    ui)
+	dstdir="src/ui";;
+    feat-core)
+	dstdir="src/core/feat";;
+    feat-ui)
+	dstdir="src/ui/feat";;
+esac
+[ -z "$dstdir" ] && \
+    { print_usage; exit 1; }
+
+dstfile=ock-$objname
+[ -e $dstdir/$dstfile.c ] && { echo >&2 "$dstdir/$dstfile.c already exists"; exit 1; }
+[ -e $dstdir/$dstfile.h ] && { echo >&2 "$dstdir/$dstfile.h already exists"; exit 1; }
+
+# Copy files
+cp "$srcdir/$srcfile.c" "$dstdir/$dstfile.c"
+cp "$srcdir/$srcfile.h" "$dstdir/$dstfile.h"
+
+# -------------------------------------------------------- #
+# String substitutions                                     #
+# -------------------------------------------------------- #
+
+# Special customization for both ui and feat-ui files
+if [ "$type" == "ui" -o "$type" == "feat-ui" ]; then
+    # Replace 'core' by 'ui' in the include path
+    sed -i						\
+	-e "s|core/ock-dummy|ui/ock-dummy|"		\
+    	-e "s|core/feat/ock-dummy|ui/feat/ock-dummy|"	\
+	$dstdir/$dstfile.c
+fi
+
+# Special customization for framework files
+if [ "$type" == "framework" ]; then
+    # Replace 'core' by 'framework' in the include path
+    sed -i						\
+	-e "s|core/ock-dummy|framework/ock-dummy|"	\
+	$dstdir/$dstfile.c
+fi
+
+# Special customization for ui files
+if [ "$type" == "ui" ]; then
+    # Add gtk include
+    sed -i 						\
+	-e "/<glib-object.h>/a #include <gtk/gtk.h>"	\
+	$dstdir/$dstfile.c $dstdir/$dstfile.h
+    # Return a GtkWidget
+    sed -i 				\
+	-e "s/^OckDummy \*/GtkWidget */"\
+	$dstdir/$dstfile.c $dstdir/$dstfile.h
+fi
+
+# Replace 'gobject' and variants by another parent
+if [ -n "$parentname" ]; then
+    upper="$(name_to_upper $parentname)"
+    upper_pfx="$(cut -d_ -f1 <<< $upper)"
+    upper_end="$(cut -d_ -f2- <<< $upper)"
+
+    camel="$(name_to_camel $parentname)"
+    sed -i 								\
+	-e "s/GObject parent_instance/$camel parent_instance/"		\
+        -e "/^G_DEFINE/s/G_TYPE_OBJECT/${upper_pfx}_TYPE_${upper_end}/"	\
+	$dstdir/$dstfile.c
+    sed -i 					\
+	-e "/^G_DECLARE/s/GObject/$camel/"	\
+	$dstdir/$dstfile.h
+fi
+
+# Replace 'dummy' and variants by <objname> 
+lower="$(name_to_lower $objname)"
+upper="$(name_to_upper $objname)"
+camel="$(name_to_camel $objname)"
+sed -i					\
+    -e "s/ock-dummy/$dstfile/g"		\
+    -e "s/ock_dummy/ock_$lower/g"	\
+    -e "s/DUMMY/$upper/g"		\
+    -e "s/Dummy/$camel/g"		\
+    -e "s/dummy/$lower/g"		\
+    $dstdir/$dstfile.c $dstdir/$dstfile.h
+
+# Fix things
+./scripts/code/copyright.sh add $dstdir/$dstfile.c $dstdir/$dstfile.h
+./scripts/code/header-namespace.sh fix $dstdir/$dstfile.h
+
+# Done !
+echo "Skeleton files '$dstdir/$dstfile.[ch]' created."
+echo "Don't forget to add these new files to './src/Makefile.am'."

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=@PACKAGE_LONG_NAME@
+GenericName=Radio Player
+Comment=Play web radios
+# TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
+Keywords=Audio;Radio;
+Categories=GTK;AudioVideo;Audio;Player;
+Terminal=false
+Type=Application
+Icon=@PACKAGE_NAME@
+Exec=@PACKAGE_NAME@
+MimeType=audio/*;

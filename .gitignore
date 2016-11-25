@@ -1,0 +1,33 @@
+# For all subdirectories
+Makefile
+Makefile.in
+.deps
+*.o
+*~
+
+# Binaries
+cli/overctl
+src/overcooked
+
+# Generated files
+/AUTHORS
+
+# Generated source files
+*enum-types.[ch]
+
+# Data
+data/dbus-1/services/*.service
+data/desktop/*.desktop
+
+# Autotools stuff
+.dirstamp
+INSTALL
+aclocal.m4
+autom4te.cache/
+compile
+config.log
+config.status
+configure
+depcomp
+install-sh
+missing
