@@ -3,10 +3,21 @@ GObject Serialization (Gszn)
 
 
 
+This is a simple library that attempts to provide serialization for GObjects.
+
+When writing it, I came across JSON-GLib at some point. This library provides
+an interface for serializing and deserializing GObjects, and was a bit of
+inspiration.
+
+- [GObject Serialization](https://developer.gnome.org/json-glib/stable/json-glib-GObject-Serialization.html)
+- [Serializable Interface](https://developer.gnome.org/json-glib/stable/json-glib-Serializable-Interface.html)
+
+
+
 Overview
 --------
 
-This is a simple library that attempts to provide serialization for GObjects.
+Libgszn is a library for serializing GObjects.
 
 The format of the serialization can vary, and at the moment it supports XML
 and Keyfile. More backends could be added, but that wouldn't be painless.
@@ -237,42 +248,4 @@ serialized data, which would be a very bad idea.
 Instead, the only thing you can do with serialized data is to dispose of it
 after use. And the only thing you can do if you want to serialize data is to
 start from zero, which ensures you have it clean and valid as you expect.
-
-
-
-
-
-
-
-
-
-
-Configuration
--------------
-
-Configuration is created by serializing some GObjects.
-Configuration is applied by deserializing some GObjects.
-
-Here are the steps for an object to make it to the conf.
-
-- add the object in the configurable list after it's constructed.
-  You do that in the constructed(). Don't forget to remove from
-  the list in finalize()
-
-- flag each serializable properties with OCK_PARAM_SERIALIZABLE
-
-```
-	properties[PROP_ENABLED] = 
-		g_param_spec_boolean("enabled", "Enabled", NULL, FALSE,
-		                     OCK_PARAM_DEFAULT_FLAGS | OCK_PARAM_SERIALIZABLE | G_PARAM_READWRITE);
-```
-
-That's enough to automatically serialize every fundamental types.
-
-For more advanced stuff, one must implement the OckSerializble interface.
-It allows to serialize more complex type, and enum types, or simply
-if you want to override the default serialization for fundamental types.
-
-To modify the name used for the object in the configuration, one might
-change the init param of the Serializer, or define a "name" property.
 

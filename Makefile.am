@@ -5,6 +5,7 @@ SUBDIRS =	\
 
 EXTRA_DIST = 		\
 	autogen.sh	\
+	docs		\
 	HACKING.md	\
 	README.md	\
 	THANKS.md

@@ -50,7 +50,7 @@ The code is neatly split into different parts:
   running, without the ui.
 - `framework`: the name says it all.
 - `libgszn`: a standalone library for GObject serialization. It is used to read
-  and write the configuration file, and the stations list.
+  and write the configuration file, and the station list file.
 - `ui`: the GTK+ user interface.
 
 Moreover, `core` and `ui` contain a `feat` subdirectory: here, you will find
@@ -64,7 +64,7 @@ details about how things are sorted and separated.
 
 
 
-Program invocation
+Program Invocation
 ------------------
 
 To get a brief overview of the command-line options available, invoke with `-h`.
@@ -88,116 +88,10 @@ them all, invoke with `--help-all`. For more details, refer to:
 
 
 
-Coding style
-------------
+Getting your hands dirty
+------------------------
 
-Coding style matters to me. I keep the codebase as clean and neat as possible.
-I'm a bit of a maniac about that, I tell you.
+More doc is available in the [docs](docs) subdirectory. Please refer to:
 
-### Indentation
-
-The code is currently indented using [Artistic Style](http://astyle.sourceforge.net/).
-There's a script to automatically indent the whole thing:
-
-	./scripts/code/indent.sh all
-
-You can also easily indent your staged changes only before commiting:
-
-	./scripts/code/indent.sh staged
-
-### Comments & codetags
-
-For comments, always use C style (aka `/* ... */`).
-
-For codetags, always use C++ style (aka `//`).
-
-Here are the codetags in use here:
-
-- WISHED Things I wish, but might never be done.
-- TODO   Things that should be done pretty soon.
-- FIXME  For things obviously broken.
-
-Always try to make it a one-liner if possible.
-
-Stick to these conventions, and then getting a TODO list becomes very quick:
-
-	ack 'TODO'
-
-Alternatively, getting the list of things to be done:
-
-	ack '// '
-
-
-
-GObject C file layout
----------------------
-
-If you find yourself writing a new file, therefore creating a new object, you
-might want to use a script that generates all the boilerplate.
-
-	./scripts/code/ock-object-make.sh
-
-Have a look at the structure of the C file created, and please notice a few
-things.
-
-Functions are ordered from low-level to high-level, to avoid the need to
-declare functions before defining it. So basically, you read the file from
-bottom to top.
-
-Functions are grouped in sections, titled by a comment such as:
-
-	/*
-	 * Section name
-	 */
-
-Most of the time, these sections are always the same, because implementing a
-GObject always boils down to the same thing, more or less: GObject inherited
-methods, property accessors, signal handlers, public methods, private methods,
-helpers. Sometimes we implement an interface, and that's all there is to it.
-So I try to show this consistent layout and this simplicity in the C file, and
-to have it always the same way, instead of throwing code in a complete mess.
-
-If you stick to these conventions, then it's easy to find your way in the code.
-Whatever file you're looking at, doesn't matter, they all look the same.
-
-
-
-GObject implementation conventions
-----------------------------------
-
-When implementing a GObject, there are some good practices to follow.
-First because we want to listen to the recommendations from the wise guys,
-and write some good code. Second, because we want the whole code to be
-consistent, and look the same everywhere.
-
-For an introduction, please refer to:
-
-- [GObject Conventions](https://developer.gnome.org/gobject/stable/gtype-conventions.html)
-
-### Use `G_DECLARE_*` and `G_DEFINE_*`
-
-Do not clutter the header file with too much boilerplate, as it's often seen in
-some old GObject-based code. Reference:
-
-- [G_DECLARE_FINAL_DERIVABLE_TYPE](https://blogs.gnome.org/desrt/2015/01/27/g_declare_finalderivable_type/)
-
-### Do the minimum in `_init()`
-
-There should be almost nothing in the `init` function. Most of the time, it just
-boils down to setting up the private pointer, if any.
-
-For all the rest, it's better to implement the `constructed` method. Reference:
-
-- [a gentle introduction to gobject construction](https://blogs.gnome.org/desrt/2012/02/26/a-gentle-introduction-to-gobject-construction/)
-
-### Always use a private pointer
-
-You will notice that in here, we never put anything in the object structure.
-We ALWAYS use a private structure. And we always have a pointer named `priv`
-to access it.
-
-It's a very common convention, and once again, doing it everywhere, instead of
-here and there, makes the code more consistent. Reference:
-
-- [Changing quickly between a final and derivable GObject class](https://blogs.gnome.org/swilmet/2015/10/10/changing-quickly-between-a-final-and-derivable-gobject-class/)
-
+- [coding-style.md](docs/coding-style.md) for everything related to coding style.
+- [gobject.md](docs/gobject.md) for GObject conventions and good practices.

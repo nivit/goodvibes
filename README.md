@@ -111,21 +111,25 @@ As root, run the following command:
 Required Packages
 -----------------
 
-Overcooked depends on the following packages (Debian package name given along).
+Overcooked depends on the following packages.
 
 To build the core:
 
-- __GLib/GIO/GObject__	libglib2.0-dev
-- __LibSoup__		libsoup2.4-dev
-- __Libxml2__		libxml2-dev
-- __GStreamer__		libgstreamer1.0-dev
-			libgstreamer-plugins-base1.0-dev
+|       Library         |         Debian package           |
+| --------------------- | -------------------------------- |
+| __GLib/GIO/GObject__	| libglib2.0-dev                   |
+| __LibSoup__		| libsoup2.4-dev                   |
+| __Libxml2__		| libxml2-dev                      |
+| __GStreamer__		| libgstreamer1.0-dev              |
+|			| libgstreamer-plugins-base1.0-dev |            
 
 To build the full-featured ui:
 
-- __GTK+__		libgtk-3-dev
-- __Libkeybinder__	libkeybinder-3.0-dev
-- __Libnotify__		libnotify-dev
+|       Library         |    Debian package    |
+| --------------------- | -------------------- |
+| __GTK+__		| libgtk-3-dev         |
+| __Libkeybinder__	| libkeybinder-3.0-dev |
+| __Libnotify__		| libnotify-dev        |
 
 For more details, please refer to the file `configure.ac`.
 
