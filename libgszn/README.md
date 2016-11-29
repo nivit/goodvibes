@@ -12,6 +12,9 @@ inspiration.
 - [GObject Serialization](https://developer.gnome.org/json-glib/stable/json-glib-GObject-Serialization.html)
 - [Serializable Interface](https://developer.gnome.org/json-glib/stable/json-glib-Serializable-Interface.html)
 
+Debug messages are compiled out by default. To enable, compile with
+`-DGSZN_ENABLE_DEBUG`.
+
 
 
 Overview

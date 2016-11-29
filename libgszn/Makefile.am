@@ -60,10 +60,11 @@ endef
 # Sources
 
 libgszn_sources =					\
+	gszn.c			gszn.h			\
 	gszn-backend.c		gszn-backend.h		\
 	gszn-backend-xml.c	gszn-backend-xml.h	\
 	gszn-backend-keyfile.c	gszn-backend-keyfile.h	\
-	gszn.c			gszn.h			\
+				gszn-debug.h		\
 	gszn-deserializer.c	gszn-deserializer.h	\
 	gszn-error.c		gszn-error.h		\
 				gszn-param-specs.h	\
@@ -87,6 +88,8 @@ libgszn_cflags = 		\
 	-DG_LOG_DOMAIN=\"Gszn\"	\
 	$(GLIB_CFLAGS)		\
 	$(XML_CFLAGS)
+
+#libgszn_cflags += -DGSZN_ENABLE_DEBUG
 
 
 

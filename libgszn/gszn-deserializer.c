@@ -21,6 +21,7 @@
 #include <glib-object.h>
 
 #include "gszn-backend.h"
+#include "gszn-debug.h"
 #include "gszn-deserializer.h"
 #include "gszn-shared.h"
 
@@ -80,7 +81,7 @@ make_object_parameters(GsznBackend *backend, GsznBackendIter *iter, GType object
 	/* Get object class */
 	object_class = g_type_class_peek(object_type);
 	if (object_class == NULL) {
-		g_debug("Object type '%s' not registered", g_type_name(object_type));
+		GSZN_DEBUG("Object type '%s' not registered", g_type_name(object_type));
 		return NULL;
 	}
 
@@ -107,7 +108,7 @@ make_object_parameters(GsznBackend *backend, GsznBackendIter *iter, GType object
 		/* Find corresponding property on object */
 		pspec = g_object_class_find_property(object_class, property_name);
 		if (!pspec) {
-			g_debug("'%s:%s' not found", g_type_name(object_type), property_name);
+			GSZN_DEBUG("'%s:%s' not found", g_type_name(object_type), property_name);
 			goto next_iteration;
 		}
 
@@ -115,8 +116,8 @@ make_object_parameters(GsznBackend *backend, GsznBackendIter *iter, GType object
 		g_value_init(&param->value, pspec->value_type);
 		gszn_transform_string_to_value(ser_param->string, &param->value, &err);
 		if (err) {
-			g_debug("Failed to transform '%s:%s' to value: %s",
-			        g_type_name(object_type), property_name, err->message);
+			GSZN_DEBUG("Failed to transform '%s:%s' to value: %s",
+			           g_type_name(object_type), property_name, err->message);
 			g_clear_error(&err);
 			g_value_unset(&param->value);
 			goto next_iteration;
@@ -301,7 +302,7 @@ gszn_deserializer_create_all(GsznDeserializer *self)
 		/* Find type according to name */
 		object_type = g_type_from_name(object_type_name);
 		if (object_type == G_TYPE_INVALID) {
-			g_debug("Invalid object type name '%s'", object_type_name);
+			GSZN_DEBUG("Invalid object type name '%s'", object_type_name);
 			goto next_iteration;
 		}
 

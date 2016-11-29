@@ -21,6 +21,7 @@
 #include <glib-object.h>
 
 #include "gszn-backend.h"
+#include "gszn-debug.h"
 #include "gszn-enum-types.h"
 #include "gszn-param-specs.h"
 #include "gszn-serializer.h"
@@ -160,26 +161,26 @@ make_serialized_parameters(GObject *object, guint *n_params, gboolean serialize_
 
 		/* Perform various checks on property */
 		if (!is_property_serialization_wanted(pspec, serialize_flag_only)) {
-			g_debug("Not serializing '%s:%s': not flagged as serializable",
-			        G_OBJECT_TYPE_NAME(object), pspec->name);
+			GSZN_DEBUG("Not serializing '%s:%s': not flagged as serializable",
+			           G_OBJECT_TYPE_NAME(object), pspec->name);
 			goto next_iteration;
 		}
 
 		if (!is_property_readable(pspec)) {
-			g_debug("Not serializing '%s:%s': not readable",
-			        G_OBJECT_TYPE_NAME(object), pspec->name);
+			GSZN_DEBUG("Not serializing '%s:%s': not readable",
+			           G_OBJECT_TYPE_NAME(object), pspec->name);
 			goto next_iteration;
 		}
 
 		if (is_property_deprecated(pspec)) {
-			g_debug("Not serializing '%s:%s': deprecated",
-			        G_OBJECT_TYPE_NAME(object), pspec->name);
+			GSZN_DEBUG("Not serializing '%s:%s': deprecated",
+			           G_OBJECT_TYPE_NAME(object), pspec->name);
 			goto next_iteration;
 		}
 
 		if (!is_property_type_serializable(pspec)) {
-			g_debug("Not serializing '%s:%s': type is not serializable",
-			        G_OBJECT_TYPE_NAME(object), pspec->name);
+			GSZN_DEBUG("Not serializing '%s:%s': type is not serializable",
+			           G_OBJECT_TYPE_NAME(object), pspec->name);
 			goto next_iteration;
 		}
 
@@ -189,8 +190,8 @@ make_serialized_parameters(GObject *object, guint *n_params, gboolean serialize_
 
 		/* Check if it's the default value */
 		if (value_is_default(&value, pspec) && non_default_only) {
-			g_debug("Not serializing '%s:%s': default value",
-			        G_OBJECT_TYPE_NAME(object), pspec->name);
+			GSZN_DEBUG("Not serializing '%s:%s': default value",
+			           G_OBJECT_TYPE_NAME(object), pspec->name);
 			g_value_unset(&value);
 			goto next_iteration;
 		}
@@ -198,8 +199,8 @@ make_serialized_parameters(GObject *object, guint *n_params, gboolean serialize_
 		/* Serialize value */
 		gszn_transform_value_to_string(&value, &ser_param->string, &err);
 		if (err) {
-			g_debug("Failed to transform '%s:%s' to string: %s",
-			        G_OBJECT_TYPE_NAME(object), pspec->name, err->message);
+			GSZN_DEBUG("Failed to transform '%s:%s' to string: %s",
+			           G_OBJECT_TYPE_NAME(object), pspec->name, err->message);
 			g_clear_error(&err);
 			goto next_iteration;
 		}
