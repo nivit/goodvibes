@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Libgszn
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *
@@ -17,8 +17,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <glib.h>
+#ifndef __LIBGSZN_GSZN_ERROR_H__
+#define __LIBGSZN_GSZN_ERROR_H__
 
-#include "libgszn/gszn-error.h"
+#define GSZN_ERROR gszn_error_quark()
 
-G_DEFINE_QUARK(gszn-error-quark, gszn_error)
+GQuark gszn_error_quark(void);
+
+typedef enum {
+	GSZN_ERROR_UNKNOWN,
+	GSZN_ERROR_PARSE,
+	GSZN_ERROR_INVALID_VALUE,
+} GsznError;
+
+#endif /* __LIBGSZN_GSZN_ERROR_H__ */

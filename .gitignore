@@ -5,9 +5,10 @@ Makefile.in
 *.o
 *~
 
-# Binaries
+# Binaries and libraries
 cli/overctl
 src/overcooked
+libgszn/libgszn.a
 
 # Generated files
 /AUTHORS
@@ -23,6 +24,7 @@ data/desktop/*.desktop
 .dirstamp
 INSTALL
 aclocal.m4
+ar-lib
 autom4te.cache/
 compile
 config.log

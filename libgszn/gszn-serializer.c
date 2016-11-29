@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Libgszn
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *
@@ -20,12 +20,12 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#include "libgszn/gszn-backend.h"
-#include "libgszn/gszn-enum-types.h"
-#include "libgszn/gszn-param-specs.h"
-#include "libgszn/gszn-serializer.h"
-#include "libgszn/gszn-settings.h"
-#include "libgszn/gszn-shared.h"
+#include "gszn-backend.h"
+#include "gszn-enum-types.h"
+#include "gszn-param-specs.h"
+#include "gszn-serializer.h"
+#include "gszn-settings.h"
+#include "gszn-shared.h"
 
 /*
  * Properties

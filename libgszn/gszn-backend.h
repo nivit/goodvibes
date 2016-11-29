@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Libgszn
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *
@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __OVERCOOKED_LIBGSZN_GSZN_BACKEND_H__
-#define __OVERCOOKED_LIBGSZN_GSZN_BACKEND_H__
+#ifndef __LIBGSZN_GSZN_BACKEND_H__
+#define __LIBGSZN_GSZN_BACKEND_H__
 
 #include <glib-object.h>
 
@@ -88,4 +88,4 @@ GsznParameter   *gszn_backend_get_properties(GsznBackend *self, GsznBackendIter 
 void             gszn_backend_add_properties(GsznBackend *self, GsznBackendIter *iter,
                                              GsznParameter *params, guint n_params);
 
-#endif /* __OVERCOOKED_LIBGSZN_GSZN_BACKEND_H__ */
+#endif /* __LIBGSZN_GSZN_BACKEND_H__ */

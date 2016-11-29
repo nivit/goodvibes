@@ -1,6 +1,7 @@
 SUBDIRS =	\
 	cli	\
 	data	\
+	libgszn	\
 	src
 
 EXTRA_DIST = 		\

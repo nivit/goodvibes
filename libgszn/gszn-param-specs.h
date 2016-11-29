@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Libgszn
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *
@@ -17,19 +17,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __OVERCOOKED_LIBGSZN_GSZN_H__
-#define __OVERCOOKED_LIBGSZN_GSZN_H__
+#ifndef __LIBGSZN_GSZN_PARAM_SPECS_H__
+#define __LIBGSZN_GSZN_PARAM_SPECS_H__
 
-#include "libgszn/gszn-backend.h"
-#include "libgszn/gszn-backend-xml.h"
-#include "libgszn/gszn-backend-keyfile.h"
-#include "libgszn/gszn-param-specs.h"
-#include "libgszn/gszn-serializer.h"
-#include "libgszn/gszn-deserializer.h"
+#include <glib-object.h>
 
-/* Functions */
+/* Use this flag on GObject properties to signal they're to be serialized */
 
-void gszn_init(void);
-void gszn_cleanup(void);
+#define GSZN_PARAM_SERIALIZE (1 << (G_PARAM_USER_SHIFT + 1))
 
-#endif /* __OVERCOOKED_LIBGSZN_GSZN_H__ */
+#endif /* __LIBGSZN_GSZN_PARAM_SPECS_H__ */

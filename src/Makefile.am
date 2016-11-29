@@ -70,42 +70,6 @@ endif
 
 
 # ----------------------------------------------------- #
-#                  Libgszn                              #
-# ----------------------------------------------------- #
-
-# Sources
-
-libgszn_sources =							\
-	libgszn/gszn-backend.c		libgszn/gszn-backend.h		\
-	libgszn/gszn-backend-xml.c	libgszn/gszn-backend-xml.h	\
-	libgszn/gszn-backend-keyfile.c	libgszn/gszn-backend-keyfile.h	\
-	libgszn/gszn.c			libgszn/gszn.h			\
-	libgszn/gszn-deserializer.c	libgszn/gszn-deserializer.h	\
-	libgszn/gszn-error.c		libgszn/gszn-error.h		\
-					libgszn/gszn-param-specs.h	\
-	libgszn/gszn-serializer.c	libgszn/gszn-serializer.h	\
-	libgszn/gszn-settings.c		libgszn/gszn-settings.h		\
-	libgszn/gszn-shared.c		libgszn/gszn-shared.h
-
-# Generated types
-
-libgszn_built_sources =			\
-	libgszn/gszn-enum-types.c	\
-	libgszn/gszn-enum-types.h
-
-libgszn_types_prereqs =			\
-	libgszn/gszn-serializer.h
-
-$(eval $(call make_types,libgszn/gszn-enum-types,$(libgszn_types_prereqs)))
-
-# Compiler options
-
-libgszn_cflags = $(GLIB_CFLAGS) $(XML_CFLAGS)
-libgszn_ldadd  = $(GLIB_LIBS)   $(XML_LIBS)
-
-
-
-# ----------------------------------------------------- #
 #                  Framework                            #
 # ----------------------------------------------------- #
 
@@ -134,10 +98,7 @@ ock_framework_types_prereqs =			\
 
 $(eval $(call make_types,framework/ock-framework-enum-types,$(ock_framework_types_prereqs)))
 
-# Compiler options
-
-ock_framework_cflags = $(GLIB_CFLAGS)
-ock_framework_ldadd  = $(GLIB_LIBS)
+# Compiler options - handled in core compiler options
 
 
 
@@ -147,15 +108,15 @@ ock_framework_ldadd  = $(GLIB_LIBS)
 
 # Sources
 
-ock_core_sources =							\
-	core/ock-conf.c			core/ock-conf.h			\
-	core/ock-core.c			core/ock-core.h			\
-	core/ock-engine.c		core/ock-engine.h		\
-	core/ock-metadata.c		core/ock-metadata.h		\
-	core/ock-player.c		core/ock-player.h		\
-	core/ock-playlist.c		core/ock-playlist.h		\
-	core/ock-station.c		core/ock-station.h		\
-	core/ock-station-list.c		core/ock-station-list.h
+ock_core_sources =					\
+	core/ock-conf.c		core/ock-conf.h		\
+	core/ock-core.c		core/ock-core.h		\
+	core/ock-engine.c	core/ock-engine.h	\
+	core/ock-metadata.c	core/ock-metadata.h	\
+	core/ock-player.c	core/ock-player.h	\
+	core/ock-playlist.c	core/ock-playlist.h	\
+	core/ock-station.c	core/ock-station.h	\
+	core/ock-station-list.c	core/ock-station-list.h
 
 # Enum Types
 
@@ -172,13 +133,17 @@ $(eval $(call make_types,core/ock-core-enum-types,$(ock_core_types_prereqs)))
 # Compiler options
 
 ock_core_cflags = 		\
+	$(GSZN_CFLAGS)		\
 	$(GLIB_CFLAGS)		\
+	$(XML_CFLAGS)		\
 	$(LIBSOUP_CFLAGS)	\
 	$(GST_CFLAGS)
 
 ock_core_ldadd =		\
 	-lm			\
+	$(GSZN_LIBS)		\
 	$(GLIB_LIBS)		\
+	$(XML_LIBS)		\
 	$(LIBSOUP_LIBS)		\
 	$(GST_LIBS)
 
@@ -284,8 +249,6 @@ overcooked_SOURCES =			\
 	main.c				\
 	options.c	options.h	\
 	$(ock_additions_sources)	\
-	$(libgszn_sources)		\
-	$(libgszn_built_sources)	\
 	$(ock_framework_sources)	\
 	$(ock_framework_built_sources)	\
 	$(ock_core_sources)		\
@@ -294,26 +257,23 @@ overcooked_SOURCES =			\
 	$(ock_ui_built_sources)
 
 overcooked_CFLAGS = $(sort	\
-	$(libgszn_cflags)	\
 	$(ock_framework_cflags)	\
 	$(ock_core_cflags)	\
 	$(ock_ui_cflags)	\
 	)
 
 overcooked_LDADD = $(sort	\
-	$(libgszn_ldadd)	\
 	$(ock_framework_ldadd)	\
 	$(ock_core_ldadd)	\
 	$(ock_ui_ldadd)		\
 	)
 
 BUILT_SOURCES =				\
-	$(libgszn_built_sources)	\
 	$(ock_framework_built_sources)	\
 	$(ock_core_built_sources)	\
 	$(ock_ui_built_sources)
 
-DISTCLEANFILES =			\
+CLEANFILES =			\
 	$(BUILT_SOURCES)
 
 print-flags:

@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Libgszn
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *
@@ -17,12 +17,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __OVERCOOKED_LIBGSZN_GSZN_SERIALIZER_H__
-#define __OVERCOOKED_LIBGSZN_GSZN_SERIALIZER_H__
+#ifndef __LIBGSZN_GSZN_SERIALIZER_H__
+#define __LIBGSZN_GSZN_SERIALIZER_H__
 
 #include <glib-object.h>
 
-#include "libgszn/gszn-settings.h"
+#include "gszn-settings.h"
 
 /* GObject declarations */
 
@@ -56,4 +56,4 @@ void   gszn_serializer_add_object     (GsznSerializer *self, GObject *object);
 void   gszn_serializer_remove_list    (GsznSerializer *self, GList *objects);
 void   gszn_serializer_remove_object  (GsznSerializer *self, GObject *object);
 
-#endif /* __OVERCOOKED_LIBGSZN_GSZN_SERIALIZER_H__ */
+#endif /* __LIBGSZN_GSZN_SERIALIZER_H__ */

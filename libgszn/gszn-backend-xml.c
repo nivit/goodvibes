@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Libgszn
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *
@@ -23,9 +23,9 @@
 
 #include <libxml/parser.h>
 
-#include "libgszn/gszn-error.h"
-#include "libgszn/gszn-backend.h"
-#include "libgszn/gszn-backend-xml.h"
+#include "gszn-error.h"
+#include "gszn-backend.h"
+#include "gszn-backend-xml.h"
 
 /*
  * GObject definitions

@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Libgszn
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *
@@ -17,19 +17,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __OVERCOOKED_LIBGSZN_GSZN_SHARED_H__
-#define __OVERCOOKED_LIBGSZN_GSZN_SHARED_H__
+#ifndef __LIBGSZN_GSZN_SETTINGS_H__
+#define __LIBGSZN_GSZN_SETTINGS_H__
 
 #include <glib-object.h>
 
-/* Transform functions */
+/* GObject declarations */
 
-gboolean gszn_transform_string_to_value(const gchar *string, GValue *value, GError **err);
-gboolean gszn_transform_value_to_string(const GValue *value, gchar **string, GError **err);
+#define GSZN_TYPE_SETTINGS gszn_settings_get_type()
 
-/* GObject helpers */
+GType gszn_settings_get_type(void) G_GNUC_CONST;
 
-gchar *gszn_get_object_uid(GObject *object);
-void   gszn_set_object_uid(GObject *object, const gchar *uid);
+/* Data types */
 
-#endif /* __OVERCOOKED_LIBGSZN_GSZN_SHARED_H__ */
+typedef gchar *(*GsznTweakString)(const gchar *);
+
+typedef struct {
+	GType           backend_type;
+	GsznTweakString ser_object_name;
+	GsznTweakString deser_object_name;
+	GsznTweakString ser_property_name;
+	GsznTweakString deser_property_name;
+} GsznSettings;
+
+/* Functions */
+
+GsznSettings *gszn_settings_new (void);
+void          gszn_settings_free(GsznSettings *settings);
+
+#endif /* __LIBGSZN_GSZN_SETTINGS_H__ */

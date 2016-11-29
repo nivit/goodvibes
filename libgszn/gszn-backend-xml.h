@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Libgszn
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *
@@ -17,21 +17,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "libgszn/gszn-backend-xml.h"
+#ifndef __LIBGSZN_GSZN_BACKEND_XML_H__
+#define __LIBGSZN_GSZN_BACKEND_XML_H__
 
-void
-gszn_cleanup(void)
-{
-	GObjectClass *class;
+#include <glib-object.h>
 
-	/* If XML backend was used, it needs cleanup */
-	class = g_type_class_peek(GSZN_TYPE_BACKEND_XML);
-	if (class)
-		gszn_backend_xml_cleanup();
-}
+#include "gszn-backend.h"
 
-void
-gszn_init(void)
-{
-	/* Nothing to do */
-}
+/* GObject declarations */
+
+#define GSZN_TYPE_BACKEND_XML gszn_backend_xml_get_type()
+
+G_DECLARE_FINAL_TYPE(GsznBackendXml, gszn_backend_xml, GSZN, BACKEND_XML, GObject)
+
+/* Global methods */
+
+void gszn_backend_xml_cleanup(void);
+
+#endif /* __LIBGSZN_GSZN_BACKEND_XML_H__ */

@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Libgszn
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *
@@ -17,26 +17,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef __LIBGSZN_GSZN_BACKEND_KEYFILE_H__
+#define __LIBGSZN_GSZN_BACKEND_KEYFILE_H__
+
 #include <glib-object.h>
 
-#include "libgszn/gszn-settings.h"
+#include "gszn-backend.h"
 
-static GsznSettings *
-gszn_settings_copy(GsznSettings *settings)
-{
-	return g_memdup(settings, sizeof(GsznSettings));
-}
+/* GObject declarations */
 
-void
-gszn_settings_free(GsznSettings *settings)
-{
-	g_free(settings);
-}
+#define GSZN_TYPE_BACKEND_KEYFILE gszn_backend_keyfile_get_type()
 
-GsznSettings *
-gszn_settings_new(void)
-{
-	return g_new0(GsznSettings, 1);
-}
+G_DECLARE_FINAL_TYPE(GsznBackendKeyfile, gszn_backend_keyfile, GSZN, BACKEND_KEYFILE, GObject)
 
-G_DEFINE_BOXED_TYPE(GsznSettings, gszn_settings, gszn_settings_copy, gszn_settings_free);
+#endif /* __LIBGSZN_GSZN_BACKEND_KEYFILE_H__ */

@@ -2,7 +2,6 @@
 
 # Init autoconf
 # 2.60: obsoleting plenty of stuff
-
 AC_PREREQ([2.60])
 AC_INIT([overcooked], [0.1-dev])
 : ${CFLAGS="-std=gnu99 -Wall -Wextra -Wshadow"}
@@ -10,16 +9,13 @@ AC_INIT([overcooked], [0.1-dev])
 # Init automake
 # 1.11: silent-rules
 # 1.14: obsoleting AM_PROG_CC_C_O
-
 AM_INIT_AUTOMAKE([1.14 foreign subdir-objects])
 AM_SILENT_RULES([yes])
 
 # Load our own set of m4 macros 
-
 AC_CONFIG_MACRO_DIRS([m4])
 
 # Additional package information
-
 OCK_ADD_GLOBAL_VAR([PACKAGE_CAMEL_NAME],   ["Overcooked"])
 OCK_ADD_GLOBAL_VAR([PACKAGE_LONG_NAME],    ["Overcooked Radio Player"])
 OCK_ADD_GLOBAL_VAR([PACKAGE_AUTHOR_NAME],  ["Arnaud Rebillout (elboulangero)"])
@@ -38,6 +34,10 @@ AC_PROG_CC()
 AC_PROG_INSTALL()
 PKG_PROG_PKG_CONFIG()
 
+# To build libgszn as a static library
+AC_PROG_RANLIB()
+AM_PROG_AR()
+
 # ------------------------------------- #
 #         Mandatory dependencies        #
 # ------------------------------------- #
@@ -51,6 +51,12 @@ PKG_CHECK_MODULES([LIBSOUP], [libsoup-2.4 >= 2.42])
 PKG_CHECK_MODULES([GST],     [gstreamer-1.0, gstreamer-base-1.0, gstreamer-audio-1.0 >= 1.4.4])
 PKG_CHECK_MODULES([XML],     [libxml-2.0 >= 2.9.4])
 
+# Libgszn flags
+GSZN_CFLAGS="-I.."
+GSZN_LIBS="../libgszn/libgszn.a"
+AC_SUBST(GSZN_CFLAGS)
+AC_SUBST(GSZN_LIBS)
+
 # ------------------------------------- #
 #         Optional dependencies         #
 # ------------------------------------- #
@@ -59,6 +65,7 @@ PKG_CHECK_MODULES([XML],     [libxml-2.0 >= 2.9.4])
 # - a feature that doesn't require an extra library is enabled.
 # - a feature that requires an extra library is set to 'auto',
 #   and will be enabled only if the required library is found.
+
 feat_noextra="yes"
 feat_extra="auto"
 
@@ -69,6 +76,7 @@ feat_extra="auto"
 #                  and fail the build if a dependency is not met.
 # - --disable-all  Build a lightweight version (minimum dependencies).
 #                  This will exclude every feature from the build.
+
 AC_ARG_ENABLE(all, AS_HELP_STRING([--enable-all], [Enable every features]))
 
 if test -n "$enable_all"; then
@@ -107,7 +115,7 @@ AM_CONDITIONAL([DBUS_MPRIS2_ENABLED],    [test "$enable_dbus_mpris2" = "yes"])
 AM_CONDITIONAL([CONSOLE_OUTPUT_ENABLED], [test "$enable_console_output" = "yes"])
 AM_CONDITIONAL([INHIBIT_ENABLED],        [test "$enable_inhibit" = "yes"])
 
-# Enable ui features
+# Check for ui features dependencies
 # If the ui is disabled, ensure features are disabled as well.
 
 AS_ECHO(["---- Ui Features ----"])
@@ -131,7 +139,6 @@ AM_CONDITIONAL([NOTIFICATIONS_ENABLED], [test "$enable_notifications" = "yes"])
 # ------------------------------------- #
 
 # Files to be created
-
 AC_CONFIG_FILES([
 AUTHORS
 Makefile
@@ -158,6 +165,7 @@ data/icons/hicolor/256x256/Makefile
 data/icons/hicolor/256x256/apps/Makefile
 data/icons/src/Makefile
 data/ui/Makefile
+libgszn/Makefile
 src/Makefile
 ])
 
@@ -168,7 +176,6 @@ AC_OUTPUT()
 # ------------------------------------- #
 
 # String for silent rules
-
 is_silent_rules_enabled=no
 if test "$AM_DEFAULT_VERBOSITY" = "0"; then
    is_silent_rules_enabled=yes
