@@ -34,7 +34,7 @@
 
 /* Uncomment to dump incoming tags on the GstBus */
 
-#define DUMP_TAGS
+//#define DUMP_TAGS
 
 /*
  * Signals
@@ -53,6 +53,8 @@ static guint signals[SIGNAL_N];
  */
 
 #define DEFAULT_VOLUME 1.0
+#define DEFAULT_MUTE   FALSE
+
 
 enum {
 	/* Reserved */
@@ -166,23 +168,23 @@ static OckMetadata *
 taglist_to_metadata(GstTagList *taglist)
 {
 	OckMetadata *metadata;
+	const gchar *artist = NULL;
+	const gchar *title = NULL;
+	const gchar *album = NULL;
+	const gchar *genre = NULL;
+	const gchar *comment = NULL;
 	GDate *date = NULL;
-	gchar *artist = NULL;
-	gchar *title = NULL;
-	gchar *album = NULL;
-	gchar *genre = NULL;
 	gchar *year = NULL;
-	gchar *comment = NULL;
 	guint  bitrate = 0;
 
 	/* Get info from taglist */
-	gst_tag_list_get_string_index(taglist, GST_TAG_ARTIST, 0, &artist);
-	gst_tag_list_get_string_index(taglist, GST_TAG_TITLE, 0, &title);
-	gst_tag_list_get_string_index(taglist, GST_TAG_ALBUM, 0, &album);
-	gst_tag_list_get_string_index(taglist, GST_TAG_GENRE, 0, &genre);
-	gst_tag_list_get_date_index  (taglist, GST_TAG_DATE, 0, &date);
-	gst_tag_list_get_string_index(taglist, GST_TAG_COMMENT, 0, &comment);
-	gst_tag_list_get_uint_index  (taglist, GST_TAG_BITRATE, 0, &bitrate);
+	gst_tag_list_peek_string_index(taglist, GST_TAG_ARTIST, 0, &artist);
+	gst_tag_list_peek_string_index(taglist, GST_TAG_TITLE, 0, &title);
+	gst_tag_list_peek_string_index(taglist, GST_TAG_ALBUM, 0, &album);
+	gst_tag_list_peek_string_index(taglist, GST_TAG_GENRE, 0, &genre);
+	gst_tag_list_peek_string_index(taglist, GST_TAG_COMMENT, 0, &comment);
+	gst_tag_list_get_uint_index   (taglist, GST_TAG_BITRATE, 0, &bitrate);
+	gst_tag_list_get_date_index   (taglist, GST_TAG_DATE, 0, &date);
 	if (date && g_date_valid(date))
 		year = g_strdup_printf("%d", g_date_get_year(date));
 
@@ -198,79 +200,11 @@ taglist_to_metadata(GstTagList *taglist)
 	                        NULL);
 
 	/* Freedom for the braves */
-	g_free(artist);
-	g_free(title);
-	g_free(album);
-	g_free(genre);
 	g_free(year);
-	g_free(comment);
 	if (date)
 		g_date_free(date);
 
 	return metadata;
-}
-
-/*
- * Signal handlers
- */
-
-static void
-on_playbin_volume(GObject    *object G_GNUC_UNUSED,
-                  GParamSpec *pspec G_GNUC_UNUSED,
-                  OckEngine  *self)
-{
-	OckEnginePrivate *priv = self->priv;
-	gdouble volume;
-
-	volume = gst_stream_volume_get_volume(
-	                 GST_STREAM_VOLUME(priv->playbin),
-	                 GST_STREAM_VOLUME_FORMAT_CUBIC);
-
-	/* We receive this signal each time the playback is started,
-	 * in such case it's safe to ignore it.
-	 */
-	if (priv->volume == volume)
-		return;
-
-	priv->volume = volume;
-	g_object_notify(G_OBJECT(self), "volume");
-}
-
-static void
-on_playbin_mute(GObject    *object G_GNUC_UNUSED,
-                GParamSpec *pspec G_GNUC_UNUSED,
-                OckEngine  *self)
-{
-	OckEnginePrivate *priv = self->priv;
-	gboolean mute;
-
-	mute = gst_stream_volume_get_mute(GST_STREAM_VOLUME(priv->playbin));
-
-	/* We receive this signal each time the playback is started,
-	 * in such case it's safe to ignore it.
-	 */
-	if (priv->mute == mute)
-		return;
-
-	priv->mute = mute;
-	g_object_notify(G_OBJECT(self), "mute");
-}
-
-static void
-on_playbin_uri(GObject    *object G_GNUC_UNUSED,
-               GParamSpec *pspec G_GNUC_UNUSED,
-               OckEngine  *self)
-{
-	OckEnginePrivate *priv = self->priv;
-	gchar *uri;
-
-	g_object_get(priv->playbin, "uri", &uri, NULL);
-
-	/* The value should match the one we have internally */
-	if (g_strcmp0(uri, priv->stream_uri) != 0)
-		WARNING("Playbin notify: received unexpected uri '%s'", uri);
-
-	g_object_notify(G_OBJECT(self), "stream-uri");
 }
 
 /*
@@ -305,7 +239,7 @@ ock_engine_set_state(OckEngine *self, OckEngineState state)
 
 	priv->state = state;
 
-	g_object_notify(G_OBJECT(self), "state");
+	g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_STATE]);
 }
 
 gdouble
@@ -325,10 +259,10 @@ ock_engine_set_volume(OckEngine *self, gdouble volume)
 	if (priv->volume == volume)
 		return;
 
+	priv->volume = volume;
 	gst_stream_volume_set_volume(GST_STREAM_VOLUME(priv->playbin),
 	                             GST_STREAM_VOLUME_FORMAT_CUBIC, volume);
-
-	/* priv->volume will be updated in a callback */
+	g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_VOLUME]);
 }
 
 gboolean
@@ -345,9 +279,32 @@ ock_engine_set_mute(OckEngine *self, gboolean mute)
 	if (priv->mute == mute)
 		return;
 
+	priv->mute = mute;
 	gst_stream_volume_set_mute(GST_STREAM_VOLUME(priv->playbin), mute);
+	g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_MUTE]);
+}
 
-	/* priv->mute will be updated in a callback */
+OckMetadata *
+ock_engine_get_metadata(OckEngine *self)
+{
+	return self->priv->metadata;
+}
+
+static void
+ock_engine_set_metadata(OckEngine *self, OckMetadata *metadata)
+{
+	OckEnginePrivate *priv = self->priv;
+
+	/* Compare content */
+	if (priv->metadata && metadata &&
+	    ock_metadata_is_equal(priv->metadata, metadata)) {
+		DEBUG("Metadata identical, ignoring...");
+		return;
+	}
+
+	/* Assign */
+	if (g_set_object(&priv->metadata, metadata))
+		g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_METADATA]);
 }
 
 const gchar *
@@ -365,33 +322,24 @@ ock_engine_set_stream_uri(OckEngine *self, const gchar *uri)
 	if (!g_strcmp0(priv->stream_uri, uri))
 		return;
 
-	/* Clear previous data */
+	/* Stop playback */
+	ock_engine_stop(self);
+
+	/* Clear metadata */
+	ock_engine_set_metadata(self, NULL);
+
+	/* Set new stream uri */
 	g_free(priv->stream_uri);
-	priv->stream_uri = NULL;
-
-	if (priv->metadata) {
-		g_object_unref(priv->metadata);
-		priv->metadata = NULL;
-	}
-
-	/* Assign new data */
 	priv->stream_uri = g_strdup(uri);
-
-	/* Stop playback if playing */
-	if (ock_engine_get_state(self) == OCK_ENGINE_STATE_PLAYING)
-		ock_engine_stop(self);
 
 	/* Set URI to playbin */
 	g_object_set(priv->playbin, "uri", uri, NULL);
 
-	/* Care for a little bit of debug ? */
-	DEBUG("Internal stream uri set to '%s'", uri);
-}
+	/* Notify */
+	g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_STREAM_URI]);
 
-OckMetadata *
-ock_engine_get_metadata(OckEngine *self)
-{
-	return self->priv->metadata;
+	/* Care for a little bit of debug ? */
+	DEBUG("Stream uri set to '%s'", uri);
 }
 
 static void
@@ -476,7 +424,6 @@ ock_engine_start_playing(OckEngine *self)
 
 	set_gst_state(priv->playbin, GST_STATE_PLAYING);
 }
-
 
 static void
 ock_engine_stop_playback(OckEngine *self)
@@ -662,55 +609,43 @@ tag_list_foreach_dump(const GstTagList *list, const gchar *tag,
 static gboolean
 on_bus_tag(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self)
 {
-	OckEnginePrivate *priv = self->priv;
-	GstTagList *taglist = NULL;
 	OckMetadata *metadata;
+	GstTagList *taglist = NULL;
+	const gchar *tag_title = NULL;
 
 	TRACE("... %s, %p", GST_OBJECT_NAME(msg->src), self);
 
 	/* Parse tag list */
 	gst_message_parse_tag(msg, &taglist);
 
-	/* Dumping may be needed to debug */
 #ifdef DUMP_TAGS
+	/* Dumping may be needed to debug */
 	DEBUG("-- Dumping taglist...");
 	gst_tag_list_foreach(taglist, (GstTagForeachFunc) tag_list_foreach_dump, NULL);
 	DEBUG("-- Done --");
 #endif /* DUMP_TAGS */
 
-	/* Turn into metadata */
-	metadata = taglist_to_metadata(taglist);
-
-	/* Finished with taglist already */
-	gst_tag_list_unref(taglist);
-
-	/* Metadata can be quite noisy, so let's cut it short.
+	/* Tags can be quite noisy, so let's cut it short.
 	 * From my experience, 'title' is the most important field,
 	 * and it's likely that it's the only one filled, containing
 	 * everything (title, artist and more).
 	 * So, we require this field to be filled. If it's not, this
 	 * metadata is considered as noise, and discarded.
 	 */
-	if (ock_metadata_get_title(metadata) == NULL) {
-		g_object_unref(metadata);
-		return TRUE;
+	gst_tag_list_peek_string_index(taglist, GST_TAG_TITLE, 0, &tag_title);
+	if (tag_title == NULL) {
+		DEBUG("No 'title' field in the tag list, discarding");
+		goto taglist_unref;
 	}
 
-	/* Compare that with what we already have */
-	if (priv->metadata && ock_metadata_is_equal(priv->metadata, metadata)) {
-		DEBUG("Metadata identical, ignoring...");
-		g_object_unref(metadata);
-		return TRUE;
-	}
+	/* Turn taglist into metadata and assign it */
+	metadata = taglist_to_metadata(taglist);
+	ock_engine_set_metadata(self, metadata);
+	g_object_unref(metadata);
 
-	/* Save this new metadata */
-	if (priv->metadata)
-		g_object_unref(priv->metadata);
-
-	priv->metadata = metadata;
-
-	/* Notify */
-	g_object_notify(G_OBJECT(self), "metadata");
+taglist_unref:
+	/* Unref taglist */
+	gst_tag_list_unref(taglist);
 
 	return TRUE;
 }
@@ -798,15 +733,12 @@ ock_engine_finalize(GObject *object)
 	/* Free stream uri */
 	g_free(priv->stream_uri);
 
-	/* Remove the bus signal watch */
-	gst_bus_remove_signal_watch(priv->bus);
-
 	/* Unref the bus */
 	g_signal_handlers_disconnect_by_data(priv->bus, self);
+	gst_bus_remove_signal_watch(priv->bus);
 	g_object_unref(priv->bus);
 
 	/* Unref the playbin */
-	g_signal_handlers_disconnect_by_data(priv->playbin, self);
 	g_object_unref(priv->playbin);
 
 	/* Chain up */
@@ -824,34 +756,27 @@ ock_engine_constructed(GObject *object)
 
 	/* Initialize properties */
 	priv->volume = DEFAULT_VOLUME;
+	priv->mute   = DEFAULT_MUTE;
 
 	/* Gstreamer must be initialized, let's check that */
 	g_assert(gst_is_initialized());
 
-	/* Make the playbin */
+	/* Make the playbin - returns floating ref */
 	playbin = gst_element_factory_make("playbin", "playbin");
 	g_assert(playbin != NULL);
 	priv->playbin = g_object_ref_sink(playbin);
-	// factory_make() returns floating ref, let's sink
 
-	/* Disable video */
+	/* Disable video - returns floating ref */
 	fakesink = gst_element_factory_make("fakesink", "fakesink");
 	g_assert(fakesink != NULL);
 	g_object_set(playbin, "video-sink", fakesink, NULL);
-	// factory_make() returns floating ref, no need to unref
 
-	/* Connect to signals from playbin */
-	g_signal_connect(playbin, "notify::volume", G_CALLBACK(on_playbin_volume), self);
-	g_signal_connect(playbin, "notify::mute", G_CALLBACK(on_playbin_mute), self);
-	g_signal_connect(playbin, "notify::uri", G_CALLBACK(on_playbin_uri), self);
-
-	/* Get a reference to the message bus */
+	/* Get a reference to the message bus - returns full ref */
 	bus = gst_element_get_bus(playbin);
 	g_assert(bus != NULL);
 	priv->bus = bus;
-	// get_bus() returns full ref, no need to ref again
 
-	/* Add a bus signal watch */
+	/* Add a bus signal watch (so that 'message' signals are emitted) */
 	gst_bus_add_signal_watch(bus);
 
 	/* Connect to signals from the bus */

@@ -83,6 +83,8 @@ typedef enum {
 struct _OckPlayerPrivate {
 	/* Properties */
 	OckPlayerState  state;
+	guint           volume;
+	gboolean        mute;
 	gboolean        repeat;
 	gboolean        shuffle;
 	gboolean        autoplay;
@@ -173,36 +175,6 @@ on_engine_notify(OckEngine  *engine,
 		}
 
 		ock_player_set_state(self, player_state);
-	} else if (!g_strcmp0(property_name, "volume")) {
-		/* New volume, notify the outside world */
-		g_object_notify(G_OBJECT(self), "volume");
-	} else if (!g_strcmp0(property_name, "mute")) {
-		/* New mute state, notify the outside world */
-		g_object_notify(G_OBJECT(self), "mute");
-	} else if (!g_strcmp0(property_name, "stream-uri")) {
-		/* This happened because we changed the station. The uri
-		 * reported by the engine should match one of the current
-		 * station's uris. Let's just check that.
-		 */
-		const gchar *engine_uri;
-		GSList *station_uris;
-
-		engine_uri = ock_engine_get_stream_uri(engine);
-		station_uris = ock_station_get_stream_uris(priv->station);
-
-		while (station_uris) {
-			const gchar *station_uri;
-
-			station_uri = (gchar *) station_uris->data;
-			if (!g_strcmp0(station_uri, engine_uri))
-				break;
-
-			station_uris = station_uris->next;
-		}
-
-		if (station_uris == NULL)
-			WARNING("Engine stream uri '%s' doesn't match any of the "
-			        "current station stream uris", engine_uri);
 
 	} else if (!g_strcmp0(property_name, "metadata")) {
 		/* Metadata was updated, let's set it in our properties */
@@ -249,32 +221,37 @@ ock_player_set_state(OckPlayer *self, OckPlayerState state)
 guint
 ock_player_get_volume(OckPlayer *self)
 {
-	gdouble engine_volume;
-
-	engine_volume = ock_engine_get_volume(self->priv->engine);
-
-	return lround(engine_volume * 100);
+	return self->priv->volume;
 }
 
 void
 ock_player_set_volume(OckPlayer *self, guint volume)
 {
+	OckPlayerPrivate *priv = self->priv;
 	gdouble engine_volume;
 
-	engine_volume = (gdouble) volume / 100.0;
+	if (volume > 100)
+		volume = 100;
 
-	ock_engine_set_volume(self->priv->engine, engine_volume);
-	/* Don't notify now, this will be done in the engine notify handler */
+	if (priv->volume == volume)
+		return;
+
+	priv->volume = volume;
+
+	engine_volume = (gdouble) volume / 100.0;
+	ock_engine_set_volume(priv->engine, engine_volume);
+
+	g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_VOLUME]);
 }
 
 void
 ock_player_lower_volume(OckPlayer *self)
 {
-	gint volume;
+	guint volume;
+	guint step = 5;
 
-	volume = ock_player_get_volume(self) - 5;
-	if (volume < 0)
-		volume = 0;
+	volume = ock_player_get_volume(self);
+	volume = volume > step ? volume - step : 0;
 
 	ock_player_set_volume(self, volume);
 }
@@ -283,10 +260,10 @@ void
 ock_player_raise_volume(OckPlayer *self)
 {
 	guint volume;
+	guint step = 5;
 
-	volume = ock_player_get_volume(self) + 5;
-	if (volume > 100)
-		volume = 100;
+	volume = ock_player_get_volume(self);
+	volume = volume < 100 - step ? volume + step : 100;
 
 	ock_player_set_volume(self, volume);
 }
@@ -294,14 +271,19 @@ ock_player_raise_volume(OckPlayer *self)
 gboolean
 ock_player_get_mute(OckPlayer *self)
 {
-	return ock_engine_get_mute(self->priv->engine);
+	return self->priv->mute;
 }
 
 void
-ock_player_set_mute(OckPlayer *self, gboolean value)
+ock_player_set_mute(OckPlayer *self, gboolean mute)
 {
-	ock_engine_set_mute(self->priv->engine, value);
-	/* Don't notify now, this will be done in the engine notify handler */
+	OckPlayerPrivate *priv = self->priv;
+
+	if (priv->mute == mute)
+		return;
+
+	priv->mute = mute;
+	g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_MUTE]);
 }
 
 void
@@ -309,9 +291,8 @@ ock_player_toggle_mute(OckPlayer *self)
 {
 	gboolean mute;
 
-	mute = ock_engine_get_mute(self->priv->engine);
-	ock_engine_set_mute(self->priv->engine, !mute);
-	/* Don't notify now, this will be done in the engine notify handler */
+	mute = ock_player_get_mute(self);
+	ock_player_set_mute(self, !mute);
 }
 
 gboolean
@@ -827,15 +808,17 @@ ock_player_constructed(GObject *object)
 
 	TRACE("%p", object);
 
-	/* Create engine */
-	priv->engine = ock_engine_new();
-	g_signal_connect(priv->engine, "notify", G_CALLBACK(on_engine_notify), self);
-
 	/* Initialize properties */
+	priv->volume   = DEFAULT_VOLUME;
+	priv->mute     = DEFAULT_MUTE;
 	priv->repeat   = DEFAULT_REPEAT;
 	priv->shuffle  = DEFAULT_SHUFFLE;
 	priv->autoplay = DEFAULT_AUTOPLAY;
 	priv->station  = NULL;
+
+	/* Create engine */
+	priv->engine = ock_engine_new();
+	g_signal_connect(priv->engine, "notify", G_CALLBACK(on_engine_notify), self);
 
 	/* Chain up */
 	G_OBJECT_CHAINUP_CONSTRUCTED(ock_player, object);
