@@ -17,15 +17,40 @@ make_namespace()
 {
     local file="$1"
     local bn=$(basename "$file" | tr '\-.' _ | tr '[:lower:]' '[:upper:]')
-    local dn=$(dirname "${file##*src}" | sed 's:^/::' | tr '/' '_' | tr '[:lower:]' '[:upper:]')
 
-    echo __OVERCOOKED_${dn}_${bn}__
+    # Take out the first directory in the name
+    local first_dir=$(echo $file | cut -d/ -f1)
+
+    # Libgszn
+    if [ $first_dir == libgszn ]; then
+	echo __LIBGSZN_${bn}__
+
+    # Overcooked
+    elif [ $first_dir == src ] || [ $first_dir == cli ]; then
+	local next_dirs=$(echo $file | cut -d/ -f2- | xargs dirname)
+
+	if [ $next_dirs == '.' ]; then
+	    echo __OVERCOOKED_${bn}__
+	else
+	    local dn=$(echo $next_dirs | tr '/' '_' | tr '[:lower:]' '[:upper:]')
+
+	    echo __OVERCOOKED_${dn}_${bn}__
+	fi
+
+    # Unexpected
+    else
+	echo >&2 "Unexpected dir: '$first_dir'"
+	echo __${bn}__
+    fi
 }
 
 do_check()
 {
     local file="$1"
     local ns=$(make_namespace "$file")
+
+    #echo ">> $file"
+    #echo ">> $ns"
 
     if ! git_is_tracked $file; then
 	return 0
@@ -65,7 +90,7 @@ do_fix()
 
 # File list
 if [ $# -eq 1 ]; then
-    files=$(find src -name \*.h)
+    files=$(find cli libgszn src -name \*.h)
 else
     files="${@:2}"
 fi

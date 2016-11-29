@@ -11,25 +11,38 @@ print_usage()
     echo "  add          If copyright is missing, add it"
 }
 
+unit_name()
+{
+    local file="$1"
+
+    if echo $file | grep -q libgszn; then
+	echo "Libgszn"
+    else
+	echo "Overcooked Radio Player"
+    fi
+}
+
 do_check()
 {
     local file="$1"
+    local unit="$(unit_name "$file")"
 
     if ! git_is_tracked $file; then
 	return 0
     fi
 
     head -n 4 "$file" | tr -d '\n' | \
-	grep -q -F '/* * Overcooked Radio Player * * Copyright (C)'
+	grep -q -F "/* * $unit * * Copyright (C)"
 }
 
 do_add()
 {
     local file="$1"
+    local unit="$(unit_name "$file")"
 
     cat << EOF > "$file"
 /*
- * Overcooked Radio Player
+ * $unit
  *
  * Copyright (C) $(date +%Y) $(git config user.name)
  *
@@ -65,7 +78,7 @@ EOF
 
 # File list
 if [ $# -eq 1 ]; then
-    files=$(find src -name \*.[ch])
+    files=$(find cli libgszn src -name \*.[ch])
 else
     files="${@:2}"
 fi
