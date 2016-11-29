@@ -83,7 +83,10 @@ $(eval $(call make_types,gszn-enum-types,$(libgszn_types_prereqs)))
 
 # Compiler options
 
-libgszn_cflags = $(GLIB_CFLAGS) $(XML_CFLAGS)
+libgszn_cflags = 		\
+	-DG_LOG_DOMAIN=\"Gszn\"	\
+	$(GLIB_CFLAGS)		\
+	$(XML_CFLAGS)
 
 
 
