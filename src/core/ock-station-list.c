@@ -50,7 +50,7 @@
 	"</Station>" \
 	"<Station>" \
 	"  <name>FIP Autour du Jazz</name>" \
-	"  <uri>ttp://direct.fipradio.fr/live/fip-webradio2.mp3</uri>" \
+	"  <uri>http://direct.fipradio.fr/live/fip-webradio2.mp3</uri>" \
 	"</Station>" \
 	"<Station>" \
 	"  <name>FIP Autour du Groove</name>" \
