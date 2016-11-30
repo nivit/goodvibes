@@ -121,7 +121,7 @@ case $MODE in
 
     staged)
 	[ $# -eq 1 ] || { print_usage; exit 1; }
-	FILES="$(git diff --name-only --cached) | tr '\n' ' ')"
+	FILES="$(git diff --name-only --cached | tr '\n' ' ')"
 	do_indent
 	;;
 
