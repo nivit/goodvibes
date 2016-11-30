@@ -35,6 +35,7 @@
 /* Uncomment to dump incoming tags on the GstBus */
 
 //#define DUMP_TAGS
+//#define DUMP_GST_STATE_CHANGES
 
 /*
  * Signals
@@ -54,7 +55,6 @@ static guint signals[SIGNAL_N];
 
 #define DEFAULT_VOLUME 1.0
 #define DEFAULT_MUTE   FALSE
-
 
 enum {
 	/* Reserved */
@@ -119,10 +119,10 @@ set_gst_state(GstElement *playbin, GstState new)
 		DEBUG("State will change async");
 		break;
 	case GST_STATE_CHANGE_FAILURE:
-		DEBUG("State change failure");
+		WARNING("State change failure");
 		break;
 	case GST_STATE_CHANGE_NO_PREROLL:
-		DEBUG("State change no_preroll");
+		WARNING("State change no preroll");
 		break;
 	default:
 		WARNING("Unhandled state: %d", ret);
@@ -225,20 +225,7 @@ ock_engine_set_state(OckEngine *self, OckEngineState state)
 	if (priv->state == state)
 		return;
 
-	/* When playing, ignore the 'buffering' state */
-	if (priv->state == OCK_ENGINE_STATE_PLAYING)
-		if (state == OCK_ENGINE_STATE_BUFFERING)
-			return;
-
-	/* When buffering, ignore parasite states */
-	//TODO Improve that in future. For example, if connection is broken during buffering,
-	//     I think it will break...
-	if (priv->state == OCK_ENGINE_STATE_BUFFERING)
-		if (state == OCK_ENGINE_STATE_STOPPED)
-			return;
-
 	priv->state = state;
-
 	g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_STATE]);
 }
 
@@ -401,45 +388,6 @@ ock_engine_set_property(GObject      *object,
 }
 
 /*
- * Private stuff
- */
-
-static void
-ock_engine_start_buffering(OckEngine *self)
-{
-	OckEnginePrivate *priv = self->priv;
-
-	/* Set to PAUSE, so that the playbin starts buffering data.
-	 * Playback will start as soon as buffering is finished.
-	 * Internal state shouldn't be touched, it will be updated
-	 * as soon as buffering is started.
-	 */
-	set_gst_state(priv->playbin, GST_STATE_PAUSED);
-}
-
-static void
-ock_engine_start_playing(OckEngine *self)
-{
-	OckEnginePrivate *priv = self->priv;
-
-	set_gst_state(priv->playbin, GST_STATE_PLAYING);
-}
-
-static void
-ock_engine_stop_playback(OckEngine *self)
-{
-	OckEnginePrivate *priv = self->priv;
-
-	/* Radical way to stop: set state to NULL.
-	 * However, if we do that, we don't receive any message
-	 * anymore from gst bus, so we can't rely on that to update
-	 * our internal state. We must set it manually.
-	 */
-	set_gst_state(priv->playbin, GST_STATE_NULL);
-	ock_engine_set_state(self, OCK_ENGINE_STATE_STOPPED);
-}
-
-/*
  * Public methods
  */
 
@@ -448,19 +396,27 @@ ock_engine_play(OckEngine *self)
 {
 	OckEnginePrivate *priv = self->priv;
 
+	/* We should have an uri set */
 	if (priv->stream_uri == NULL) {
-		g_signal_emit(self, signals[SIGNAL_ERROR], 0,
-		              OCK_ENGINE_ERROR_STREAM_UNDEFINED);
+		WARNING("No uri to play");
 		return;
 	}
 
-	ock_engine_start_buffering(self);
+	/* Set gst state to PAUSE, so that the playbin starts buffering data.
+	 * Playback will start as soon as buffering is finished.
+	 */
+	set_gst_state(priv->playbin, GST_STATE_PAUSED);
+	ock_engine_set_state(self, OCK_ENGINE_STATE_CONNECTING);
 }
 
 void
 ock_engine_stop(OckEngine *self)
 {
-	ock_engine_stop_playback(self);
+	OckEnginePrivate *priv = self->priv;
+
+	/* Radical way to stop: set state to NULL */
+	set_gst_state(priv->playbin, GST_STATE_NULL);
+	ock_engine_set_state(self, OCK_ENGINE_STATE_STOPPED);
 }
 
 OckEngine *
@@ -474,29 +430,35 @@ ock_engine_new(void)
  */
 
 static gboolean
-on_bus_eos(GstBus *bus G_GNUC_UNUSED, GstMessage *msg G_GNUC_UNUSED, OckEngine *self)
+on_bus_message_eos(GstBus *bus G_GNUC_UNUSED, GstMessage *msg G_GNUC_UNUSED, OckEngine *self)
 {
-	DEBUG("End of stream");
+	OckEnginePrivate *priv = self->priv;
 
-	// TODO Send signal ?
-	ock_engine_stop_playback(self);
+	/* This shouldn't happen, as far as I know */
+	WARNING("Unexpected eos message");
+
+	/* Freak out, stop playback */
+	set_gst_state(priv->playbin, GST_STATE_NULL);
+	ock_engine_set_state(self, OCK_ENGINE_STATE_STOPPED);
 
 	return TRUE;
 }
 
 static gboolean
-on_bus_error(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self)
+on_bus_message_error(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self)
 {
+	OckEnginePrivate *priv = self->priv;
 	GError *error;
 	gchar  *debug;
 
+	/* Parse message */
 	gst_message_parse_error(msg, &error, &debug);
 
 	/* Display error */
 	DEBUG("Gst bus error msg %d:%d: %s", error->domain, error->code, error->message);
 	DEBUG("Gst bus error debug : %s", debug);
 
-	/* Handle errors */
+	/* Handle error */
 	if (g_error_matches(error, GST_RESOURCE_ERROR, GST_RESOURCE_ERROR_NOT_FOUND)) {
 		if (g_str_has_prefix(error->message, "Could not resolve server name")) {
 			g_signal_emit(self, signals[SIGNAL_ERROR], 0,
@@ -506,7 +468,7 @@ on_bus_error(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self)
 			              OCK_ENGINE_ERROR_STREAM_UNAVAILABLE);
 		}
 	} else if (g_error_matches(error, GST_CORE_ERROR, GST_CORE_ERROR_MISSING_PLUGIN)) {
-		/* This may happen with public wifi, where the router blocks WAN access
+		/* This may happen with public Wi-Fi, where the router blocks WAN access
 		 * and requires you to enter a code, or agree terms of use, or this
 		 * kind of things.
 		 * In this case, every request returns a http page.
@@ -515,27 +477,31 @@ on_bus_error(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self)
 		              OCK_ENGINE_ERROR_STREAM_FORMAT_UNRECOGNIZED);
 	}
 
+	/* Cleanup */
 	g_error_free(error);
 	g_free(debug);
 
-	/* Stop playback */
-	ock_engine_stop_playback(self);
+	/* Freak out, stop playback */
+	set_gst_state(priv->playbin, GST_STATE_NULL);
+	ock_engine_set_state(self, OCK_ENGINE_STATE_STOPPED);
 
 	return TRUE;
 }
 
 static gboolean
-on_bus_warning(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self G_GNUC_UNUSED)
+on_bus_message_warning(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self G_GNUC_UNUSED)
 {
 	GError *warning;
 	gchar  *debug;
 
+	/* Parse message */
 	gst_message_parse_warning(msg, &warning, &debug);
 
 	/* Display warning */
 	WARNING("Gst bus warning msg %d:%d: %s", warning->domain, warning->code, warning->message);
 	WARNING("Gst bus warning debug : %s", debug);
 
+	/* Cleanup */
 	g_error_free(warning);
 	g_free(debug);
 
@@ -543,16 +509,19 @@ on_bus_warning(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self G_GNU
 }
 
 static gboolean
-on_bus_info(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self G_GNUC_UNUSED)
+on_bus_message_info(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self G_GNUC_UNUSED)
 {
 	GError *info;
 	gchar  *debug;
 
+	/* Parse message */
 	gst_message_parse_info(msg, &info, &debug);
 
+	/* Display info */
 	INFO("Gst bus info msg %d:%d: %s", info->domain, info->code, info->message);
 	INFO("Gst bus info debug : %s", debug);
 
+	/* Cleanup */
 	g_error_free(info);
 	g_free(debug);
 
@@ -607,7 +576,7 @@ tag_list_foreach_dump(const GstTagList *list, const gchar *tag,
 #endif /* DUMP_TAGS */
 
 static gboolean
-on_bus_tag(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self)
+on_bus_message_tag(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self)
 {
 	OckMetadata *metadata;
 	GstTagList *taglist = NULL;
@@ -615,7 +584,7 @@ on_bus_tag(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self)
 
 	TRACE("... %s, %p", GST_OBJECT_NAME(msg->src), self);
 
-	/* Parse tag list */
+	/* Parse message */
 	gst_message_parse_tag(msg, &taglist);
 
 #ifdef DUMP_TAGS
@@ -630,7 +599,7 @@ on_bus_tag(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self)
 	 * and it's likely that it's the only one filled, containing
 	 * everything (title, artist and more).
 	 * So, we require this field to be filled. If it's not, this
-	 * metadata is considered as noise, and discarded.
+	 * metadata is considered to be noise, and discarded.
 	 */
 	gst_tag_list_peek_string_index(taglist, GST_TAG_TITLE, 0, &tag_title);
 	if (tag_title == NULL) {
@@ -651,13 +620,16 @@ taglist_unref:
 }
 
 static gboolean
-on_bus_buffering(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self)
+on_bus_message_buffering(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self)
 {
+	OckEnginePrivate *priv = self->priv;
 	static gint prev_percent = 0;
 	gint percent = 0;
 
-	/* Set current engine state to buffering */
-	ock_engine_set_state(self, OCK_ENGINE_STATE_BUFFERING);
+	/* Handle the buffering message. Some documentation:
+	 * https://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/
+	 * GstMessage.html#gst-message-new-buffering
+	 */
 
 	/* Parse message */
 	gst_message_parse_buffering(msg, &percent);
@@ -668,45 +640,72 @@ on_bus_buffering(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self)
 		DEBUG("Buffering (%3u %%)", percent);
 	}
 
-	/* When buffering is complete, start playing */
-	if (percent >= 100) {
-		DEBUG("Buffering complete");
-		ock_engine_start_playing(self);
+	/* Now, let's react according to our current state */
+	switch (priv->state) {
+	case OCK_ENGINE_STATE_STOPPED:
+		/* This shouldn't happen */
+		WARNING("Received 'bus buffering' while stopped");
+		break;
+
+	case OCK_ENGINE_STATE_CONNECTING:
+		/* We successfully connected ! */
+		ock_engine_set_state(self, OCK_ENGINE_STATE_BUFFERING);
+
+	/* NO BREAK HERE !
+	 * This is to handle the (very special) case where the first
+	 * buffering message received is already 100%. I'm not sure this
+	 * can happen, but it doesn't hurt to be ready.
+	 */
+
+	case OCK_ENGINE_STATE_BUFFERING:
+		/* When buffering complete, start playing */
+		if (percent >= 100) {
+			DEBUG("Buffering complete, starting playback");
+			set_gst_state(priv->playbin, GST_STATE_PLAYING);
+			ock_engine_set_state(self, OCK_ENGINE_STATE_PLAYING);
+		}
+		break;
+
+	case OCK_ENGINE_STATE_PLAYING:
+		/* In case buffering is < 100%, according to the documentation,
+		 * we should pause. However, I observed a radio for which I
+		 * constantly receive buffering < 100% messages. In such case,
+		 * pausing/playing screws the playback. Ignoring the messages
+		 * works just fine. So let's ignore for now.
+		 * In case it matters, I observed that with radio Nova.
+		 */
+		if (percent < 100) {
+			DEBUG("Buffering < 100%%, ignoring instead setting to pause");
+			//set_gst_state(priv->playbin, GST_STATE_PAUSED);
+			//ock_engine_set_state(self, OCK_ENGINE_STATE_BUFFERING);
+		}
+		break;
+
+	default:
+		WARNING("Unhandled engine state %d", priv->state);
 	}
 
 	return TRUE;
 }
 
 static gboolean
-on_bus_state_changed(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self)
+on_bus_message_state_changed(GstBus *bus G_GNUC_UNUSED, GstMessage *msg,
+                             OckEngine *self G_GNUC_UNUSED)
 {
+#ifdef DUMP_GST_STATE_CHANGES
 	GstState old, new, pending;
-	OckEngineState engine_state;
 
+	/* Parse message */
 	gst_message_parse_state_changed(msg, &old, &new, &pending);
 
-	DEBUG("old: %s, new: %s, pending: %s",
+	/* Just used for debug */
+	DEBUG("Gst state changed: old: %s, new: %s, pending: %s",
 	      gst_element_state_get_name(old),
 	      gst_element_state_get_name(new),
 	      gst_element_state_get_name(pending));
-
-	switch (new) {
-	case GST_STATE_PLAYING:
-		engine_state = OCK_ENGINE_STATE_PLAYING;
-		break;
-	case GST_STATE_VOID_PENDING:
-	case GST_STATE_NULL:
-	case GST_STATE_READY:
-	case GST_STATE_PAUSED:
-		engine_state = OCK_ENGINE_STATE_STOPPED;
-		break;
-	default:
-		WARNING("Unhandled GstState: %d", new);
-		engine_state = OCK_ENGINE_STATE_STOPPED;
-		break;
-	}
-
-	ock_engine_set_state(self, engine_state);
+#else
+	(void) msg;
+#endif
 
 	return TRUE;
 }
@@ -723,8 +722,8 @@ ock_engine_finalize(GObject *object)
 
 	TRACE("%p", object);
 
-	/* Stop GStreamer at first */
-	ock_engine_stop_playback(self);
+	/* Stop playback at first */
+	set_gst_state(priv->playbin, GST_STATE_NULL);
 
 	/* Unref metadata */
 	if (priv->metadata)
@@ -780,13 +779,14 @@ ock_engine_constructed(GObject *object)
 	gst_bus_add_signal_watch(bus);
 
 	/* Connect to signals from the bus */
-	g_signal_connect(bus, "message::eos", G_CALLBACK(on_bus_eos), self);
-	g_signal_connect(bus, "message::error", G_CALLBACK(on_bus_error), self);
-	g_signal_connect(bus, "message::warning", G_CALLBACK(on_bus_warning), self);
-	g_signal_connect(bus, "message::info", G_CALLBACK(on_bus_info), self);
-	g_signal_connect(bus, "message::tag", G_CALLBACK(on_bus_tag), self);
-	g_signal_connect(bus, "message::buffering", G_CALLBACK(on_bus_buffering), self);
-	g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_bus_state_changed), self);
+	g_signal_connect(bus, "message::eos", G_CALLBACK(on_bus_message_eos), self);
+	g_signal_connect(bus, "message::error", G_CALLBACK(on_bus_message_error), self);
+	g_signal_connect(bus, "message::warning", G_CALLBACK(on_bus_message_warning), self);
+	g_signal_connect(bus, "message::info", G_CALLBACK(on_bus_message_info), self);
+	g_signal_connect(bus, "message::tag", G_CALLBACK(on_bus_message_tag), self);
+	g_signal_connect(bus, "message::buffering", G_CALLBACK(on_bus_message_buffering), self);
+	g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_bus_message_state_changed),
+	                 self);
 
 	/* Chain up */
 	G_OBJECT_CHAINUP_CONSTRUCTED(ock_engine, object);

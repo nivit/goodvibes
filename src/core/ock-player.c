@@ -152,15 +152,18 @@ on_engine_notify(OckEngine  *engine,
 	TRACE("%p, %s, %p", engine, property_name, self);
 
 	if (!g_strcmp0(property_name, "state")) {
-		/* New state from engine, we map that to our own state type */
 		OckEngineState engine_state;
 		OckPlayerState player_state;
 
 		engine_state = ock_engine_get_state(priv->engine);
 
+		/* Map engine state to player state - trivial */
 		switch (engine_state) {
 		case OCK_ENGINE_STATE_STOPPED:
 			player_state = OCK_PLAYER_STATE_STOPPED;
+			break;
+		case OCK_ENGINE_STATE_CONNECTING:
+			player_state = OCK_PLAYER_STATE_CONNECTING;
 			break;
 		case OCK_ENGINE_STATE_BUFFERING:
 			player_state = OCK_PLAYER_STATE_BUFFERING;
@@ -174,6 +177,7 @@ on_engine_notify(OckEngine  *engine,
 			break;
 		}
 
+		/* Set state */
 		ock_player_set_state(self, player_state);
 
 	} else if (!g_strcmp0(property_name, "metadata")) {
@@ -597,11 +601,6 @@ ock_player_stop(OckPlayer *self)
 
 	/* Stop playing */
 	ock_engine_stop(priv->engine);
-
-	/* Set the state manually, we're not sure to receive any signal
-	 * from the engine.
-	 */
-	ock_player_set_state(self, OCK_PLAYER_STATE_STOPPED);
 }
 
 void
@@ -653,11 +652,6 @@ ock_player_play(OckPlayer *self)
 		ock_engine_set_stream_uri(priv->engine, first_uri);
 		ock_engine_play(priv->engine);
 	}
-
-	/* Set the state manually for now, it will be updated later on
-	 * when we receive signals from engine.
-	 */
-	ock_player_set_state(self, OCK_PLAYER_STATE_CONNECTING);
 }
 
 gboolean
