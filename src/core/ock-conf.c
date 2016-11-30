@@ -426,6 +426,7 @@ ock_conf_constructed(GObject *object)
 	/* Create serialization settings */
 	settings = gszn_settings_new();
 	settings->backend_type        = GSZN_TYPE_BACKEND_KEYFILE;
+	settings->title               = "Configuration";
 	settings->ser_object_name     = serialize_object_name;
 	settings->deser_object_name   = deserialize_object_name;
 	settings->ser_property_name   = serialize_property_name;

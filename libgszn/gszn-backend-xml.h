@@ -28,7 +28,7 @@
 
 #define GSZN_TYPE_BACKEND_XML gszn_backend_xml_get_type()
 
-G_DECLARE_FINAL_TYPE(GsznBackendXml, gszn_backend_xml, GSZN, BACKEND_XML, GObject)
+G_DECLARE_FINAL_TYPE(GsznBackendXml, gszn_backend_xml, GSZN, BACKEND_XML, GsznBackend)
 
 /* Global methods */
 

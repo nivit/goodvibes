@@ -26,7 +26,7 @@
 
 #define GSZN_TYPE_BACKEND gszn_backend_get_type()
 
-G_DECLARE_INTERFACE(GsznBackend, gszn_backend, GSZN, BACKEND, GObject)
+G_DECLARE_DERIVABLE_TYPE(GsznBackend, gszn_backend, GSZN, BACKEND, GObject)
 
 /* Data types */
 
@@ -41,11 +41,11 @@ struct _GsznParameter {
 
 typedef struct _GsznParameter GsznParameter;
 
-struct _GsznBackendInterface {
-	/* Parent interface */
-	GTypeInterface parent_iface;
+struct _GsznBackendClass {
+	/* Parent class */
+	GObjectClass parent_class;
 
-	/* Methods */
+	/* Virtual public methods */
 	gchar           *(*print)                 (GsznBackend *self);
 	gboolean         (*parse)                 (GsznBackend *self, const gchar *data,
 	                                           GError **err);
@@ -69,6 +69,8 @@ struct _GsznBackendInterface {
 
 /* Methods */
 
+GsznBackend     *gszn_backend_new(GType backend_type, const gchar *title);
+
 gchar           *gszn_backend_print(GsznBackend *self);
 gboolean         gszn_backend_parse(GsznBackend *self, const gchar *data, GError **err);
 
@@ -87,5 +89,9 @@ GsznParameter   *gszn_backend_get_properties(GsznBackend *self, GsznBackendIter 
                                              guint *n_params);
 void             gszn_backend_add_properties(GsznBackend *self, GsznBackendIter *iter,
                                              GsznParameter *params, guint n_params);
+
+/* Property accessors */
+
+const gchar     *gszn_backend_get_title(GsznBackend *self);
 
 #endif /* __LIBGSZN_GSZN_BACKEND_H__ */

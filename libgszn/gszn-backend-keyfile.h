@@ -28,6 +28,6 @@
 
 #define GSZN_TYPE_BACKEND_KEYFILE gszn_backend_keyfile_get_type()
 
-G_DECLARE_FINAL_TYPE(GsznBackendKeyfile, gszn_backend_keyfile, GSZN, BACKEND_KEYFILE, GObject)
+G_DECLARE_FINAL_TYPE(GsznBackendKeyfile, gszn_backend_keyfile, GSZN, BACKEND_KEYFILE, GsznBackend)
 
 #endif /* __LIBGSZN_GSZN_BACKEND_KEYFILE_H__ */

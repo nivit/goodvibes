@@ -999,6 +999,7 @@ ock_station_list_constructed(GObject *object)
 	/* Create serialization settings */
 	settings = gszn_settings_new();
 	settings->backend_type        = GSZN_TYPE_BACKEND_XML;
+	settings->title               = "Stations";
 	settings->ser_object_name     = serialize_object_name;
 	settings->deser_object_name   = deserialize_object_name;
 	priv->serialization_settings  = settings;

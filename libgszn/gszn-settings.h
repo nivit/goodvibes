@@ -33,11 +33,12 @@ GType gszn_settings_get_type(void) G_GNUC_CONST;
 typedef gchar *(*GsznTweakString)(const gchar *);
 
 typedef struct {
-	GType           backend_type;
-	GsznTweakString ser_object_name;
-	GsznTweakString deser_object_name;
-	GsznTweakString ser_property_name;
-	GsznTweakString deser_property_name;
+	GType            backend_type;
+	const gchar     *title;
+	GsznTweakString  ser_object_name;
+	GsznTweakString  deser_object_name;
+	GsznTweakString  ser_property_name;
+	GsznTweakString  deser_property_name;
 } GsznSettings;
 
 /* Functions */

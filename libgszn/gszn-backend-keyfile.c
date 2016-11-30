@@ -37,20 +37,15 @@ typedef struct _GsznBackendKeyfilePrivate GsznBackendKeyfilePrivate;
 
 struct _GsznBackendKeyfile {
 	/* Parent instance structure */
-	GObject parent_instance;
+	GsznBackend                parent_instance;
 	/* Private data */
 	GsznBackendKeyfilePrivate *priv;
 };
 
-static void gszn_backend_keyfile_interface_init(GsznBackendInterface *iface);
-
-G_DEFINE_TYPE_WITH_CODE(GsznBackendKeyfile, gszn_backend_keyfile, G_TYPE_OBJECT,
-                        G_ADD_PRIVATE(GsznBackendKeyfile)
-                        G_IMPLEMENT_INTERFACE(GSZN_TYPE_BACKEND,
-                                        gszn_backend_keyfile_interface_init))
+G_DEFINE_TYPE_WITH_PRIVATE(GsznBackendKeyfile, gszn_backend_keyfile, GSZN_TYPE_BACKEND)
 
 /*
- * GsznBackend interface methods
+ * GsznBackend virtual methods implementation
  */
 
 struct _GsznBackendKeyfileIter {
@@ -342,23 +337,6 @@ gszn_backend_keyfile_parse(GsznBackend *backend, const gchar *text, GError **err
 	return loaded;
 }
 
-static void
-gszn_backend_keyfile_interface_init(GsznBackendInterface *iface)
-{
-	iface->print = gszn_backend_keyfile_print;
-	iface->parse = gszn_backend_keyfile_parse;
-
-	iface->free_iter              = gszn_backend_keyfile_free_iter;
-	iface->get_uninitialized_iter = gszn_backend_keyfile_get_uninitialized_iter;
-	iface->loop                   = gszn_backend_keyfile_loop;
-
-	iface->get_object     = gszn_backend_keyfile_get_object;
-	iface->add_object     = gszn_backend_keyfile_add_object;
-	iface->get_object_uid = gszn_backend_keyfile_get_object_uid;
-	iface->get_properties = gszn_backend_keyfile_get_properties;
-	iface->add_properties = gszn_backend_keyfile_add_properties;
-}
-
 /*
  * GObject methods
  */
@@ -401,8 +379,24 @@ static void
 gszn_backend_keyfile_class_init(GsznBackendKeyfileClass *class)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS(class);
+	GsznBackendClass *backend_class = GSZN_BACKEND_CLASS(class);
 
 	/* Override GObject methods */
 	object_class->finalize = gszn_backend_keyfile_finalize;
 	object_class->constructed = gszn_backend_keyfile_constructed;
+
+	/* Implement GsznBackend virtual methods */
+	backend_class->print = gszn_backend_keyfile_print;
+	backend_class->parse = gszn_backend_keyfile_parse;
+
+	backend_class->free_iter              = gszn_backend_keyfile_free_iter;
+	backend_class->get_uninitialized_iter = gszn_backend_keyfile_get_uninitialized_iter;
+	backend_class->loop                   = gszn_backend_keyfile_loop;
+
+	backend_class->get_object     = gszn_backend_keyfile_get_object;
+	backend_class->add_object     = gszn_backend_keyfile_add_object;
+	backend_class->get_object_uid = gszn_backend_keyfile_get_object_uid;
+	backend_class->get_properties = gszn_backend_keyfile_get_properties;
+	backend_class->add_properties = gszn_backend_keyfile_add_properties;
+
 }

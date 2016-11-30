@@ -417,7 +417,7 @@ gszn_serializer_print(GsznSerializer *self)
 	gchar *text;
 
 	/* Create the serialization backend */
-	backend = g_object_new(priv->settings->backend_type, NULL);
+	backend = gszn_backend_new(priv->settings->backend_type, priv->settings->title);
 
 	/* Serialize objects */
 	for (item = priv->objects; item; item = item->next) {
@@ -520,7 +520,7 @@ gszn_serializer_finalize(GObject *object)
 
 	g_list_free(priv->objects);
 
-	/* Free strings */
+	/* Free resources */
 	gszn_settings_free(priv->settings);
 
 	/* Chain up */

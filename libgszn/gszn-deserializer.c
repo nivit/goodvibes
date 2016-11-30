@@ -409,7 +409,7 @@ gszn_deserializer_constructed(GObject *object)
 	g_assert(priv->settings != NULL);
 
 	/* Create the deserialization backend */
-	priv->backend = g_object_new(priv->settings->backend_type, NULL);
+	priv->backend = gszn_backend_new(priv->settings->backend_type, priv->settings->title);
 
 	/* Chain up */
 	if (G_OBJECT_CLASS(gszn_deserializer_parent_class)->constructed)
