@@ -298,8 +298,7 @@ ock_conf_save(OckConf *self)
 	} else {
 		gchar *str;
 
-		str = g_strdup_printf("Failed to save configuration to '%s': %s",
-		                      priv->save_path, err->message);
+		str = g_strdup_printf("Failed to save configuration: %s", err->message);
 
 		INFO("%s", str);
 		ock_errorable_emit_error(OCK_ERRORABLE(self), str);
