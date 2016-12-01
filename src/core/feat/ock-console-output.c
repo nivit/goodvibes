@@ -27,7 +27,7 @@
 
 #include "framework/log.h"
 #include "framework/vt-codes.h"
-#include "framework/ock-feature.h"
+#include "framework/ock-framework.h"
 
 #include "core/ock-core.h"
 
@@ -93,6 +93,12 @@ print_goodbye_line(void)
 }
 
 static void
+print_error(const gchar *error_string)
+{
+	PRINT(VT_BOLD("Error !") " %s", error_string);
+}
+
+static void
 print_station(OckStation *station)
 {
 	const gchar *str;
@@ -155,11 +161,9 @@ print_metadata(OckMetadata *metadata)
 static void
 on_player_notify(OckPlayer        *player,
                  GParamSpec       *pspec,
-                 OckConsoleOutput *self)
+                 OckConsoleOutput *self G_GNUC_UNUSED)
 {
 	const gchar *property_name = g_param_spec_get_name(pspec);
-
-	TRACE("%p, %s, %p", player, property_name, self);
 
 	if (!g_strcmp0(property_name, "state")) {
 		OckPlayerState state;
@@ -180,10 +184,12 @@ on_player_notify(OckPlayer        *player,
 	}
 }
 
-static GSignalHandler player_handlers[] = {
-	{ "notify", G_CALLBACK(on_player_notify) },
-	{ NULL,     NULL                         }
-};
+static void
+on_errorable_error(OckErrorable *errorable G_GNUC_UNUSED, const gchar *error_string,
+                   OckConsoleOutput *self G_GNUC_UNUSED)
+{
+	print_error(error_string);
+}
 
 /*
  * OckFeature methods
@@ -195,8 +201,10 @@ ock_console_output_disable(OckFeature *feature)
 	OckPlayer *player = ock_core_player;
 
 	/* Signal handlers */
+	g_signal_handlers_disconnect_list_by_data(ock_framework_errorable_list, feature);
 	g_signal_handlers_disconnect_by_data(player, feature);
 
+	/* Say good-bye */
 	print_goodbye_line();
 
 	/* Chain up */
@@ -211,10 +219,13 @@ ock_console_output_enable(OckFeature *feature)
 	/* Chain up */
 	OCK_FEATURE_CHAINUP_ENABLE(ock_console_output, feature);
 
+	/* Say hello */
 	print_hello_line();
 
 	/* Signal handlers */
-	g_signal_handlers_connect(player, player_handlers, feature);
+	g_signal_connect(player, "notify", G_CALLBACK(on_player_notify), feature);
+	g_signal_connect_list(ock_framework_errorable_list, "error",
+	                      G_CALLBACK(on_errorable_error), feature);
 }
 
 /*
