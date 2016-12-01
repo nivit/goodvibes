@@ -70,30 +70,34 @@ do_indent()
     # becomes:
     #     G_DEFINE_QUARK(gszn - error - quark, gszn_error)
 
-    echo ">>> Indenting code..."
-    astyle --suffix=none           \
-	   --formatted             \
-	   --style=linux           \
-	   --indent=tab=8          \
-	   --indent-preproc-define \
-	   --indent-labels         \
-	   --pad-header            \
-	   --align-pointer=name    \
-	   --convert-tabs          \
-	   --max-code-length=100   \
-	   $C_FILES
+    if [ -n "$C_FILES" ]; then
+	echo ">>> Indenting code..."
+	astyle --suffix=none           \
+	       --formatted             \
+	       --style=linux           \
+	       --indent=tab=8          \
+	       --indent-preproc-define \
+	       --indent-labels         \
+	       --pad-header            \
+	       --align-pointer=name    \
+	       --convert-tabs          \
+	       --max-code-length=100   \
+	       $C_FILES
+    fi
 
-    echo ">>> Indenting headers..."
-    astyle --suffix=none           \
-	   --formatted             \
-	   --style=linux           \
-	   --indent=tab=8          \
-	   --indent-preproc-define \
-	   --align-pointer=name    \
-	   --convert-tabs          \
-	   --max-code-length=100   \
-	   --max-instatement-indent=120 \
-	   $H_FILES
+    if [ -n "$H_FILES" ]; then
+	echo ">>> Indenting headers..."
+	astyle --suffix=none           \
+	       --formatted             \
+	       --style=linux           \
+	       --indent=tab=8          \
+	       --indent-preproc-define \
+	       --align-pointer=name    \
+	       --convert-tabs          \
+	       --max-code-length=100   \
+	       --max-instatement-indent=100 \
+	       $H_FILES
+    fi
 }
 
 # Check for proper usage
