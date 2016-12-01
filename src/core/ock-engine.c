@@ -461,7 +461,8 @@ on_bus_message_error(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self
 	gst_message_parse_error(msg, &error, &debug);
 
 	/* Display error */
-	DEBUG("Gst bus error msg %d:%d: %s", error->domain, error->code, error->message);
+	DEBUG("Gst bus error msg: %s:%d: %s",
+	      g_quark_to_string(error->domain), error->code, error->message);
 	DEBUG("Gst bus error debug : %s", debug);
 
 	/* Handle error */
@@ -506,8 +507,9 @@ on_bus_message_warning(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *se
 	gst_message_parse_warning(msg, &warning, &debug);
 
 	/* Display warning */
-	WARNING("Gst bus warning msg %d:%d: %s", warning->domain, warning->code, warning->message);
-	WARNING("Gst bus warning debug : %s", debug);
+	DEBUG("Gst bus warning msg: %s:%d: %s",
+	      g_quark_to_string(warning->domain), warning->code, warning->message);
+	DEBUG("Gst bus warning debug : %s", debug);
 
 	/* Cleanup */
 	g_error_free(warning);
@@ -526,8 +528,9 @@ on_bus_message_info(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self 
 	gst_message_parse_info(msg, &info, &debug);
 
 	/* Display info */
-	INFO("Gst bus info msg %d:%d: %s", info->domain, info->code, info->message);
-	INFO("Gst bus info debug : %s", debug);
+	DEBUG("Gst bus info msg: %s:%d: %s",
+	      g_quark_to_string(info->domain), info->code, info->message);
+	DEBUG("Gst bus info debug : %s", debug);
 
 	/* Cleanup */
 	g_error_free(info);
