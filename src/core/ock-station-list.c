@@ -165,8 +165,6 @@
  */
 
 enum {
-	SIGNAL_LOAD_ERROR,
-	SIGNAL_SAVE_ERROR,
 	SIGNAL_STATION_ADDED,
 	SIGNAL_STATION_REMOVED,
 	SIGNAL_STATION_MODIFIED,
@@ -206,7 +204,12 @@ struct _OckStationList {
 	OckStationListPrivate *priv;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE(OckStationList, ock_station_list, G_TYPE_OBJECT)
+static void ock_station_list_errorable_interface_init(OckErrorableInterface *iface G_GNUC_UNUSED) {}
+
+G_DEFINE_TYPE_WITH_CODE(OckStationList, ock_station_list, G_TYPE_OBJECT,
+                        G_ADD_PRIVATE(OckStationList)
+                        G_IMPLEMENT_INTERFACE(OCK_TYPE_ERRORABLE,
+                                        ock_station_list_errorable_interface_init))
 
 /*
  * Serialization settings
@@ -842,11 +845,15 @@ ock_station_list_save(OckStationList *self)
 	if (err == NULL) {
 		INFO("Station list saved to '%s'", priv->save_path);
 	} else {
-		// TODO Be an errorable, emit an error.
-		INFO("Failed to save station list to '%s': %s", priv->save_path, err->message);
+		gchar *str;
 
-		g_signal_emit(self, signals[SIGNAL_SAVE_ERROR], 0,
-		              priv->save_path, err->message);
+		str = g_strdup_printf("Failed to save station list to '%s': %s",
+		                      priv->save_path, err->message);
+
+		INFO("%s", str);
+		ock_errorable_emit_error(OCK_ERRORABLE(self), str);
+
+		g_free(str);
 		g_clear_error(&err);
 	}
 }
@@ -1022,18 +1029,6 @@ ock_station_list_class_init(OckStationListClass *class)
 	object_class->constructed = ock_station_list_constructed;
 
 	/* Signals */
-	signals[SIGNAL_LOAD_ERROR] =
-	        g_signal_new("load-error", G_TYPE_FROM_CLASS(class),
-	                     G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-	                     0, NULL, NULL, g_cclosure_marshal_generic, G_TYPE_NONE,
-	                     2, G_TYPE_STRING, G_TYPE_STRING);
-
-	signals[SIGNAL_SAVE_ERROR] =
-	        g_signal_new("save-error", G_TYPE_FROM_CLASS(class),
-	                     G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-	                     0, NULL, NULL, g_cclosure_marshal_generic, G_TYPE_NONE,
-	                     2, G_TYPE_STRING, G_TYPE_STRING);
-
 	signals[SIGNAL_STATION_ADDED] =
 	        g_signal_new("station-added", G_TYPE_FROM_CLASS(class),
 	                     G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,

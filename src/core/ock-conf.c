@@ -36,19 +36,6 @@
 #define SAVE_DELAY 1
 
 /*
- * Signals
- */
-
-enum {
-	SIGNAL_LOAD_ERROR,
-	SIGNAL_SAVE_ERROR,
-	/* Number of signals */
-	SIGNAL_N
-};
-
-static guint signals[SIGNAL_N];
-
-/*
  * GObject definitions
  */
 
@@ -73,7 +60,12 @@ struct _OckConf {
 	OckConfPrivate *priv;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE(OckConf, ock_conf, G_TYPE_OBJECT)
+static void ock_conf_errorable_interface_init(OckErrorableInterface *iface G_GNUC_UNUSED) {}
+
+G_DEFINE_TYPE_WITH_CODE(OckConf, ock_conf, G_TYPE_OBJECT,
+                        G_ADD_PRIVATE(OckConf)
+                        G_IMPLEMENT_INTERFACE(OCK_TYPE_ERRORABLE,
+                                        ock_conf_errorable_interface_init))
 
 /*
  * Serialization settings
@@ -306,11 +298,15 @@ ock_conf_save(OckConf *self)
 	if (err == NULL) {
 		INFO("Configuration saved to '%s'", priv->save_path);
 	} else {
-		// TODO Be an errorable, emit an error.
-		INFO("Failed to save configuration to '%s': %s", priv->save_path, err->message);
+		gchar *str;
 
-		g_signal_emit(self, signals[SIGNAL_SAVE_ERROR], 0,
-		              priv->save_path, err->message);
+		str = g_strdup_printf("Failed to save configuration to '%s': %s",
+		                      priv->save_path, err->message);
+
+		INFO("%s", str);
+		ock_errorable_emit_error(OCK_ERRORABLE(self), str);
+
+		g_free(str);
 		g_clear_error(&err);
 	}
 }
@@ -452,17 +448,4 @@ ock_conf_class_init(OckConfClass *class)
 	/* Override GObject methods */
 	object_class->finalize = ock_conf_finalize;
 	object_class->constructed = ock_conf_constructed;
-
-	/* Signals */
-	signals[SIGNAL_LOAD_ERROR] =
-	        g_signal_new("load-error", G_TYPE_FROM_CLASS(class),
-	                     G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-	                     0, NULL, NULL, g_cclosure_marshal_generic, G_TYPE_NONE,
-	                     2, G_TYPE_STRING, G_TYPE_STRING);
-
-	signals[SIGNAL_SAVE_ERROR] =
-	        g_signal_new("save-error", G_TYPE_FROM_CLASS(class),
-	                     G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-	                     0, NULL, NULL, g_cclosure_marshal_generic, G_TYPE_NONE,
-	                     2, G_TYPE_STRING, G_TYPE_STRING);
 }
