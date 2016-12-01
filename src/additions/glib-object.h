@@ -64,6 +64,10 @@ gboolean     g_object_get_property_uint_bounds(GObject *object, const gchar *pro
  * Signals
  */
 
+void g_signal_connect_list(GList *object_list, const gchar *detailed_signal,
+                           GCallback c_handler, gpointer data);
+void g_signal_handlers_disconnect_list_by_data(GList *object_list, gpointer data);
+
 struct _GSignalHandler {
 	const gchar *name;
 	GCallback    callback;

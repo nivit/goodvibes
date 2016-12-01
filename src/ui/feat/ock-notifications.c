@@ -26,8 +26,7 @@
 #include "libgszn/gszn.h"
 
 #include "framework/log.h"
-#include "framework/ock-feature.h"
-#include "framework/ock-param-specs.h"
+#include "framework/ock-framework.h"
 
 #include "core/ock-core.h"
 
@@ -68,6 +67,7 @@ struct _OckNotificationsPrivate {
 	/* Notifications */
 	NotifyNotification *notif_station;
 	NotifyNotification *notif_metadata;
+	NotifyNotification *notif_error;
 };
 
 typedef struct _OckNotificationsPrivate OckNotificationsPrivate;
@@ -86,13 +86,13 @@ G_DEFINE_TYPE_WITH_PRIVATE(OckNotifications, ock_notifications, OCK_TYPE_FEATURE
  */
 
 static NotifyNotification *
-make_notification(gint timeout_ms)
+make_notification(NotifyUrgency urgency, gint timeout_ms)
 {
 	NotifyNotification *notif;
 
-	notif = notify_notification_new("", NULL, ICON);
-	notify_notification_set_urgency(notif, NOTIFY_URGENCY_LOW);
+	notif = notify_notification_new("", NULL, NULL);
 	notify_notification_set_timeout(notif, timeout_ms);
+	notify_notification_set_urgency(notif, urgency);
 
 	return notif;
 }
@@ -165,6 +165,14 @@ update_notification_metadata(NotifyNotification *notif, OckMetadata *metadata)
 	return TRUE;
 }
 
+static gboolean
+update_notification_error(NotifyNotification *notif, const gchar *error_string)
+{
+	notify_notification_update(notif, PACKAGE_LONG_NAME, error_string, "dialog-error");
+
+	return TRUE;
+}
+
 /*
  * Signal handlers & callbacks
  */
@@ -180,9 +188,7 @@ on_player_notify(OckPlayer        *player,
 	gboolean must_notify = FALSE;
 	GError *error = NULL;
 
-	TRACE("%p, %s, %p", player, property_name, self);
-
-	/* Check what changed, and create notification if needed */
+	/* Check what changed, and update notification if needed */
 	if (!g_strcmp0(property_name, "state")) {
 		OckPlayerState state;
 
@@ -214,10 +220,25 @@ on_player_notify(OckPlayer        *player,
 	}
 }
 
-static GSignalHandler player_handlers[] = {
-	{ "notify", G_CALLBACK(on_player_notify) },
-	{ NULL,     NULL }
-};
+static void
+on_errorable_error(OckErrorable *errorable G_GNUC_UNUSED, const gchar *error_string,
+                   OckNotifications *self)
+{
+	OckNotificationsPrivate *priv = self->priv;
+	NotifyNotification *notif;
+	GError *error = NULL;
+
+	notif = priv->notif_error;
+
+	/* Update notification */
+	update_notification_error(notif, error_string);
+
+	/* Show notification */
+	if (notify_notification_show(notif, &error) != TRUE) {
+		CRITICAL("Could not send notification: %s", error->message);
+		g_error_free(error);
+	}
+}
 
 /*
  * Property accessors
@@ -239,7 +260,7 @@ ock_notifications_set_timeout_enabled(OckNotifications *self, gboolean enabled)
 	if (priv->timeout_enabled == enabled)
 		return;
 
-	/* Set to existing notifications */
+	/* Set to existing notifications that care about it */
 	if (enabled == TRUE)
 		timeout_ms = self->priv->timeout_ms;
 	else
@@ -347,6 +368,7 @@ ock_notifications_disable(OckFeature *feature)
 	OckPlayer *player = ock_core_player;
 
 	/* Signal handlers */
+	g_signal_handlers_disconnect_list_by_data(ock_framework_errorable_list, feature);
 	g_signal_handlers_disconnect_by_data(player, feature);
 
 	/* Unref notifications */
@@ -354,6 +376,8 @@ ock_notifications_disable(OckFeature *feature)
 	priv->notif_station = NULL;
 	g_object_unref(priv->notif_metadata);
 	priv->notif_metadata = NULL;
+	g_object_unref(priv->notif_error);
+	priv->notif_error = NULL;
 
 	/* Cleanup libnotify */
 	if (notify_is_initted() == TRUE)
@@ -379,12 +403,18 @@ ock_notifications_enable(OckFeature *feature)
 
 	/* Create notifications */
 	priv->notif_station = make_notification
-	                      (priv->timeout_enabled ? (gint) priv->timeout_ms : -1);
+	                      (NOTIFY_URGENCY_LOW,
+	                       priv->timeout_enabled ? (gint) priv->timeout_ms : -1);
 	priv->notif_metadata = make_notification
-	                       (priv->timeout_enabled ? (gint) priv->timeout_ms : -1);
+	                       (NOTIFY_URGENCY_LOW,
+	                        priv->timeout_enabled ? (gint) priv->timeout_ms : -1);
+	priv->notif_error = make_notification
+	                    (NOTIFY_URGENCY_NORMAL, 5 * 1000);
 
 	/* Signal handlers */
-	g_signal_handlers_connect(player, player_handlers, feature);
+	g_signal_connect(player, "notify", G_CALLBACK(on_player_notify), feature);
+	g_signal_connect_list(ock_framework_errorable_list, "error",
+	                      G_CALLBACK(on_errorable_error), feature);
 }
 
 /*

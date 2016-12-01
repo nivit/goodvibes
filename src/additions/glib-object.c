@@ -139,6 +139,33 @@ g_object_get_property_uint_bounds(GObject *object, const gchar *property_name,
  */
 
 void
+g_signal_connect_list(GList *object_list, const gchar *detailed_signal,
+                      GCallback c_handler, gpointer data)
+{
+	GList *item;
+
+	for (item = object_list; item; item = item->next) {
+		GObject *object;
+
+		object = item->data;
+		g_signal_connect(object, detailed_signal, c_handler, data);
+	}
+}
+
+void
+g_signal_handlers_disconnect_list_by_data(GList *object_list, gpointer data)
+{
+	GList *item;
+
+	for (item = object_list; item; item = item->next) {
+		GObject *object;
+
+		object = item->data;
+		g_signal_handlers_disconnect_by_data(object, data);
+	}
+}
+
+void
 g_signal_handlers_connect(gpointer instance, GSignalHandler *handlers, gpointer data)
 {
 	GSignalHandler *handler;
