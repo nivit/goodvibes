@@ -315,18 +315,9 @@ ock_engine_set_stream_uri(OckEngine *self, const gchar *uri)
 	if (!g_strcmp0(priv->stream_uri, uri))
 		return;
 
-	/* Stop playback */
-	ock_engine_stop(self);
-
-	/* Clear metadata */
-	ock_engine_set_metadata(self, NULL);
-
 	/* Set new stream uri */
 	g_free(priv->stream_uri);
 	priv->stream_uri = g_strdup(uri);
-
-	/* Set URI to playbin */
-	g_object_set(priv->playbin, "uri", uri, NULL);
 
 	/* Notify */
 	g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_STREAM_URI]);
@@ -408,7 +399,7 @@ ock_engine_play(OckEngine *self)
 		return;
 	}
 
-	/* Ensure a clean state. According to the doc:
+	/* According to the doc:
 	 *
 	 * > State changes to GST_STATE_READY or GST_STATE_NULL never return
 	 * > GST_STATE_CHANGE_ASYNC.
@@ -416,7 +407,17 @@ ock_engine_play(OckEngine *self)
 	 * https://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/
 	 * GstElement.html#gst-element-set-state
 	 */
+
+	/* Ensure playback is stopped */
 	set_gst_state(priv->playbin, GST_STATE_NULL);
+
+	/* Clear metadata */
+	ock_engine_set_metadata(self, NULL);
+
+	/* Set the stream uri */
+	g_object_set(priv->playbin, "uri", priv->stream_uri, NULL);
+
+	/* Go to the ready stop (not sure it's needed) */
 	set_gst_state(priv->playbin, GST_STATE_READY);
 
 	/* Set gst state to PAUSE, so that the playbin starts buffering data.
