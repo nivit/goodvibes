@@ -103,29 +103,29 @@ G_DEFINE_TYPE_WITH_PRIVATE(OckEngine, ock_engine, G_TYPE_OBJECT)
  */
 
 static void
-set_gst_state(GstElement *playbin, GstState new)
+set_gst_state(GstElement *playbin, GstState state)
 {
-	GstStateChangeReturn ret;
+	const gchar *state_name = gst_element_state_get_name(state);
+	GstStateChangeReturn change_return;
 
-	TRACE("%p, %s", playbin, gst_element_state_get_name(new));
+	change_return = gst_element_set_state(playbin, state);
 
-	ret = gst_element_set_state(playbin, new);
-
-	switch (ret) {
+	switch (change_return) {
 	case GST_STATE_CHANGE_SUCCESS:
-		//DEBUG("State change success");
+		DEBUG("Setting gst state '%s'... success", state_name);
 		break;
 	case GST_STATE_CHANGE_ASYNC:
-		DEBUG("State will change async");
+		DEBUG("Setting gst state '%s'... will change async", state_name);
 		break;
 	case GST_STATE_CHANGE_FAILURE:
-		WARNING("State change failure");
+		/* This might happen if the uri is invalid */
+		DEBUG("Setting gst state '%s'... failed !", state_name);
 		break;
 	case GST_STATE_CHANGE_NO_PREROLL:
-		WARNING("State change no preroll");
+		DEBUG("Setting gst state '%s'... no preroll", state_name);
 		break;
 	default:
-		WARNING("Unhandled state: %d", ret);
+		WARNING("Unhandled state change: %d", change_return);
 		break;
 	}
 }
@@ -134,31 +134,32 @@ set_gst_state(GstElement *playbin, GstState new)
 static GstState
 get_gst_state(GstElement *playbin)
 {
-	GstStateChangeReturn ret;
+	GstStateChangeReturn change_return;
 	GstState state, pending;
 
-	/* When using that for real, we should set a timeout,
-	 * since it's possible that the call hangs...
-	 */
-	ret = gst_element_get_state(playbin, &state, &pending, GST_CLOCK_TIME_NONE);
+	change_return = gst_element_get_state(playbin, &state, &pending, 100 * GST_MSECOND);
 
-	switch (ret) {
+	switch (change_return) {
 	case GST_STATE_CHANGE_SUCCESS:
-		//DEBUG("State change succeeded");
+		DEBUG("Getting gst state... success");
 		break;
 	case GST_STATE_CHANGE_ASYNC:
-		DEBUG("State will change async");
+		DEBUG("Getting gst state... will change async");
 		break;
 	case GST_STATE_CHANGE_FAILURE:
-		DEBUG("State change failed");
+		DEBUG("Getting gst state... failed !");
 		break;
 	case GST_STATE_CHANGE_NO_PREROLL:
-		DEBUG("State change no_preroll");
+		DEBUG("Getting gst state... no preroll");
 		break;
 	default:
-		WARNING("Unhandled state: %d", ret);
+		WARNING("Unhandled state change: %d", change_return);
 		break;
 	}
+
+	DEBUG("Gst state '%s', pending '%s'",
+	      gst_element_state_get_name(state),
+	      gst_element_state_get_name(pending));
 
 	return state;
 }
@@ -401,6 +402,17 @@ ock_engine_play(OckEngine *self)
 		WARNING("No uri to play");
 		return;
 	}
+
+	/* Ensure a clean state. According to the doc:
+	 *
+	 * > State changes to GST_STATE_READY or GST_STATE_NULL never return
+	 * > GST_STATE_CHANGE_ASYNC.
+	 *
+	 * https://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/
+	 * GstElement.html#gst-element-set-state
+	 */
+	set_gst_state(priv->playbin, GST_STATE_NULL);
+	set_gst_state(priv->playbin, GST_STATE_READY);
 
 	/* Set gst state to PAUSE, so that the playbin starts buffering data.
 	 * Playback will start as soon as buffering is finished.
@@ -675,7 +687,7 @@ on_bus_message_buffering(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *
 		 * In case it matters, I observed that with radio Nova.
 		 */
 		if (percent < 100) {
-			DEBUG("Buffering < 100%%, ignoring instead setting to pause");
+			DEBUG("Buffering < 100%%, ignoring instead of setting to pause");
 			//set_gst_state(priv->playbin, GST_STATE_PAUSED);
 			//ock_engine_set_state(self, OCK_ENGINE_STATE_BUFFERING);
 		}
