@@ -84,12 +84,10 @@ struct _OckEngine {
 	OckEnginePrivate *priv;
 };
 
-static void ock_engine_errorable_interface_init(OckErrorableInterface *iface G_GNUC_UNUSED) {}
-
 G_DEFINE_TYPE_WITH_CODE(OckEngine, ock_engine, G_TYPE_OBJECT,
                         G_ADD_PRIVATE(OckEngine)
                         G_IMPLEMENT_INTERFACE(OCK_TYPE_ERRORABLE,
-                                        ock_engine_errorable_interface_init))
+                                        ock_errorable_dummy_interface_init))
 
 /*
  * GStreamer helpers

@@ -76,3 +76,11 @@ ock_errorable_default_init(OckErrorableInterface *iface)
 	                     NULL, NULL, g_cclosure_marshal_generic, G_TYPE_NONE,
 	                     1, G_TYPE_STRING);
 }
+
+/*
+ * Helpers
+ */
+
+void
+ock_errorable_dummy_interface_init(OckErrorableInterface *iface G_GNUC_UNUSED)
+{}

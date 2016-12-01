@@ -41,4 +41,8 @@ struct _OckErrorableInterface {
 void ock_errorable_emit_error(OckErrorable *self, const gchar *string);
 void ock_errorable_emit_error_printf(OckErrorable *self, const gchar *fmt, ...);
 
+/* Helpers */
+
+void ock_errorable_dummy_interface_init(OckErrorableInterface *iface);
+
 #endif /* __OVERCOOKED_FRAMEWORK_OCK_ERRORABLE_H__ */

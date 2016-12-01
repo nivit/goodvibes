@@ -204,12 +204,10 @@ struct _OckStationList {
 	OckStationListPrivate *priv;
 };
 
-static void ock_station_list_errorable_interface_init(OckErrorableInterface *iface G_GNUC_UNUSED) {}
-
 G_DEFINE_TYPE_WITH_CODE(OckStationList, ock_station_list, G_TYPE_OBJECT,
                         G_ADD_PRIVATE(OckStationList)
                         G_IMPLEMENT_INTERFACE(OCK_TYPE_ERRORABLE,
-                                        ock_station_list_errorable_interface_init))
+                                        ock_errorable_dummy_interface_init))
 
 /*
  * Serialization settings
