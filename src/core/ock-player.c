@@ -189,6 +189,15 @@ on_engine_notify(OckEngine  *engine,
 	}
 }
 
+static void
+on_engine_error(OckEngine *engine G_GNUC_UNUSED,
+                const gchar *error_string G_GNUC_UNUSED,
+                OckPlayer *self)
+{
+	/* Whatever the error, just stop */
+	ock_player_stop(self);
+}
+
 /*
  * Property accessors
  */
@@ -203,6 +212,7 @@ ock_player_set_engine(OckPlayer *self, OckEngine *engine)
 	g_assert(engine != NULL);
 	priv->engine = g_object_ref(engine);
 	g_signal_connect(priv->engine, "notify", G_CALLBACK(on_engine_notify), self);
+	g_signal_connect(priv->engine, "error", G_CALLBACK(on_engine_error), self);
 }
 
 static void
