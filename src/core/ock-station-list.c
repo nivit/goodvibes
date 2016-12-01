@@ -165,9 +165,7 @@
  */
 
 enum {
-	SIGNAL_LOADED,
 	SIGNAL_LOAD_ERROR,
-	SIGNAL_SAVED,
 	SIGNAL_SAVE_ERROR,
 	SIGNAL_STATION_ADDED,
 	SIGNAL_STATION_REMOVED,
@@ -841,10 +839,8 @@ ock_station_list_save(OckStationList *self)
 	g_object_unref(serializer);
 
 	/* Handle error */
-	// TODO Emitting signals, is it really needed ?
 	if (err == NULL) {
 		INFO("Station list saved to '%s'", priv->save_path);
-		g_signal_emit(self, signals[SIGNAL_SAVED], 0, priv->save_path);
 	} else {
 		// TODO Be an errorable, emit an error.
 		INFO("Failed to save station list to '%s': %s", priv->save_path, err->message);
@@ -927,9 +923,6 @@ ock_station_list_load(OckStationList *self)
 
 		g_signal_connect(station, "notify", G_CALLBACK(on_station_notify), self);
 	}
-
-	/* We must notify the world that the station list was created */
-	g_signal_emit(self, signals[SIGNAL_LOADED], 0, NULL);
 }
 
 OckStationList *
@@ -1029,24 +1022,11 @@ ock_station_list_class_init(OckStationListClass *class)
 	object_class->constructed = ock_station_list_constructed;
 
 	/* Signals */
-	// TODO Get rid of some useless signals after we become errorable
-	signals[SIGNAL_LOADED] =
-	        g_signal_new("loaded", G_TYPE_FROM_CLASS(class),
-	                     G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-	                     0, NULL, NULL, g_cclosure_marshal_generic, G_TYPE_NONE,
-	                     1, G_TYPE_STRING);
-
 	signals[SIGNAL_LOAD_ERROR] =
 	        g_signal_new("load-error", G_TYPE_FROM_CLASS(class),
 	                     G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
 	                     0, NULL, NULL, g_cclosure_marshal_generic, G_TYPE_NONE,
 	                     2, G_TYPE_STRING, G_TYPE_STRING);
-
-	signals[SIGNAL_SAVED] =
-	        g_signal_new("saved", G_TYPE_FROM_CLASS(class),
-	                     G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-	                     0, NULL, NULL, g_cclosure_marshal_generic, G_TYPE_NONE,
-	                     1, G_TYPE_STRING);
 
 	signals[SIGNAL_SAVE_ERROR] =
 	        g_signal_new("save-error", G_TYPE_FROM_CLASS(class),

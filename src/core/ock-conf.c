@@ -40,9 +40,7 @@
  */
 
 enum {
-	SIGNAL_LOADED,
 	SIGNAL_LOAD_ERROR,
-	SIGNAL_SAVED,
 	SIGNAL_SAVE_ERROR,
 	/* Number of signals */
 	SIGNAL_N
@@ -305,10 +303,8 @@ ock_conf_save(OckConf *self)
 	g_free(text);
 
 	/* Handle error */
-	// TODO Emitting signals, is it really needed ?
 	if (err == NULL) {
 		INFO("Configuration saved to '%s'", priv->save_path);
-		g_signal_emit(self, signals[SIGNAL_SAVED], 0, priv->save_path);
 	} else {
 		// TODO Be an errorable, emit an error.
 		INFO("Failed to save configuration to '%s': %s", priv->save_path, err->message);
@@ -458,24 +454,11 @@ ock_conf_class_init(OckConfClass *class)
 	object_class->constructed = ock_conf_constructed;
 
 	/* Signals */
-	// TODO Get rid of some useless signals after we become errorable
-	signals[SIGNAL_LOADED] =
-	        g_signal_new("loaded", G_TYPE_FROM_CLASS(class),
-	                     G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-	                     0, NULL, NULL, g_cclosure_marshal_generic, G_TYPE_NONE,
-	                     1, G_TYPE_STRING);
-
 	signals[SIGNAL_LOAD_ERROR] =
 	        g_signal_new("load-error", G_TYPE_FROM_CLASS(class),
 	                     G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
 	                     0, NULL, NULL, g_cclosure_marshal_generic, G_TYPE_NONE,
 	                     2, G_TYPE_STRING, G_TYPE_STRING);
-
-	signals[SIGNAL_SAVED] =
-	        g_signal_new("saved", G_TYPE_FROM_CLASS(class),
-	                     G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-	                     0, NULL, NULL, g_cclosure_marshal_generic, G_TYPE_NONE,
-	                     1, G_TYPE_STRING);
 
 	signals[SIGNAL_SAVE_ERROR] =
 	        g_signal_new("save-error", G_TYPE_FROM_CLASS(class),
