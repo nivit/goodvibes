@@ -101,7 +101,7 @@ static void ock_engine_errorable_interface_init(OckErrorableInterface *iface G_G
 G_DEFINE_TYPE_WITH_CODE(OckEngine, ock_engine, G_TYPE_OBJECT,
                         G_ADD_PRIVATE(OckEngine)
                         G_IMPLEMENT_INTERFACE(OCK_TYPE_ERRORABLE,
-                                              ock_engine_errorable_interface_init))
+                                        ock_engine_errorable_interface_init))
 
 /*
  * GStreamer helpers
@@ -306,7 +306,7 @@ ock_engine_get_stream_uri(OckEngine *self)
 	return self->priv->stream_uri;
 }
 
-void
+static void
 ock_engine_set_stream_uri(OckEngine *self, const gchar *uri)
 {
 	OckEnginePrivate *priv = self->priv;
@@ -375,9 +375,6 @@ ock_engine_set_property(GObject      *object,
 	case PROP_MUTE:
 		ock_engine_set_mute(self, g_value_get_boolean(value));
 		break;
-	case PROP_STREAM_URI:
-		ock_engine_set_stream_uri(self, g_value_get_string(value));
-		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
 		break;
@@ -389,15 +386,18 @@ ock_engine_set_property(GObject      *object,
  */
 
 void
-ock_engine_play(OckEngine *self)
+ock_engine_play(OckEngine *self, const gchar *uri)
 {
 	OckEnginePrivate *priv = self->priv;
 
-	/* We should have an uri set */
-	if (priv->stream_uri == NULL) {
-		WARNING("No uri to play");
+	/* Ensure there's an uri */
+	if (uri == NULL) {
+		WARNING("Uri is NULL !");
 		return;
 	}
+
+	/* Set the uri */
+	ock_engine_set_stream_uri(self, uri);
 
 	/* According to the doc:
 	 *
@@ -852,7 +852,7 @@ ock_engine_class_init(OckEngineClass *class)
 
 	properties[PROP_STREAM_URI] =
 	        g_param_spec_string("stream-uri", "Stream uri", NULL, NULL,
-	                            OCK_PARAM_DEFAULT_FLAGS | G_PARAM_READWRITE);
+	                            OCK_PARAM_DEFAULT_FLAGS | G_PARAM_READABLE);
 
 	properties[PROP_METADATA] =
 	        g_param_spec_object("metadata", "Current metadata", NULL,

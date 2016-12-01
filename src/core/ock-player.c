@@ -664,8 +664,7 @@ ock_player_play(OckPlayer *self)
 
 		/* Play the first uri */
 		first_uri = (gchar *) uris->data;
-		ock_engine_set_stream_uri(priv->engine, first_uri);
-		ock_engine_play(priv->engine);
+		ock_engine_play(priv->engine, first_uri);
 	}
 }
 

@@ -50,7 +50,7 @@ typedef enum {
 /* Methods */
 
 OckEngine *ock_engine_new    (void);
-void       ock_engine_play   (OckEngine *self);
+void       ock_engine_play   (OckEngine *self, const gchar *uri);
 void       ock_engine_stop   (OckEngine *self);
 
 /* Property accessors */
@@ -61,7 +61,6 @@ void            ock_engine_set_volume    (OckEngine *self, gdouble volume);
 gboolean        ock_engine_get_mute      (OckEngine *self);
 void            ock_engine_set_mute      (OckEngine *self, gboolean mute);
 const gchar    *ock_engine_get_stream_uri(OckEngine *self);
-void            ock_engine_set_stream_uri(OckEngine *self, const gchar *uri);
 OckMetadata    *ock_engine_get_metadata  (OckEngine *self);
 
 #endif /* __OVERCOOKED_CORE_OCK_ENGINE_H__ */
