@@ -147,18 +147,16 @@ ock_tray_update_icon_tooltip(OckTray *self)
 
 	/* Current station */
 	station = ock_player_get_station(player);
-	station_str = NULL;
 	if (station)
 		station_str = ock_station_make_name(station, TRUE);
-	if (station_str == NULL)
-		metadata_str = g_strdup("<i>No station</i>");
+	else
+		station_str = g_strdup("<i>No station</i>");
 
 	/* Metadata */
 	metadata = ock_player_get_metadata(player);
-	metadata_str = NULL;
 	if (metadata)
 		metadata_str = ock_metadata_make_title_artist(metadata, TRUE);
-	if (metadata_str == NULL)
+	else
 		metadata_str = g_strdup("<i>No metadata</i>");
 
 	/* Set the tooltip */
