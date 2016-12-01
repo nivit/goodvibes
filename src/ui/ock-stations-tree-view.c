@@ -293,6 +293,10 @@ on_tree_view_button_press_event(OckStationsTreeView *self,
 	/* Create the context menu */
 	GtkWidget *context_menu;
 	context_menu = ock_station_context_menu_new(station);
+
+#if GTK_CHECK_VERSION(3,22,0)
+	gtk_menu_popup_at_pointer(GTK_MENU(context_menu), NULL);
+#else
 	gtk_menu_popup(GTK_MENU(context_menu),
 	               NULL,
 	               NULL,
@@ -300,6 +304,7 @@ on_tree_view_button_press_event(OckStationsTreeView *self,
 	               NULL,
 	               event->button,
 	               event->time);
+#endif
 
 	/* Free at last */
 	g_object_unref(station);

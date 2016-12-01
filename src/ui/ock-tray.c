@@ -220,6 +220,9 @@ on_popup_menu(GtkStatusIcon *status_icon,
 
 	menu = GTK_MENU(priv->main_menu);
 
+#if GTK_CHECK_VERSION(3,22,0)
+	gtk_menu_popup_at_pointer(menu, NULL);
+#else
 	gtk_menu_popup(menu,
 	               NULL,
 	               NULL,
@@ -227,6 +230,7 @@ on_popup_menu(GtkStatusIcon *status_icon,
 	               status_icon,
 	               button,
 	               activate_time);
+#endif
 }
 
 static gboolean
