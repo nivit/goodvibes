@@ -3,6 +3,43 @@ How To
 
 
 
+Understand initialisation
+-------------------------
+
+In a nutshell, here's what happen at init.
+
+First part: creation.
+
+- objects are created
+- objects are added to global lists (features, configurables, errorables)
+
+After this point, we don't expect to have more objects created. We also don't
+expect any object to be destroyed. The global lists are not supposed to be
+modified. For the sake of simplicity, this should remain like that.
+
+Of course, I'm talking here about global objects, with a global visibility.
+Other objects, like stations, are created and deleted per user request.
+
+Second part: warm up.
+
+It's time for the objects to wake up, do their init stuff (files are loaded),
+watch each other (signals are connected) and so on.
+
+Last part: main loop is started.
+
+This whole little world becomes alive, and is eagerly waiting for the user
+to start clicking.
+
+
+
+Understand cleanup
+------------------
+
+Basically, it's just the same as init, but in reverse order.
+
+
+
+
 Add a setting to the configuration file
 ---------------------------------------
 
