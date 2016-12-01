@@ -32,22 +32,10 @@
 #include "core/ock-core-enum-types.h"
 #include "core/ock-metadata.h"
 
-/* Uncomment to dump incoming tags on the GstBus */
+/* Uncomment to dump more stuff from GStreamer */
 
 //#define DUMP_TAGS
 //#define DUMP_GST_STATE_CHANGES
-
-/*
- * Signals
- */
-
-enum {
-	SIGNAL_ERROR,
-	/* Number of signals */
-	SIGNAL_N
-};
-
-static guint signals[SIGNAL_N];
 
 /*
  * Properties
@@ -478,21 +466,23 @@ on_bus_message_error(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self
 
 	/* Handle error */
 	if (g_error_matches(error, GST_RESOURCE_ERROR, GST_RESOURCE_ERROR_NOT_FOUND)) {
+
+
 		if (g_str_has_prefix(error->message, "Could not resolve server name")) {
-			g_signal_emit(self, signals[SIGNAL_ERROR], 0,
-			              OCK_ENGINE_ERROR_SERVER_NAME_UNRESOLVED);
+			ock_errorable_emit_error(OCK_ERRORABLE(self), error->message);
 		} else if (g_str_has_prefix(error->message, "Not Available")) {
-			g_signal_emit(self, signals[SIGNAL_ERROR], 0,
-			              OCK_ENGINE_ERROR_STREAM_UNAVAILABLE);
+			ock_errorable_emit_error(OCK_ERRORABLE(self), error->message);
 		}
 	} else if (g_error_matches(error, GST_CORE_ERROR, GST_CORE_ERROR_MISSING_PLUGIN)) {
-		/* This may happen with public Wi-Fi, where the router blocks WAN access
-		 * and requires you to enter a code, or agree terms of use, or this
-		 * kind of things.
-		 * In this case, every request returns a http page.
+		/* This might happen in the following cases:
+		 * - bad uri for the stream
+		 *       No URI handler implemented for "ttp"
+		 * - WAN traffic redirected to an HTTP page. For example, this happens
+		 *   when if you're connected to a public Wi-Fi that requires you to
+		 *   agree the terms of use.
+		 * // TODO check error message in this case
 		 */
-		g_signal_emit(self, signals[SIGNAL_ERROR], 0,
-		              OCK_ENGINE_ERROR_STREAM_FORMAT_UNRECOGNIZED);
+		ock_errorable_emit_error(OCK_ERRORABLE(self), error->message);
 	}
 
 	/* Cleanup */
@@ -860,11 +850,4 @@ ock_engine_class_init(OckEngineClass *class)
 	                            OCK_PARAM_DEFAULT_FLAGS | G_PARAM_READABLE);
 
 	g_object_class_install_properties(object_class, PROP_N, properties);
-
-	/* Signals */
-	signals[SIGNAL_ERROR] =
-	        g_signal_new("error", G_TYPE_FROM_CLASS(class),
-	                     G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-	                     0, NULL, NULL, g_cclosure_marshal_generic, G_TYPE_NONE,
-	                     1, OCK_ENGINE_ERROR_ENUM_TYPE);
 }

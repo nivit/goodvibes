@@ -40,13 +40,6 @@ typedef enum {
 	OCK_ENGINE_STATE_PLAYING
 } OckEngineState;
 
-typedef enum {
-	OCK_ENGINE_ERROR_STREAM_UNDEFINED,
-	OCK_ENGINE_ERROR_STREAM_UNAVAILABLE,
-	OCK_ENGINE_ERROR_STREAM_FORMAT_UNRECOGNIZED,
-	OCK_ENGINE_ERROR_SERVER_NAME_UNRESOLVED
-} OckEngineError;
-
 /* Methods */
 
 OckEngine *ock_engine_new    (void);
