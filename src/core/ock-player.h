@@ -22,6 +22,7 @@
 
 #include <glib-object.h>
 
+#include "core/ock-engine.h"
 #include "core/ock-metadata.h"
 #include "core/ock-station.h"
 #include "core/ock-station-list.h"
@@ -43,7 +44,7 @@ typedef enum {
 
 /* Methods */
 
-OckPlayer    *ock_player_new              (OckStationList *station_list);
+OckPlayer    *ock_player_new              (OckEngine *engine, OckStationList *station_list);
 
 void          ock_player_go               (OckPlayer *self, const gchar *string_to_play);
 

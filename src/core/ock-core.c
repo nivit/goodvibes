@@ -23,6 +23,7 @@
 #include "framework/ock-framework.h"
 
 #include "core/ock-conf.h"
+#include "core/ock-engine.h"
 #include "core/ock-player.h"
 #include "core/ock-station-list.h"
 
@@ -43,6 +44,7 @@ OckConf        *ock_core_conf;
 OckStationList *ock_core_station_list;
 OckPlayer      *ock_core_player;
 
+static OckEngine  *ock_core_engine;
 static OckFeature *features[8];
 
 static gboolean
@@ -106,6 +108,7 @@ ock_core_cleanup(void)
 	/* Core objects */
 
 	OckConf        *conf         = ock_core_conf;
+	OckEngine      *engine       = ock_core_engine;
 	OckPlayer      *player       = ock_core_player;
 	OckStationList *station_list = ock_core_station_list;
 
@@ -113,6 +116,9 @@ ock_core_cleanup(void)
 	g_object_unref(player);
 
 	g_object_unref(station_list);
+
+	ock_framework_errorables_remove(engine);
+	g_object_unref(engine);
 
 	g_object_unref(conf);
 }
@@ -125,14 +131,18 @@ ock_core_init(void)
 	 * ----------------------------------------------- */
 
 	OckConf        *conf;
+	OckEngine      *engine;
 	OckPlayer      *player;
 	OckStationList *station_list;
 
 	conf = ock_conf_new();
 
+	engine = ock_engine_new();
+	ock_framework_errorables_append(engine);
+
 	station_list = ock_station_list_new();
 
-	player = ock_player_new(station_list);
+	player = ock_player_new(engine, station_list);
 	ock_framework_configurables_append(player);
 
 
@@ -182,6 +192,7 @@ ock_core_init(void)
 	 * ----------------------------------------------- */
 
 	ock_core_conf = conf;
+	ock_core_engine = engine;
 	ock_core_station_list = station_list;
 	ock_core_player = player;
 }

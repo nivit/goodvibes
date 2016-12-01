@@ -26,7 +26,7 @@
 #include "additions/gst.h"
 
 #include "framework/log.h"
-#include "framework/ock-param-specs.h"
+#include "framework/ock-framework.h"
 
 #include "core/ock-engine.h"
 #include "core/ock-core-enum-types.h"
@@ -96,7 +96,12 @@ struct _OckEngine {
 	OckEnginePrivate *priv;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE(OckEngine, ock_engine, G_TYPE_OBJECT)
+static void ock_engine_errorable_interface_init(OckErrorableInterface *iface G_GNUC_UNUSED) {}
+
+G_DEFINE_TYPE_WITH_CODE(OckEngine, ock_engine, G_TYPE_OBJECT,
+                        G_ADD_PRIVATE(OckEngine)
+                        G_IMPLEMENT_INTERFACE(OCK_TYPE_ERRORABLE,
+                                              ock_engine_errorable_interface_init))
 
 /*
  * GStreamer helpers

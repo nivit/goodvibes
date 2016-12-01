@@ -51,6 +51,7 @@ enum {
 	/* Reserved */
 	PROP_0,
 	/* Construct properties */
+	PROP_ENGINE,
 	PROP_STATION_LIST,
 	/* Properties */
 	PROP_STATE,
@@ -81,6 +82,9 @@ typedef enum {
 } OckPlayerWish;
 
 struct _OckPlayerPrivate {
+	/* Construct-only properties */
+	OckEngine      *engine;
+	OckStationList *station_list;
 	/* Properties */
 	OckPlayerState  state;
 	guint           volume;
@@ -88,10 +92,6 @@ struct _OckPlayerPrivate {
 	gboolean        repeat;
 	gboolean        shuffle;
 	gboolean        autoplay;
-	/* Engine */
-	OckEngine      *engine;
-	/* Station list */
-	OckStationList *station_list;
 	/* Current station */
 	OckStation     *station;
 	OckMetadata    *metadata;
@@ -192,6 +192,18 @@ on_engine_notify(OckEngine  *engine,
 /*
  * Property accessors
  */
+
+static void
+ock_player_set_engine(OckPlayer *self, OckEngine *engine)
+{
+	OckPlayerPrivate *priv = self->priv;
+
+	/* This is a construct-only property */
+	g_assert(priv->engine == NULL);
+	g_assert(engine != NULL);
+	priv->engine = g_object_ref(engine);
+	g_signal_connect(priv->engine, "notify", G_CALLBACK(on_engine_notify), self);
+}
 
 static void
 ock_player_set_station_list(OckPlayer *self, OckStationList *station_list)
@@ -554,6 +566,9 @@ ock_player_set_property(GObject      *object,
 	TRACE_SET_PROPERTY(object, property_id, value, pspec);
 
 	switch (property_id) {
+	case PROP_ENGINE:
+		ock_player_set_engine(self, g_value_get_object(value));
+		break;
 	case PROP_STATION_LIST:
 		ock_player_set_station_list(self, g_value_get_object(value));
 		break;
@@ -754,9 +769,10 @@ ock_player_go(OckPlayer *self, const gchar *string_to_play)
 }
 
 OckPlayer *
-ock_player_new(OckStationList *station_list)
+ock_player_new(OckEngine *engine, OckStationList *station_list)
 {
 	return g_object_new(OCK_TYPE_PLAYER,
+	                    "engine", engine,
 	                    "station-list", station_list,
 	                    NULL);
 }
@@ -810,10 +826,6 @@ ock_player_constructed(GObject *object)
 	priv->autoplay = DEFAULT_AUTOPLAY;
 	priv->station  = NULL;
 
-	/* Create engine */
-	priv->engine = ock_engine_new();
-	g_signal_connect(priv->engine, "notify", G_CALLBACK(on_engine_notify), self);
-
 	/* Chain up */
 	G_OBJECT_CHAINUP_CONSTRUCTED(ock_player, object);
 }
@@ -841,6 +853,12 @@ ock_player_class_init(OckPlayerClass *class)
 	/* Properties */
 	object_class->get_property = ock_player_get_property;
 	object_class->set_property = ock_player_set_property;
+
+	properties[PROP_ENGINE] =
+	        g_param_spec_object("engine", "Engine", NULL,
+	                            OCK_TYPE_ENGINE,
+	                            OCK_PARAM_DEFAULT_FLAGS | G_PARAM_WRITABLE |
+	                            G_PARAM_CONSTRUCT_ONLY);
 
 	properties[PROP_STATION_LIST] =
 	        g_param_spec_object("station-list", "Station list", NULL,
