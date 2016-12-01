@@ -111,20 +111,8 @@ on_player_notify_station(OckPlayer           *player,
 /*
  * Core Station List signal handlers
  * Needed to update the internal list store when the station list is modified.
- * This happens at startup, when the station list is loaded.
- * It also happens if the station list is modified externally
- * (aka through the DBus APIs).
+ * (remember the station list might be updated through the D-Bus API).
  */
-
-static void ock_stations_tree_view_populate(OckStationsTreeView *self);
-
-static void
-on_station_list_loaded(OckStationList *station_list G_GNUC_UNUSED,
-                       gchar          *load_path G_GNUC_UNUSED,
-                       OckStationsTreeView  *self)
-{
-	ock_stations_tree_view_populate(self);
-}
 
 static void
 on_station_list_station_event(OckStationList *station_list G_GNUC_UNUSED,
@@ -135,7 +123,6 @@ on_station_list_station_event(OckStationList *station_list G_GNUC_UNUSED,
 }
 
 static GSignalHandler station_list_handlers[] = {
-	{ "loaded",           G_CALLBACK(on_station_list_loaded)        },
 	{ "station-added",    G_CALLBACK(on_station_list_station_event) },
 	{ "station-removed",  G_CALLBACK(on_station_list_station_event) },
 	{ "station-modified", G_CALLBACK(on_station_list_station_event) },
@@ -518,7 +505,11 @@ station_cell_data_func(GtkTreeViewColumn *tree_column G_GNUC_UNUSED,
 	g_free(station_name);
 }
 
-static void
+/*
+ * Public methods
+ */
+
+void
 ock_stations_tree_view_populate(OckStationsTreeView *self)
 {
 	GtkTreeView *tree_view = GTK_TREE_VIEW(self);
@@ -557,10 +548,6 @@ ock_stations_tree_view_populate(OckStationsTreeView *self)
 	/* Unblock list store handlers */
 	g_signal_handlers_unblock(list_store, list_store_handlers, self);
 }
-
-/*
- * Public methods
- */
 
 GtkWidget *
 ock_stations_tree_view_new(void)

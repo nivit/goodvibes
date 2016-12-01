@@ -341,6 +341,15 @@ setup_setting(const gchar *tooltip_text,
  * Public methods
  */
 
+void
+ock_main_window_populate_stations(OckMainWindow *self)
+{
+	OckMainWindowPrivate *priv = self->priv;
+	OckStationsTreeView *tree_view = OCK_STATIONS_TREE_VIEW(priv->stations_tree_view);
+
+	ock_stations_tree_view_populate(tree_view);
+}
+
 GtkWidget *
 ock_main_window_new(void)
 {

@@ -34,4 +34,6 @@ G_DECLARE_FINAL_TYPE(OckStationsTreeView, ock_stations_tree_view, \
 
 GtkWidget *ock_stations_tree_view_new(void);
 
+void       ock_stations_tree_view_populate(OckStationsTreeView *self);
+
 #endif /* __OVERCOOKED_UI_OCK_STATIONS_TREE_VIEW_H__ */

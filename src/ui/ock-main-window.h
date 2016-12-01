@@ -33,4 +33,6 @@ G_DECLARE_FINAL_TYPE(OckMainWindow, ock_main_window, OCK, MAIN_WINDOW, GtkWindow
 
 GtkWidget *ock_main_window_new(void);
 
+void       ock_main_window_populate_stations(OckMainWindow *self);
+
 #endif /* __OVERCOOKED_UI_OCK_MAIN_WINDOW_H__ */

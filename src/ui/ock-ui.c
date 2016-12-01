@@ -48,7 +48,9 @@ ock_ui_cool_down(void)
 void
 ock_ui_warm_up(void)
 {
-	/* Dummy */
+	OckMainWindow *main_window = OCK_MAIN_WINDOW(ock_ui_main_window);
+
+	ock_main_window_populate_stations(main_window);
 }
 
 void
