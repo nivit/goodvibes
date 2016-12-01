@@ -438,14 +438,11 @@ ock_engine_new(void)
 static gboolean
 on_bus_message_eos(GstBus *bus G_GNUC_UNUSED, GstMessage *msg G_GNUC_UNUSED, OckEngine *self)
 {
-	OckEnginePrivate *priv = self->priv;
-
 	/* This shouldn't happen, as far as I know */
 	WARNING("Unexpected eos message");
 
-	/* Freak out, stop playback */
-	set_gst_state(priv->playbin, GST_STATE_NULL);
-	ock_engine_set_state(self, OCK_ENGINE_STATE_STOPPED);
+	/* Emit an error */
+	ock_errorable_emit_error(OCK_ERRORABLE(self), "End of stream");
 
 	return TRUE;
 }
@@ -453,7 +450,6 @@ on_bus_message_eos(GstBus *bus G_GNUC_UNUSED, GstMessage *msg G_GNUC_UNUSED, Ock
 static gboolean
 on_bus_message_error(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self)
 {
-	OckEnginePrivate *priv = self->priv;
 	GError *error;
 	gchar  *debug;
 
@@ -465,36 +461,65 @@ on_bus_message_error(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self
 	      g_quark_to_string(error->domain), error->code, error->message);
 	DEBUG("Gst bus error debug : %s", debug);
 
-	/* Handle error */
-	if (g_error_matches(error, GST_RESOURCE_ERROR, GST_RESOURCE_ERROR_NOT_FOUND)) {
-
-
-		if (g_str_has_prefix(error->message, "Could not resolve server name")) {
-			ock_errorable_emit_error(OCK_ERRORABLE(self), error->message);
-		} else if (g_str_has_prefix(error->message, "Not Available")) {
-			ock_errorable_emit_error(OCK_ERRORABLE(self), error->message);
-		}
-	} else if (g_error_matches(error, GST_CORE_ERROR, GST_CORE_ERROR_MISSING_PLUGIN)) {
-		/* This might happen in the following cases:
-		 * - bad uri for the stream
-		 *       No URI handler implemented for "ttp"
-		 * - WAN traffic redirected to an HTTP page. For example, this happens
-		 *   when if you're connected to a public Wi-Fi that requires you to
-		 *   agree the terms of use.
-		 * // TODO check error message in this case
-		 */
-		ock_errorable_emit_error(OCK_ERRORABLE(self), error->message);
-	}
+	/* Emit an error signal */
+	ock_errorable_emit_error(OCK_ERRORABLE(self), error->message);
 
 	/* Cleanup */
 	g_error_free(error);
 	g_free(debug);
 
-	/* Freak out, stop playback */
-	set_gst_state(priv->playbin, GST_STATE_NULL);
-	ock_engine_set_state(self, OCK_ENGINE_STATE_STOPPED);
-
 	return TRUE;
+
+	/* Here are some gst error messages that I've dealt with so far.
+	 *
+	 * GST_RESOURCE_ERROR: GST_RESOURCE_ERROR_NOT_FOUND
+	 *
+	 * Could not resolve server name.
+	 *
+	 *   This might happen for different reasons:
+	 *   - wrong url, the protocol (http, likely) is correct, but the name of
+	 *     the server is wrong.
+	 *   - name resolution is down.
+	 *   - network is down.
+	 *
+	 *   To reproduce:
+	 *   - in the url, set a wrong server name.
+	 *   - just disconnect from the network.
+	 *
+	 * File Not Found
+	 *
+	 *   It means that the protocol (http, lilely) is correct, the server
+	 *   name as well, but the file is wrong or couldn't be found. I guess
+	 *   the server could be reached and replied something like "file not found".
+	 *
+	 *   To reproduce: at the end of the url, set a wrong filename
+	 *
+	 * Not Available
+	 *
+	 *   Don't remember about this one...
+	 *
+	 * GST_CORE_ERROR: GST_CORE_ERROR_MISSING_PLUGIN
+	 *
+	 * No URI handler implemented for ...
+	 *
+	 *   It means that the protocol is wrong or unsupported.
+	 *
+	 *   To reproduce: in the url, replace 'http' by some random stuff
+	 *
+	 * Your GStreamer installation is missing a plug-in.
+	 *
+	 *   It means that gstreamer doesn't know what to do with what it received
+	 *   from the server. So it's likely that the server didn't send the stream
+	 *   expected. And it's even more likely that the server returned an html
+	 *   page, because that's what servers usually do.
+	 *   Some cases where it can happen:
+	 *   - wrong url, that exists but is not a stream.
+	 *   - outgoing requests are blocked, and return an html page. For example,
+	 *     you're connected to a public Wi-Fi that expects you to authenticate
+	 *     or agree the terms of use, before allowing outgoing traffic.
+	 *
+	 *   To reproduce: in the url, remove anything after the server name
+	 */
 }
 
 static gboolean
