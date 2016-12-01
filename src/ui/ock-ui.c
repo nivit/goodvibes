@@ -23,7 +23,6 @@
 
 #include "framework/ock-framework.h"
 
-#include "ui/ock-error-handler.h"
 #include "ui/ock-main-window.h"
 #include "ui/ock-stock-icons.h"
 #include "ui/ock-tray.h"
@@ -38,24 +37,18 @@
 OckTray   *ock_ui_tray;
 GtkWidget *ock_ui_main_window;
 
-static OckErrorHandler *ock_ui_error_handler;
-
 static OckFeature *features[8];
 
 void
 ock_ui_cool_down(void)
 {
-	OckErrorHandler *error_handler = ock_ui_error_handler;
-
-	ock_error_handler_unwatch(error_handler);
+	/* Dummy */
 }
 
 void
 ock_ui_warm_up(void)
 {
-	OckErrorHandler *error_handler = ock_ui_error_handler;
-
-	ock_error_handler_watch(error_handler);
+	/* Dummy */
 }
 
 void
@@ -75,7 +68,6 @@ ock_ui_cleanup(void)
 
 	/* Ui objects */
 
-	OckErrorHandler *error_handler = ock_ui_error_handler;
 	GtkWidget       *main_window   = ock_ui_main_window;
 	OckTray         *tray          = ock_ui_tray;
 
@@ -84,8 +76,6 @@ ock_ui_cleanup(void)
 
 	ock_framework_configurables_remove(main_window);
 	gtk_widget_destroy(main_window);
-
-	g_object_unref(error_handler);
 
 	/* Stock icons */
 
@@ -107,11 +97,8 @@ ock_ui_init(void)
 	 * Ui objects                                      *
 	 * ----------------------------------------------- */
 
-	OckErrorHandler *error_handler;
 	GtkWidget       *main_window;
 	OckTray         *tray;
-
-	error_handler = ock_error_handler_new();
 
 	main_window = ock_main_window_new();
 	ock_framework_configurables_append(main_window);
@@ -151,7 +138,6 @@ ock_ui_init(void)
 	 * Initialize global variables                     *
 	 * ----------------------------------------------- */
 
-	ock_ui_error_handler = error_handler;
 	ock_ui_tray = tray;
 	ock_ui_main_window = main_window;
 }

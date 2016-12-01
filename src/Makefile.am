@@ -187,7 +187,6 @@ ock_ui_sources =							\
 					ui/global.h			\
 	ui/ock-about-dialog.c		ui/ock-about-dialog.h		\
 	ui/ock-builder-helpers.c	ui/ock-builder-helpers.h	\
-	ui/ock-error-handler.c		ui/ock-error-handler.h		\
 	ui/ock-main-menu.c		ui/ock-main-menu.h		\
 	ui/ock-main-window.c		ui/ock-main-window.h		\
 	ui/ock-prefs-window.c		ui/ock-prefs-window.h		\
