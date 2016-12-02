@@ -1,4 +1,5 @@
 ui_files = 			\
+	main-window.glade	\
 	prefs-window.glade	\
 	station-dialog.glade
 
