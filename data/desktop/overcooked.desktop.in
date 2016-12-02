@@ -3,7 +3,7 @@ Name=@PACKAGE_LONG_NAME@
 GenericName=Radio Player
 Comment=Play web radios
 # TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-Keywords=Audio;Radio;
+Keywords=Audio;Radio;Player;
 Categories=GTK;AudioVideo;Audio;Player;
 Terminal=false
 Type=Application
