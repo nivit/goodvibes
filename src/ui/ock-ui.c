@@ -128,7 +128,7 @@ ock_ui_init(void)
 	ock_framework_errorables_append(feature);
 #endif
 #ifdef NOTIFICATIONS_ENABLED
-	feature = ock_feature_new(OCK_TYPE_NOTIFICATIONS, FALSE);
+	feature = ock_feature_new(OCK_TYPE_NOTIFICATIONS, TRUE);
 	features[idx++] = feature;
 	ock_framework_features_append(feature);
 	ock_framework_configurables_append(feature);
