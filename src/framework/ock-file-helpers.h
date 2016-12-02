@@ -40,9 +40,9 @@ typedef enum {
 	OCK_DIR_CURRENT_CONFIG = (1 << 0),
 	OCK_DIR_CURRENT_DATA   = (1 << 1),
 	OCK_DIR_USER_CONFIG    = (1 << 2),
-	OCK_DIR_USER_DATA      = (1 << 2),
-	OCK_DIR_SYSTEM_CONFIG  = (1 << 2),
-	OCK_DIR_SYSTEM_DATA    = (1 << 2),
+	OCK_DIR_USER_DATA      = (1 << 3),
+	OCK_DIR_SYSTEM_CONFIG  = (1 << 4),
+	OCK_DIR_SYSTEM_DATA    = (1 << 5),
 } OckDirType;
 
 GSList *ock_get_path_list(OckDirType dir_type, const gchar *filename);
