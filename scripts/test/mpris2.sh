@@ -14,6 +14,11 @@ print_usage()
     echo "  get  <Root/Player/TrackList> <property-name>"
     echo "  set  <Root/Player/TrackList> <property-name> <type:value>"
     echo "  watch-signals"
+    echo ""
+    echo "Examples:"
+    echo "  $0 call Player Play"
+    echo "  $0 call TrackList GoTo objpath:\"/org/Overcooked/StationList/0x55be33e73a60\""
+    echo "  $0 call TrackList GetTracksMetadata array:objpath:\"/org/Overcooked/StationList/0x56502c272620\",\"/org/Overcooked/StationList/0x56502c272660\""
 }
 
 iface_real()
@@ -46,36 +51,39 @@ case $1 in
     call)
 	IFACE=$2
 	METHOD=$3
-	# Implemented "a l'arrache-style"
-	echo "dbus-send --type=method_call --dest=$MPRIS_OBJ $MPRIS_PATH $MPRIS_IFACE$(iface_real $IFACE).$METHOD $4 $5 $6 $7 $8 $9"
-	dbus-send --print-reply=literal \
-		  --type=method_call \
-		  --dest=$MPRIS_OBJ \
-		  $MPRIS_PATH \
-		  $MPRIS_IFACE$(iface_real $IFACE).$METHOD $4 $5 $6 $7 $8 $9 
+	dbus-send --print-reply=literal                    \
+		  --type=method_call                       \
+		  --dest=$MPRIS_OBJ                        \
+		  $MPRIS_PATH                              \
+		  $MPRIS_IFACE$(iface_real $IFACE).$METHOD \
+		  ${@:4}
 	;;
 
     get)
 	IFACE=$2
 	PROP=$3
-	dbus-send --print-reply=literal \
-       	          --dest=$MPRIS_OBJ \
-		  $MPRIS_PATH \
-		  org.freedesktop.DBus.Properties.Get string:"$MPRIS_IFACE$(iface_real $IFACE)" string:"$PROP"
+	dbus-send --print-reply=literal                     \
+       	          --dest=$MPRIS_OBJ                         \
+		  $MPRIS_PATH                               \
+		  org.freedesktop.DBus.Properties.Get       \
+		  string:"$MPRIS_IFACE$(iface_real $IFACE)" \
+		  string:"$PROP"
 	;;
 
     set)
 	IFACE=$2
 	PROP=$3
 	TYPEVALUE=$4
-	dbus-send --print-reply=literal \
-       	          --dest=$MPRIS_OBJ \
-		  $MPRIS_PATH \
-		  org.freedesktop.DBus.Properties.Set string:"$MPRIS_IFACE$(iface_real $IFACE)" string:"$PROP" variant:$TYPEVALUE
+	dbus-send --print-reply=literal                     \
+       	          --dest=$MPRIS_OBJ                         \
+		  $MPRIS_PATH                               \
+		  org.freedesktop.DBus.Properties.Set       \
+		  string:"$MPRIS_IFACE$(iface_real $IFACE)" \
+		  string:"$PROP" variant:$TYPEVALUE
 	;;
 
     watch-signals)
-	dbus-monitor "type='signal',sender='org.mpris.MediaPlayer2.overcooked'"
+	dbus-monitor "type='signal',sender='$MPRIS_OBJ'"
 	;;
 
     *)

@@ -29,14 +29,14 @@
 
 #include "framework/log.h"
 #include "framework/uri-schemes.h"
-#include "framework/ock-feature.h"
+#include "framework/ock-framework.h"
 
 #include "core/ock-core.h"
 
 #include "core/feat/ock-dbus-server.h"
 #include "core/feat/ock-dbus-server-mpris2.h"
 
-#define TRACKID_PATH         "/org/" PACKAGE_NAME "/stationlist"
+#define TRACKID_PATH         "/org/" PACKAGE_CAMEL_NAME "/StationList"
 
 #define DBUS_NAME            "org.mpris.MediaPlayer2." PACKAGE_CAMEL_NAME
 #define DBUS_PATH            "/org/mpris/MediaPlayer2"
@@ -297,11 +297,9 @@ method_raise(OckDbusServer  *dbus_server G_GNUC_UNUSED,
 static GVariant *
 method_quit(OckDbusServer  *dbus_server G_GNUC_UNUSED,
             GVariant       *params G_GNUC_UNUSED,
-            GError        **error)
+            GError        **error G_GNUC_UNUSED)
 {
-	// TODO Implement quit method
-	g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_NOT_SUPPORTED,
-	            "Not implemented yet.");
+	ock_framework_quit_loop();
 
 	return NULL;
 }
@@ -433,9 +431,6 @@ method_get_tracks_metadata(OckDbusServer  *dbus_server G_GNUC_UNUSED,
 	GVariantIter *iter;
 	const gchar *track_id;
 
-	// TODO Check for leaks ?
-	// TODO Ensure it works with &o
-
 	g_variant_get(params, "(ao)", &iter);
 	g_variant_builder_init(&b, G_VARIANT_TYPE("aa{sv}"));
 	while (g_variant_iter_loop(iter, "&o", &track_id)) {
@@ -495,7 +490,8 @@ method_add_track(OckDbusServer  *dbus_server G_GNUC_UNUSED,
 	/* Play new station if needed */
 	if (set_as_current) {
 		ock_player_set_station(player, station);
-		ock_player_play(player);
+		if (ock_player_get_state(player) != OCK_PLAYER_STATE_STOPPED)
+			ock_player_play(player);
 	}
 
 	return NULL;
@@ -532,7 +528,7 @@ method_go_to(OckDbusServer  *dbus_server G_GNUC_UNUSED,
 	const gchar *track_id;
 	OckStation *station;
 
-	// TODO What about the last line in MPRIS2 specs ? What does that mean ?
+	// WISHED What about the last line in MPRIS2 specs ? What does that mean ?
 
 	g_variant_get(params, "(&o)", &track_id);
 	if (!parse_track_id(track_id, station_list, &station)) {
@@ -542,7 +538,9 @@ method_go_to(OckDbusServer  *dbus_server G_GNUC_UNUSED,
 	}
 
 	ock_player_set_station(player, station);
-	ock_player_play(player);
+
+	if (ock_player_get_state(player) != OCK_PLAYER_STATE_STOPPED)
+		ock_player_play(player);
 
 	return NULL;
 }
@@ -840,8 +838,20 @@ on_player_notify(OckPlayer           *player,
 	GVariant *value;
 
 	if (!g_strcmp0(property_name, "state")) {
-		prop_name = "PlaybackStatus";
-		value = g_variant_new_playback_status(player);
+		OckPlayerState state;
+
+		state = ock_player_get_state(player);
+
+		switch (state) {
+		case OCK_PLAYER_STATE_PLAYING:
+		case OCK_PLAYER_STATE_STOPPED:
+			prop_name = "PlaybackStatus";
+			value = g_variant_new_playback_status(player);
+			break;
+		default:
+			/* Ignore other states */
+			return;
+		}
 	} else if (!g_strcmp0(property_name, "repeat")) {
 		prop_name = "LoopStatus";
 		value = g_variant_new_loop_status(player);
