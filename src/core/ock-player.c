@@ -108,7 +108,10 @@ struct _OckPlayer {
 	OckPlayerPrivate *priv;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE(OckPlayer, ock_player, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_CODE(OckPlayer, ock_player, G_TYPE_OBJECT,
+                        G_ADD_PRIVATE(OckPlayer)
+                        G_IMPLEMENT_INTERFACE(OCK_TYPE_ERRORABLE,
+                                        ock_errorable_dummy_interface_init))
 
 /*
  * Signal handlers
@@ -772,9 +775,17 @@ ock_player_go(OckPlayer *self, const gchar *string_to_play)
 	}
 
 	/* That looks like an invalid string then */
-	INFO("'%s' is neither a known station or a valid uri", string_to_play);
+	{
+		gchar *str;
 
-	// TODO Report that error ?
+		str = g_strdup_printf("'%s' is neither a known station or a valid uri",
+		                      string_to_play);
+
+		INFO("%s", str);
+		ock_errorable_emit_error(OCK_ERRORABLE(self), str);
+
+		g_free(str);
+	}
 }
 
 OckPlayer *
@@ -919,8 +930,7 @@ ock_player_class_init(OckPlayerClass *class)
 	properties[PROP_STATION] =
 	        g_param_spec_object("station", "Current Station", NULL,
 	                            OCK_TYPE_STATION,
-	                            OCK_PARAM_DEFAULT_FLAGS |
-	                            G_PARAM_READWRITE);
+	                            OCK_PARAM_DEFAULT_FLAGS | G_PARAM_READWRITE);
 
 	properties[PROP_STATION_URI] =
 	        g_param_spec_string("station-uri", "Current Station Uri",

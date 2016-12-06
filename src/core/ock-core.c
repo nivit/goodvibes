@@ -113,6 +113,7 @@ ock_core_cleanup(void)
 	OckStationList *station_list = ock_core_station_list;
 
 	ock_framework_configurables_remove(player);
+	ock_framework_errorables_remove(player);
 	g_object_unref(player);
 
 	ock_framework_errorables_remove(station_list);
@@ -148,7 +149,7 @@ ock_core_init(void)
 
 	player = ock_player_new(engine, station_list);
 	ock_framework_configurables_append(player);
-
+	ock_framework_errorables_append(player);
 
 
 	/* ----------------------------------------------- *
