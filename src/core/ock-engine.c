@@ -34,8 +34,8 @@
 
 /* Uncomment to dump more stuff from GStreamer */
 
-//#define DUMP_TAGS
-//#define DUMP_GST_STATE_CHANGES
+//#define DEBUG_GST_TAGS
+//#define DEBUG_GST_STATE_CHANGES
 
 /*
  * Properties
@@ -562,7 +562,7 @@ on_bus_message_info(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self 
 	return TRUE;
 }
 
-#ifdef DUMP_TAGS
+#ifdef DEBUG_GST_TAGS
 static void
 tag_list_foreach_dump(const GstTagList *list, const gchar *tag,
                       gpointer data G_GNUC_UNUSED)
@@ -607,7 +607,7 @@ tag_list_foreach_dump(const GstTagList *list, const gchar *tag,
 	g_free(str);
 
 }
-#endif /* DUMP_TAGS */
+#endif /* DEBUG_GST_TAGS */
 
 static gboolean
 on_bus_message_tag(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self)
@@ -621,12 +621,12 @@ on_bus_message_tag(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self)
 	/* Parse message */
 	gst_message_parse_tag(msg, &taglist);
 
-#ifdef DUMP_TAGS
+#ifdef DEBUG_GST_TAGS
 	/* Dumping may be needed to debug */
 	DEBUG("-- Dumping taglist...");
 	gst_tag_list_foreach(taglist, (GstTagForeachFunc) tag_list_foreach_dump, NULL);
 	DEBUG("-- Done --");
-#endif /* DUMP_TAGS */
+#endif /* DEBUG_GST_TAGS */
 
 	/* Tags can be quite noisy, so let's cut it short.
 	 * From my experience, 'title' is the most important field,
@@ -706,7 +706,9 @@ on_bus_message_buffering(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *
 		 * constantly receive buffering < 100% messages. In such case,
 		 * pausing/playing screws the playback. Ignoring the messages
 		 * works just fine. So let's ignore for now.
-		 * In case it matters, I observed that with radio Nova.
+		 * List of radios that trigger this behavior (not sure it matters):
+		 * - Nova
+		 * - Grenouille
 		 */
 		if (percent < 100) {
 			DEBUG("Buffering < 100%%, ignoring instead of setting to pause");
@@ -726,7 +728,7 @@ static gboolean
 on_bus_message_state_changed(GstBus *bus G_GNUC_UNUSED, GstMessage *msg,
                              OckEngine *self G_GNUC_UNUSED)
 {
-#ifdef DUMP_GST_STATE_CHANGES
+#ifdef DEBUG_GST_STATE_CHANGES
 	GstState old, new, pending;
 
 	/* Parse message */
