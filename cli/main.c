@@ -530,7 +530,6 @@ main(int argc, char *argv[])
 	/* Handle special commands */
 	if (!strcmp(argv[1], "launch")) {
 		/* Launch the application through DBus */
-		// FIXME: this doesn't seem to work
 		GVariantBuilder b;
 		g_variant_builder_init(&b, G_VARIANT_TYPE_TUPLE);
 		g_variant_builder_add(&b, "s", DBUS_NAME);
@@ -613,11 +612,13 @@ main(int argc, char *argv[])
 		                cmd->dbus_name, args, &result);
 		break;
 	case PROPERTY:
-		if (argc == 0) // Get
+		if (argc == 0)
+			/* Get command */
 			err = dbus_call(DBUS_NAME, DBUS_PATH,
 			                "org.freedesktop.DBus.Properties",
 			                "Get", args, &result);
 		else
+			/* Set command */
 			err = dbus_call(DBUS_NAME, DBUS_PATH,
 			                "org.freedesktop.DBus.Properties",
 			                "Set", args, NULL);
@@ -633,7 +634,8 @@ main(int argc, char *argv[])
 
 		if (cmd->type == METHOD) {
 			cmd->print_result(result);
-		} else { // PROPERTY
+		} else {
+			/* cmd->type == PROPERTY */
 			/* Result is always a GVariant, encapsulated in a tuple */
 			GVariant *tmp;
 			g_variant_get(result, "(v)", &tmp);
