@@ -517,6 +517,8 @@ ock_stations_tree_view_populate(OckStationsTreeView *self)
 	GtkListStore *list_store = GTK_LIST_STORE(tree_model);
 
 	OckStationList *station_list = ock_core_station_list;
+	OckPlayer *player = ock_core_player;
+	OckStation *current_station = ock_player_get_station(player);
 	OckStationListIter *iter;
 	OckStation *station;
 
@@ -533,14 +535,20 @@ ock_stations_tree_view_populate(OckStationsTreeView *self)
 	while (ock_station_list_iter_loop(iter, &station)) {
 		GtkTreeIter tree_iter;
 		const gchar *station_name;
+		PangoWeight weight;
 
 		station_name = ock_station_get_name_or_uri(station);
+
+		if (station == current_station)
+			weight = PANGO_WEIGHT_BOLD;
+		else
+			weight = PANGO_WEIGHT_NORMAL;
 
 		gtk_list_store_append(list_store, &tree_iter);
 		gtk_list_store_set(list_store, &tree_iter,
 		                   STATION_COLUMN, station,
 		                   STATION_NAME_COLUMN, station_name,
-		                   STATION_WEIGHT_COLUMN, PANGO_WEIGHT_NORMAL,
+		                   STATION_WEIGHT_COLUMN, weight,
 		                   -1);
 	}
 	ock_station_list_iter_free(iter);
