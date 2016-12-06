@@ -26,7 +26,7 @@
 
 #include "framework/log.h"
 #include "framework/uri-schemes.h"
-#include "framework/ock-feature.h"
+#include "framework/ock-framework.h"
 
 #include "core/ock-core.h"
 
@@ -165,11 +165,9 @@ end:
 static GVariant *
 method_quit(OckDbusServer  *dbus_server G_GNUC_UNUSED,
             GVariant       *params G_GNUC_UNUSED,
-            GError        **error)
+            GError        **error G_GNUC_UNUSED)
 {
-	// TODO Implement method quit
-	g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_NOT_SUPPORTED,
-	            "Not implemented yet.");
+	ock_framework_quit_loop();
 
 	return NULL;
 }
