@@ -51,6 +51,22 @@ string_copyright(void)
 }
 
 static const gchar *
+string_date_now(void)
+{
+	GDateTime *now;
+	static gchar *text;
+
+	g_free(text);
+
+	now = g_date_time_new_now_local();
+	text = g_date_time_format(now, "%F, %T");
+
+	g_date_time_unref(now);
+
+	return text;
+}
+
+static const gchar *
 string_compile_libraries(void)
 {
 	static gchar *text;
@@ -152,6 +168,7 @@ main(int argc, char *argv[])
 	log_init(options.log_level, options.colorless, options.output_file);
 	INFO("%s", string_package_info());
 	INFO("%s", string_copyright());
+	INFO("Started on %s, with pid %ld", string_date_now(), (long) getpid());
 	INFO("Compiled against: %s", string_compile_libraries());
 	INFO("Running along   : %s", string_runtime_libraries());
 

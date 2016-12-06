@@ -72,18 +72,8 @@ time_now(void)
 static void
 print_hello_line(void)
 {
-	GDateTime *now;
-	gchar *nowtxt;
-
-	now = g_date_time_new_now_local();
-	nowtxt = g_date_time_format(now, "%F, %T");
-
 	PRINT("---- " PACKAGE_CAMEL_NAME " " PACKAGE_VERSION " ----");
-	PRINT("Started on %s. Pid: %ld.", nowtxt, (long) getpid());
 	PRINT("Hit Ctrl+C to quit...");
-
-	g_free(nowtxt);
-	g_date_time_unref(now);
 }
 
 static void
