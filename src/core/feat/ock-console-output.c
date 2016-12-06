@@ -33,10 +33,6 @@
 
 #include "core/feat/ock-console-output.h"
 
-// TODO Should we watch the errorable list, and display error ? I guess so...
-// TODO Station is not printed at first, when it's set by config, since feature is not ready yet.
-//      Well, at least, it was like that at some point. More check needed.
-
 /*
  * GObject definitions
  */
