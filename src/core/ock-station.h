@@ -35,7 +35,6 @@ G_DECLARE_FINAL_TYPE(OckStation, ock_station, OCK, STATION, GObject)
 
 OckStation  *ock_station_new              (const gchar *name, const gchar *uri);
 gchar       *ock_station_make_name        (OckStation *self, gboolean escape);
-gchar       *ock_station_to_string        (OckStation *self);
 gboolean     ock_station_download_playlist(OckStation *self);
 
 const gchar *ock_station_get_uid        (OckStation *self);

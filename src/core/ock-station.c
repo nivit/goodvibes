@@ -65,7 +65,7 @@ static guint signals[SIGNAL_N];
  */
 
 struct _OckStationPrivate {
-	/* Base properties */
+	/* Properties */
 	gchar  *uid;
 	gchar  *name;
 	gchar  *uri;
@@ -313,17 +313,6 @@ ock_station_make_name(OckStation *self, gboolean escape)
 		str = g_strdup(str);
 
 	return str;
-}
-
-gchar *
-ock_station_to_string(OckStation *self)
-{
-	OckStationPrivate *priv = self->priv;
-
-	// TODO Make this string static, somehow ? This is for debug, nobody wants to free that
-
-	return g_strdup_printf("OckStation[%s] '%s': %s",
-	                       priv->uid, priv->name, priv->uri);
 }
 
 OckStation *
