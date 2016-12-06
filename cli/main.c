@@ -520,6 +520,8 @@ main(int argc, char *argv[])
 	GVariant *args, *result;
 	int err;
 
+	err = 0;
+
 	help_init(argv[0]);
 
 	if (argc < 2)
