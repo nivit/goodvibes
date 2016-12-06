@@ -80,11 +80,6 @@ G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(OckDbusServer, ock_dbus_server, OCK_TYPE_FEA
 static void
 debug_interfaces(OckDbusServer *self)
 {
-	/* One way validation: check that stuff provided by object is also
-	 * present in introspection.
-	 * Don't check that every stuff in introspection is implemented.
-	 */
-	// TODO Do the other way round ?? Boring...
 	OckDbusServerPrivate    *priv = ock_dbus_server_get_instance_private(self);
 	GDBusNodeInfo           *info = priv->introspection_data;
 	const OckDbusInterface  *iface;
@@ -97,47 +92,111 @@ debug_interfaces(OckDbusServer *self)
 	GDBusPropertyInfo      **g_props;
 	GDBusPropertyInfo       *g_prop;
 
-	for (iface = priv->interface_table; iface && iface->name; iface++) {
+	/* Find missing things in introspection.
+	 * We iterate on methods and properties provided by the implementation,
+	 * and ensure they exist in introspection.
+	 */
+
+	DEBUG("Debugging introspection data...");
+
+	for (iface = priv->interface_table; iface->name; iface++) {
 		/* Look for matching interface in introspection data */
 		g_ifaces = info->interfaces;
-		while (g_ifaces && (g_iface = *g_ifaces++))
+		while (g_ifaces && (g_iface = *g_ifaces++)) {
 			if (!g_strcmp0(iface->name, g_iface->name))
 				break;
+		}
 
 		if (g_iface == NULL)
-			ERROR("Iface '%s': no match", iface->name);
+			ERROR("Implemented interface '%s': no match", iface->name);
 
+		/* Look for matching methods in interface */
 		for (method = iface->methods; method && method->name; method++) {
-			/* Look for matching method in interface */
 			g_methods = g_iface->methods;
-			while (g_methods && (g_method = *g_methods++))
+			while (g_methods && (g_method = *g_methods++)) {
 				if (!g_strcmp0(method->name, g_method->name))
 					break;
+			}
 
 			if (g_method == NULL)
-				ERROR("Iface '%s': method '%s': no match",
+				ERROR("Implemented interface '%s': method '%s': no match",
 				      iface->name, method->name);
 		}
 
+		/* Look for matching properties in interface */
 		for (prop = iface->properties; prop && prop->name; prop++) {
-			/* Look for matching property in interface */
 			g_props = g_iface->properties;
-			while (g_props && (g_prop = *g_props++))
+			while (g_props && (g_prop = *g_props++)) {
 				if (!g_strcmp0(prop->name, g_prop->name))
 					break;
+			}
 
 			if (g_prop == NULL)
-				ERROR("Iface '%s': prop '%s': no match",
+				ERROR("Implemented interface '%s': property '%s': no match",
 				      iface->name, prop->name);
 
-			/* Just check that 'get' and 'set' are implemented */
+			/* Check that 'get' and 'set' match in the introspection */
 			if (prop->get && !(g_prop->flags & G_DBUS_PROPERTY_INFO_FLAGS_READABLE))
-				ERROR("Iface '%s': prop '%s': no read handler defined",
+				ERROR("Implemented interface '%s': property '%s': get: no match",
 				      iface->name, prop->name);
 
 			if (prop->set && !(g_prop->flags & G_DBUS_PROPERTY_INFO_FLAGS_WRITABLE))
-				ERROR("Iface '%s': prop '%s': no write handler defined",
+				ERROR("Implemented interface '%s': property '%s': set: no match",
 				      iface->name, prop->name);
+		}
+	}
+
+	/* Find missing things in implementation.
+	 * We iterate on methods and properties provided by the introspection,
+	 * and ensure they are implemented.
+	 */
+
+	DEBUG("Debugging implementation...");
+
+	g_ifaces = info->interfaces;
+	while (g_ifaces && (g_iface = *g_ifaces++)) {
+		/* Look for matching interface in implementation */
+		for (iface = priv->interface_table; iface->name; iface++) {
+			if (!g_strcmp0(g_iface->name, iface->name))
+				break;
+		}
+
+		if (iface->name == NULL)
+			ERROR("Instrospection interface '%s': no match", g_iface->name);
+
+		/* Look for matching methods in implementation */
+		g_methods = g_iface->methods;
+		while (g_methods && (g_method = *g_methods++)) {
+			for (method = iface->methods; method && method->name; method++) {
+				if (!g_strcmp0(g_method->name, method->name))
+					break;
+			}
+
+			if (method == NULL || method->name == NULL)
+				ERROR("Introspection interface '%s': method '%s': no match",
+				      g_iface->name, g_method->name);
+		}
+
+		/* Look for matching properties in implementation */
+		g_props = g_iface->properties;
+		while (g_props && (g_prop = *g_props++)) {
+			for (prop = iface->properties; prop && prop->name; prop++) {
+				if (!g_strcmp0(g_prop->name, prop->name))
+					break;
+			}
+
+			if (prop == NULL || prop->name == NULL)
+				ERROR("Introspection interface '%s': property '%s': no match",
+				      g_iface->name, g_prop->name);
+
+			/* Check that 'get' and 'set' match in the implementation */
+			if ((g_prop->flags & G_DBUS_PROPERTY_INFO_FLAGS_READABLE) && !prop->get)
+				ERROR("Introspection interface '%s': property '%s': "
+				      "get is not implemented", g_iface->name, g_prop->name);
+
+			if ((g_prop->flags & G_DBUS_PROPERTY_INFO_FLAGS_WRITABLE) && !prop->set)
+				ERROR("Introspection interface '%s': property '%s': "
+				      "set is not implemented", g_iface->name, g_prop->name);
 		}
 	}
 }
