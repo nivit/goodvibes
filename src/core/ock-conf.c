@@ -31,9 +31,7 @@
 
 #include "core/ock-conf.h"
 
-// TODO Set SAVE_DELAY to something way longer, like 10 seconds.
-//      Then, test early exit to be sure everything is saved.
-#define SAVE_DELAY 1
+#define SAVE_DELAY 10
 
 /*
  * GObject definitions

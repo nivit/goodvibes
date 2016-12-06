@@ -27,7 +27,7 @@
 
 #include "core/ock-metadata.h"
 
-// TODO Does this really need to be an object ? Maybe a simple boxed structure would do.
+// WISHED I think this doesn't need to be a GObject. A simple boxed type would do.
 
 /*
  * Properties

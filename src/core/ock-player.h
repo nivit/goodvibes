@@ -78,10 +78,6 @@ OckStation    *ock_player_get_next_station(OckPlayer *self);
 void           ock_player_set_station     (OckPlayer *self, OckStation *station);
 const gchar   *ock_player_get_stream_uri  (OckPlayer *self);
 
-// TODO I'm not sure, but I think it's something missing in the mpris2 implementation
-#if 0
-gboolean       ock_player_set_station_by_uid     (OckPlayer *self, const gchar *uid);
-#endif
 gboolean       ock_player_set_station_by_name    (OckPlayer *self, const gchar *name);
 gboolean       ock_player_set_station_by_uri     (OckPlayer *self, const gchar *uri);
 gboolean       ock_player_set_station_by_guessing(OckPlayer *self, const gchar *string);
