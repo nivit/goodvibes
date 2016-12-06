@@ -18,8 +18,9 @@ AC_CONFIG_MACRO_DIRS([m4])
 # Additional package information
 OCK_ADD_GLOBAL_VAR([PACKAGE_CAMEL_NAME],   ["Overcooked"])
 OCK_ADD_GLOBAL_VAR([PACKAGE_LONG_NAME],    ["Overcooked Radio Player"])
-OCK_ADD_GLOBAL_VAR([PACKAGE_AUTHOR_NAME],  ["Arnaud Rebillout (elboulangero)"])
+OCK_ADD_GLOBAL_VAR([PACKAGE_AUTHOR_NAME],  ["Arnaud Rebillout"])
 OCK_ADD_GLOBAL_VAR([PACKAGE_AUTHOR_EMAIL], ["<elboulangero@gmail.com>"])
+OCK_ADD_GLOBAL_VAR([PACKAGE_COPYRIGHT],    ["Copyright (C) 2015-2016"])
 OCK_ADD_GLOBAL_VAR([PACKAGE_WEBSITE],      ["https://github.com/elboulangero/Overcooked"])
 
 # ------------------------------------- #

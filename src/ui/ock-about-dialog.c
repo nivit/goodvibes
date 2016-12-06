@@ -42,7 +42,7 @@ ock_show_about_dialog(GtkWindow *parent)
 	gtk_show_about_dialog(parent,
 	                      "authors", authors,
 	                      "comments", comments,
-	                      "copyright", "(C) 2015-2016 " PACKAGE_AUTHOR_NAME,
+	                      "copyright", PACKAGE_COPYRIGHT " " PACKAGE_AUTHOR_NAME,
 	                      "license-type", GTK_LICENSE_GPL_3_0,
 	                      "logo-icon-name", PACKAGE_NAME,
 	                      "program-name", PACKAGE_LONG_NAME,
