@@ -22,7 +22,8 @@
 
 #include <glib-object.h>
 
-// TODO Should we be initially unowned ? Tricky to change now.
+// WISHED Stations should be initially unowned, since they're meant to be added
+//        to the station list. But it's a bit slippery to change that now.
 
 /* GObject declarations */
 

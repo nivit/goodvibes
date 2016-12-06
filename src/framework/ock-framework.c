@@ -96,7 +96,8 @@ ock_framework_cleanup(void)
 void
 ock_framework_init(void)
 {
-	/* Register a custom function to transform boolean to string.
+	/* Register a custom function to transform boolean to string:
+	 * use lowercase instead of the default uppercase.
 	 * This function is used during serialization process, and therefore
 	 * controls the appearance of a boolean in the configuration file.
 	 * And lowercase looks better, that's all.
