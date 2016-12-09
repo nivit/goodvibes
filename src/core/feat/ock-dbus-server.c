@@ -553,6 +553,15 @@ ock_dbus_server_emit_signal(OckDbusServer *self, const gchar *interface_name,
 	OckDbusServerPrivate *priv = ock_dbus_server_get_instance_private(self);
 	GError *error = NULL;
 
+	/* We're not sure to have a connection to dbus. Connection might fail
+	 * (for example, if the name is already owned). Or, early at startup,
+	 * we might still be waiting for the connection to finish when we're
+	 * asked to send the first signals. In any case, we must check that the
+	 * connection exists before using it.
+	 */
+	if (priv->bus_connection == NULL)
+		return;
+
 	g_dbus_connection_emit_signal(priv->bus_connection, NULL, priv->path,
 	                              interface_name, signal_name, parameters, &error);
 	if (error) {
