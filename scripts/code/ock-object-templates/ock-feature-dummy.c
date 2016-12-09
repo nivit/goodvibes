@@ -24,14 +24,6 @@ G_DEFINE_TYPE(OckDummy, ock_dummy, OCK_TYPE_FEATURE)
  */
 
 /*
- * Signal handlers & callbacks
- */
-
-static GSignalHandler player_handlers[] = {
-	{ NULL, NULL }
-};
-
-/*
  * Feature methods
  */
 
@@ -43,7 +35,7 @@ ock_dummy_disable(OckFeature *feature)
 	/* Signal handlers */
 	g_signal_handlers_disconnect_by_data(player, feature);
 
-	// TODO
+	// FILL THAT
 
 	/* Chain up */
 	OCK_FEATURE_CHAINUP_DISABLE(ock_dummy, feature);
@@ -57,10 +49,10 @@ ock_dummy_enable(OckFeature *feature)
 	/* Chain up */
 	OCK_FEATURE_CHAINUP_ENABLE(ock_dummy, feature);
 
-	// TODO
+	// FILL THAT
 
 	/* Signal handlers */
-	g_signal_handlers_connect(player, player_handlers, feature);
+	// g_signal_connect(player, "blabla", on_blabla, feature);
 }
 
 /*

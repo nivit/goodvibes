@@ -64,7 +64,7 @@ enum {
 };
 
 /*
- * Core player signal handlers
+ * Player signal handlers
  */
 
 static void
@@ -109,7 +109,7 @@ on_player_notify_station(OckPlayer           *player,
 }
 
 /*
- * Core Station List signal handlers
+ * Station List signal handlers
  * Needed to update the internal list store when the station list is modified.
  * (remember the station list might be updated through the D-Bus API).
  */
@@ -204,7 +204,7 @@ idle_tree_view_row_activated(OckStationsTreeView *self)
 }
 
 /*
- * Stations tree view row activated
+ * Stations Tree View row-activated
  * Might be caused by mouse action (single click on the row),
  * or by keyboard action (Enter or similar key pressed).
  */
@@ -232,7 +232,7 @@ on_tree_view_row_activated(OckStationsTreeView *self,
 #endif
 
 /*
- * Stations tree view button press, for context menu on right-click
+ * Stations Tree View button-press-event, for context menu on right-click
  */
 
 static gboolean
@@ -647,21 +647,22 @@ ock_stations_tree_view_constructed(GObject *object)
 	g_signal_connect(tree_view, "button-press-event",
 	                 G_CALLBACK(on_tree_view_button_press_event), NULL);
 
-	/* Drag'n'drop signals, we need to watch it just to know when a
-	 * a drag'n'drop is in progress.
+	/* Drag-n-drop signal handlers.
+	 * We need to watch it just to know when a drag-n-drop is in progress.
 	 */
 	g_signal_handlers_connect(tree_view, tree_view_drag_handlers, NULL);
 
 	/*
-	 * List Store sgnal handlers.
-	 * If stations are re-ordered, we have to propageate the change
-	 * to the core.
+	 * List Store signal handlers
 	 */
+
+	/* If stations are re-ordered, we have to propagate to the core */
 	g_signal_handlers_connect(list_store, list_store_handlers, self);
 
 	/*
 	 * Core signal handlers
 	 */
+
 	OckPlayer *player = ock_core_player;
 	OckStationList *station_list = ock_core_station_list;
 

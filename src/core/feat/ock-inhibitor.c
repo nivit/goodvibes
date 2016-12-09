@@ -268,11 +268,6 @@ on_player_notify_state(OckPlayer    *player,
 	ock_inhibitor_check_player_state(self, player);
 }
 
-static GSignalHandler player_handlers[] = {
-	{ "notify::state", G_CALLBACK(on_player_notify_state) },
-	{ NULL,            NULL                               }
-};
-
 /*
  * Feature methods
  */
@@ -308,11 +303,11 @@ ock_inhibitor_enable(OckFeature *feature)
 	/* Chain up */
 	OCK_FEATURE_CHAINUP_ENABLE(ock_inhibitor, feature);
 
-	/* Acquire the connection to DBus */
+	/* Acquire the connection to dbus */
 	g_bus_get(G_BUS_TYPE_SYSTEM, NULL, on_bus_acquired, feature);
 
 	/* Signal handlers */
-	g_signal_handlers_connect(player, player_handlers, feature);
+	g_signal_connect(player, "notify::state", G_CALLBACK(on_player_notify_state), feature);
 }
 
 /*

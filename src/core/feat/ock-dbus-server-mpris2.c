@@ -943,18 +943,6 @@ on_station_list_station_modified(OckStationList      *station_list G_GNUC_UNUSED
 	g_free(track_id);
 }
 
-static GSignalHandler player_handlers[] = {
-	{ "notify", G_CALLBACK(on_player_notify) },
-	{ NULL,     NULL                         }
-};
-
-static GSignalHandler station_list_handlers[] = {
-	{ "station-added",    G_CALLBACK(on_station_list_station_added)    },
-	{ "station-removed",  G_CALLBACK(on_station_list_station_removed)  },
-	{ "station-modified", G_CALLBACK(on_station_list_station_modified) },
-	{ NULL,               NULL                                         }
-};
-
 /*
  * OckFeature methods
  */
@@ -983,8 +971,13 @@ ock_dbus_server_mpris2_enable(OckFeature *feature)
 	OCK_FEATURE_CHAINUP_ENABLE(ock_dbus_server_mpris2, feature);
 
 	/* Signal handlers */
-	g_signal_handlers_connect(player, player_handlers, feature);
-	g_signal_handlers_connect(station_list, station_list_handlers, feature);
+	g_signal_connect(player, "notify", G_CALLBACK(on_player_notify), feature);
+	g_signal_connect(station_list, "station-added",
+	                 G_CALLBACK(on_station_list_station_added), feature);
+	g_signal_connect(station_list, "station-removed",
+	                 G_CALLBACK(on_station_list_station_removed), feature);
+	g_signal_connect(station_list, "station-modified",
+	                 G_CALLBACK(on_station_list_station_modified), feature);
 }
 
 /*
