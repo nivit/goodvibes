@@ -18,8 +18,12 @@
  */
 
 /*
- * Based on parole code. Thx.
- * Some doc, seems interesting, didn't read though.
+ * This code is based on / inspired by the following:
+ * - Parole
+ * - Totem (Playlist Parser)
+ * Big thanks to them.
+ *
+ * A definitive guide to playlist formats (a must-read, though I didn't):
  * http://gonze.com/playlists/playlist-format-survey.html
  */
 
@@ -133,6 +137,10 @@ parse_playlist_m3u(const gchar *text, gsize text_size G_GNUC_UNUSED)
 
 		/* Ignore emtpy lines and comments */
 		if (line[0] == '\0' || line[0] == '#')
+			continue;
+
+		/* If it's not an URI, we discard it */
+		if (!strstr(line, "://"))
 			continue;
 
 		/* Add to stream list */
@@ -584,10 +592,10 @@ ock_playlist_get_format(const gchar *uri)
 		return OCK_PLAYLIST_FORMAT_UNKNOWN;
 	ptr++;
 
-	// TODO Add RAM format
-
 	if (!g_ascii_strcasecmp(ptr, "m3u") ||
 	    !g_ascii_strcasecmp(ptr, "m3u8"))
+		return OCK_PLAYLIST_FORMAT_M3U;
+	else if (!g_ascii_strcasecmp(ptr, "ram"))
 		return OCK_PLAYLIST_FORMAT_M3U;
 	else if (!g_ascii_strcasecmp(ptr, "pls"))
 		return OCK_PLAYLIST_FORMAT_PLS;
