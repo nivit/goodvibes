@@ -84,10 +84,15 @@ ock_core_warm_up(const gchar *string_to_play)
 
 	/* Schedule a callback to play some music.
 	 * DO NOT start playing now ! It's too early !
-	 * There's some init code pending, that will be run
-	 * only after the main loop is started.
+	 * There's some init code pending, that will be run only after the main
+	 * loop is started, and might even do some async call (dbus connection).
+	 * As much as possible, we wish that we start playing music after
+	 * everything is setup. Therefore, we schedule with a low priority.
+	 * This will give maximum chances to the init code to finish before
+	 * music starts playing.
 	 */
-	g_idle_add(when_idle_finish_init, (void *) string_to_play);
+	g_idle_add_full(G_PRIORITY_LOW, when_idle_finish_init,
+	                (void *) string_to_play, NULL);
 }
 
 void
