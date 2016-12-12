@@ -519,15 +519,15 @@ ock_tray_constructed(GObject *object)
 	status_icon = gtk_status_icon_new();
 
 	/* Connect signal handlers */
-	g_signal_connect(status_icon, "activate",             // Left-click
+	g_signal_connect(status_icon, "activate",             /* Left click */
 	                 G_CALLBACK(on_activate), self);
-	g_signal_connect(status_icon, "popup-menu",           // Right-click
+	g_signal_connect(status_icon, "popup-menu",           /* Right click */
 	                 G_CALLBACK(on_popup_menu), self);
-	g_signal_connect(status_icon, "button-release-event", // Middle-click
+	g_signal_connect(status_icon, "button-release-event", /* Middle click */
 	                 G_CALLBACK(on_button_release_event), self);
-	g_signal_connect(status_icon, "scroll_event",         // Mouse scroll
+	g_signal_connect(status_icon, "scroll_event",         /* Mouse scroll */
 	                 G_CALLBACK(on_scroll_event), self);
-	g_signal_connect(status_icon, "size-changed",         // Change of size
+	g_signal_connect(status_icon, "size-changed",         /* Change of size */
 	                 G_CALLBACK(on_size_changed), self);
 
 	/* Save to private data */
