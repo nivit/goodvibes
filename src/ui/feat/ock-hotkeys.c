@@ -125,8 +125,6 @@ ock_hotkeys_bind(OckHotkeys *self)
 		binding->bound = bound;
 	}
 
-	// TODO Check that the error is reported and displayed
-
 	if (unbound_keys) {
 		gchar *text;
 
@@ -135,7 +133,7 @@ ock_hotkeys_bind(OckHotkeys *self)
 		INFO("Failed to bind the following keys: %s", text);
 		ock_errorable_emit_error_printf
 		(OCK_ERRORABLE(self),
-		 "Failed to bind the following keys: %s", text);
+		 "Failed to bind the following keys: \n%s", text);
 
 		g_free(text);
 	} else {
