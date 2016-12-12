@@ -66,6 +66,10 @@ OckStation *ock_station_list_find_by_uri     (OckStationList *self, const gchar 
 OckStation *ock_station_list_find_by_uid     (OckStationList *self, const gchar *uid);
 OckStation *ock_station_list_find_by_guessing(OckStationList *self, const gchar *string);
 
+/* Properties */
+
+guint ock_station_list_get_length(OckStationList *self);
+
 /* Iterator methods */
 
 OckStationListIter *ock_station_list_iter_new (OckStationList *self);

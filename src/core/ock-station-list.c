@@ -174,6 +174,21 @@ enum {
 static guint signals[SIGNAL_N];
 
 /*
+ * Properties
+ */
+
+enum {
+	/* Reserved */
+	PROP_0,
+	/* Properties */
+	PROP_LENGTH,
+	/* Number of properties */
+	PROP_N
+};
+
+static GParamSpec *properties[PROP_N];
+
+/*
  * GObject definitions
  */
 
@@ -934,6 +949,54 @@ ock_station_list_new(void)
 }
 
 /*
+ * Property accessors
+ */
+
+guint
+ock_station_list_get_length(OckStationList *self)
+{
+	OckStationListPrivate *priv = self->priv;
+
+	return g_list_length(priv->stations);
+}
+
+static void
+ock_station_list_get_property(GObject    *object,
+                              guint       property_id,
+                              GValue     *value,
+                              GParamSpec *pspec)
+{
+	OckStationList *self = OCK_STATION_LIST(object);
+
+	TRACE_GET_PROPERTY(object, property_id, value, pspec);
+
+	switch (property_id) {
+	case PROP_LENGTH:
+		g_value_set_uint(value, ock_station_list_get_length(self));
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+		break;
+	}
+}
+
+static void
+ock_station_list_set_property(GObject      *object,
+                              guint         property_id,
+                              const GValue *value,
+                              GParamSpec   *pspec)
+{
+	TRACE_SET_PROPERTY(object, property_id, value, pspec);
+
+	switch (property_id) {
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+		break;
+	}
+}
+
+
+/*
  * GObject methods
  */
 
@@ -1022,6 +1085,17 @@ ock_station_list_class_init(OckStationListClass *class)
 	/* Override GObject methods */
 	object_class->finalize = ock_station_list_finalize;
 	object_class->constructed = ock_station_list_constructed;
+
+	/* Properties */
+	object_class->get_property = ock_station_list_get_property;
+	object_class->set_property = ock_station_list_set_property;
+
+	properties[PROP_LENGTH] =
+	        g_param_spec_uint("length", "Length", NULL,
+	                          0, G_MAXUINT, 0,
+	                          OCK_PARAM_DEFAULT_FLAGS | G_PARAM_READABLE);
+
+	g_object_class_install_properties(object_class, PROP_N, properties);
 
 	/* Signals */
 	signals[SIGNAL_STATION_ADDED] =
