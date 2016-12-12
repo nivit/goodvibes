@@ -37,10 +37,6 @@
 
 #define UI_FILE "ui/prefs-window.glade"
 
-// TODO Ensure the 'assertion failed' goes away with time.
-//          CRIT [Gdk] gdk_window_get_window_type: assertion 'GDK_IS_WINDOW (window)' failed
-//      It's supposed to be fixed upstream.
-
 /*
  * GObject definitions
  */
