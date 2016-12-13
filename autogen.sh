@@ -3,9 +3,8 @@
 
 echo "Running $0..."
 
-aclocal \
-&& automake --foreign --add-missing \
-&& autoconf
+autoreconf --force --install && \
+intltoolize --copy --force --automake
 
 echo "Done, please type './configure' to continue."
 

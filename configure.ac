@@ -40,6 +40,19 @@ AC_PROG_RANLIB()
 AM_PROG_AR()
 
 # ------------------------------------- #
+#      Internationalization (i18n)      #
+# ------------------------------------- #
+
+AS_ECHO(["---- I18n ----"])
+
+# This is expected in po/Makefile.in.in (provided by intltool)
+AC_SUBST([GETTEXT_PACKAGE], [$PACKAGE_NAME])
+AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE], "$GETTEXT_PACKAGE")
+
+# Init intltool
+IT_PROG_INTLTOOL([0.40])
+
+# ------------------------------------- #
 #         Mandatory dependencies        #
 # ------------------------------------- #
 
@@ -167,6 +180,7 @@ data/icons/hicolor/256x256/apps/Makefile
 data/icons/src/Makefile
 data/ui/Makefile
 libgszn/Makefile
+po/Makefile.in
 src/Makefile
 ])
 
