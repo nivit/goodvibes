@@ -57,7 +57,7 @@ guint     g_object_get_uint   (GObject *object, const gchar *property_name);
 gchar    *g_object_get_string (GObject *object, const gchar *property_name);
 
 const gchar *g_object_get_property_desc      (GObject *object, const gchar *property_name);
-gboolean     g_object_get_property_uint_bounds(GObject *object, const gchar *property_name,
+void         g_object_get_property_uint_bounds(GObject *object, const gchar *property_name,
                                                guint *minimum, guint *maximum);
 
 /*

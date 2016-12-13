@@ -104,14 +104,12 @@ g_object_get_property_desc(GObject *object, const gchar *property_name)
 	return desc;
 }
 
-gboolean
+void
 g_object_get_property_uint_bounds(GObject *object, const gchar *property_name,
                                   guint *minimum, guint *maximum)
 {
 	GParamSpec *pspec;
 	GParamSpecUInt *pspec_uint;
-
-	// TODO Log or report errors ?
 
 	if (minimum)
 		*minimum = 0;
@@ -119,19 +117,14 @@ g_object_get_property_uint_bounds(GObject *object, const gchar *property_name,
 		*maximum = 0;
 
 	pspec = g_object_class_find_property(G_OBJECT_GET_CLASS(object), property_name);
-	if (pspec == NULL)
-		return FALSE;
-
-	if (G_IS_PARAM_SPEC_UINT(pspec) == FALSE)
-		return FALSE;
-
+	g_assert(pspec);
+	g_assert(G_IS_PARAM_SPEC_UINT(pspec));
+	
 	pspec_uint = G_PARAM_SPEC_UINT(pspec);
 	if (minimum)
 		*minimum = pspec_uint->minimum;
 	if (maximum)
 		*maximum = pspec_uint->maximum;
-
-	return TRUE;
 }
 
 /*
