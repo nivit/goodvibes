@@ -191,8 +191,8 @@ ock_station_dialog_build(OckStationDialog *self)
 	 * contains some text.
 	 */
 	gtk_dialog_add_buttons(GTK_DIALOG(self),
-	                       "Cancel", GTK_RESPONSE_CANCEL,
-	                       "Save", GTK_RESPONSE_OK,
+	                       _("Cancel"), GTK_RESPONSE_CANCEL,
+	                       _("Save"), GTK_RESPONSE_OK,
 	                       NULL);
 	priv->save_button = gtk_dialog_get_widget_for_response
 	                    (GTK_DIALOG(self), GTK_RESPONSE_OK);
@@ -218,7 +218,7 @@ ock_station_dialog_populate(OckStationDialog *self, OckStation *station)
 	station_uri = ock_station_get_uri(station);
 
 	/* Set windows title */
-	window_title = g_strdup("Edit station");
+	window_title = g_strdup(_("Edit station"));
 	if (station_name)
 		window_title = g_strdup_printf("%s '%s'", window_title, station_name);
 	gtk_window_set_title(GTK_WINDOW(self), window_title);
@@ -283,7 +283,7 @@ ock_station_dialog_constructed(GObject *object)
 	gtk_window_set_skip_taskbar_hint(window, TRUE);
 	gtk_window_set_modal(window, TRUE);
 	gtk_window_set_default_size(window, 480, -1);
-	gtk_window_set_title(window, "Add new station");
+	gtk_window_set_title(window, _("Add new station"));
 
 	/* Set transient parent */
 	gtk_window_set_transient_for(window, GTK_WINDOW(ock_ui_main_window));

@@ -178,7 +178,7 @@ setup_feature(const gchar *tooltip_text, GtkWidget *label, GtkWidget *sw, OckFea
 {
 	/* If feat is NULL, it's because it's been disabled at compile time */
 	if (feat == NULL) {
-		tooltip_text = "Feature disabled at compile-time.";
+		tooltip_text = _("Feature disabled at compile-time.");
 
 		gtk_widget_set_tooltip_text(sw, tooltip_text);
 		gtk_widget_set_tooltip_text(label, tooltip_text);
@@ -342,65 +342,65 @@ ock_prefs_window_setup_widgets(OckPrefsWindow *self)
 	 */
 
 	/* Controls */
-	setup_setting("Action triggered by a middle click on the tray icon.",
+	setup_setting(_("Action triggered by a middle click on the tray icon."),
 	              priv->middle_click_action_label,
 	              priv->middle_click_action_combo, "active-id",
 	              tray_obj, "middle-click-action",
 	              NULL, NULL);
 
-	setup_setting("Action triggered by mouse-scrolling on the tray icon.",
+	setup_setting(_("Action triggered by mouse-scrolling on the tray icon."),
 	              priv->scroll_action_label,
 	              priv->scroll_action_combo, "active-id",
 	              tray_obj, "scroll-action",
 	              NULL, NULL);
 
-	setup_feature("Bind mutimedia keys (play/pause/stop/previous/next).",
+	setup_feature(_("Bind mutimedia keys (play/pause/stop/previous/next)."),
 	              priv->hotkeys_label,
 	              priv->hotkeys_switch,
 	              priv->hotkeys_feat);
 
-	setup_feature("Enable the native D-Bus server "
-	              "(needed for the command-line interface).",
+	setup_feature(_("Enable the native D-Bus server "
+	                "(needed for the command-line interface)."),
 	              priv->dbus_native_label,
 	              priv->dbus_native_switch,
 	              priv->dbus_native_feat);
 
-	setup_feature("Enable the MPRIS2 D-Bus server.",
+	setup_feature(_("Enable the MPRIS2 D-Bus server."),
 	              priv->dbus_mpris2_label,
 	              priv->dbus_mpris2_switch,
 	              priv->dbus_mpris2_feat);
 
 	/* Display */
-	setup_feature("Emit notifications when the status changes.",
+	setup_feature(_("Emit notifications when the status changes."),
 	              priv->notif_enable_label,
 	              priv->notif_enable_switch,
 	              priv->notifications_feat);
 
-	setup_setting("Whether to use a custom timeout for the notifications.",
+	setup_setting(_("Whether to use a custom timeout for the notifications."),
 	              NULL,
 	              priv->notif_timeout_check, "active",
 	              G_OBJECT(priv->notifications_feat), "timeout-enabled",
 	              NULL, NULL);
 
-	setup_setting("How long the notifications should be displayed, in seconds.",
+	setup_setting(_("How long the notifications should be displayed (seconds)."),
 	              NULL,
 	              priv->notif_timeout_spin, "value",
 	              G_OBJECT(priv->notifications_feat), "timeout-seconds",
 	              NULL, NULL);
 
-	setup_feature("Display information on the standard output.",
+	setup_feature(_("Display information on the standard output."),
 	              priv->console_output_label,
 	              priv->console_output_switch,
 	              priv->console_output_feat);
 
 	/* Player */
-	setup_setting("Whether to start playback automatically on startup.",
+	setup_setting(_("Whether to start playback automatically on startup."),
 	              NULL,
 	              priv->autoplay_check, "active",
 	              player_obj, "autoplay",
 	              NULL, NULL);
 
-	setup_feature("Prevent the system from going to sleep while playing.",
+	setup_feature(_("Prevent the system from going to sleep while playing."),
 	              priv->inhibitor_label,
 	              priv->inhibitor_switch,
 	              priv->inhibitor_feat);

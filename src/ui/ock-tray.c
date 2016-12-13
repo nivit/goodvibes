@@ -122,42 +122,42 @@ ock_tray_update_icon_tooltip(OckTray *self)
 
 	switch (player_state) {
 	case OCK_PLAYER_STATE_STOPPED:
-		player_state_str = "stopped";
+		player_state_str = _("stopped");
 		break;
 	case OCK_PLAYER_STATE_CONNECTING:
-		player_state_str = "connecting";
+		player_state_str = _("connecting");
 		break;
 	case OCK_PLAYER_STATE_BUFFERING:
-		player_state_str = "buffering";
+		player_state_str = _("buffering");
 		break;
 	case OCK_PLAYER_STATE_PLAYING:
-		player_state_str = "playing";
+		player_state_str = _("playing");
 		break;
 	default:
-		player_state_str = "unknown state";
+		player_state_str = _("unknown state");
 		break;
 	}
 
 	if (player_muted)
-		player_str = g_strdup_printf("<b>" PACKAGE_LONG_NAME "</b> (%s, muted)",
-		                             player_state_str);
+		player_str = g_strdup_printf("<b>" PACKAGE_LONG_NAME "</b> (%s, %s)",
+		                             player_state_str, _("muted"));
 	else
-		player_str = g_strdup_printf("<b>" PACKAGE_LONG_NAME "</b> (%s, vol %u%%)",
-		                             player_state_str, player_volume);
+		player_str = g_strdup_printf("<b>" PACKAGE_LONG_NAME "</b> (%s, %s %u%%)",
+		                             player_state_str, _("vol."), player_volume);
 
 	/* Current station */
 	station = ock_player_get_station(player);
 	if (station)
 		station_str = ock_station_make_name(station, TRUE);
 	else
-		station_str = g_strdup("<i>No station</i>");
+		station_str = g_strdup_printf("<i>%s</i>", _("No station"));
 
 	/* Metadata */
 	metadata = ock_player_get_metadata(player);
 	if (metadata)
 		metadata_str = ock_metadata_make_title_artist(metadata, TRUE);
 	else
-		metadata_str = g_strdup("<i>No metadata</i>");
+		metadata_str = g_strdup_printf("<i>%s</i>", _("No metadata"));
 
 	/* Set the tooltip */
 	tooltip = g_strdup_printf("%s\n%s\n%s",

@@ -32,9 +32,9 @@
 #include "ui/ock-prefs-window.h"
 #include "ui/ock-main-menu.h"
 
-#define PREFS_LABEL "Preferences"
-#define ABOUT_LABEL "About"
-#define QUIT_LABEL  "Quit"
+#define PREFS_LABEL _("Preferences")
+#define ABOUT_LABEL _("About")
+#define QUIT_LABEL  _("Quit")
 
 /*
  * GObject definitions
