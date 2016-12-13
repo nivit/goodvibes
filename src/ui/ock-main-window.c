@@ -31,6 +31,7 @@
 
 #include "core/ock-core.h"
 
+#include "ui/global.h"
 #include "ui/ock-builder-helpers.h"
 #include "ui/ock-main-window.h"
 #include "ui/ock-stations-tree-view.h"
@@ -455,6 +456,16 @@ ock_main_window_setup_widgets(OckMainWindow *self)
 }
 
 static void
+ock_main_window_setup_layout(OckMainWindow *self)
+{
+	OckMainWindowPrivate *priv = self->priv;
+
+	g_object_set(priv->window_vbox,
+	             "spacing", OCK_UI_ELEM_SPACING,
+	             NULL);
+}
+
+static void
 ock_main_window_configure(OckMainWindow *self)
 {
 	GtkWindow *window = GTK_WINDOW(self);
@@ -527,6 +538,7 @@ ock_main_window_constructed(GObject *object)
 	/* Build window */
 	ock_main_window_populate_widgets(self);
 	ock_main_window_setup_widgets(self);
+	ock_main_window_setup_layout(self);
 
 	/* Configure window */
 	ock_main_window_configure(self);
