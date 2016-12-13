@@ -64,6 +64,10 @@ The procedure to compile is the usual one:
 	./configure
 	make
 
+If you want the build to be more verbose, invoke configure as such:
+
+	./configure --enable-silent-rules
+
 Overcooked build is quite modular. Features that require an external library
 are compiled only if the required dependencies are found on your system.
 Otherwise they're excluded from the build.
@@ -89,7 +93,7 @@ For example, to have a minimal build with only the UI enabled:
 
 To have a full-featured build but disable notifications:
 
-	./configure  --enable-all --disable-notifications
+	./configure --enable-all --disable-notifications
 
 Notice that disabling the UI will also disable all the UI-related features.
 
