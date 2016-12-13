@@ -32,7 +32,6 @@
 
 // WISHED Try with a huge number of stations to see how it behaves.
 //        It might be slow. The implementation never tried to be fast.
-// TODO   More test (load/save) with empty list.
 
 /*
  * FIP <http://www.fipradio.fr/>
@@ -542,7 +541,7 @@ ock_station_list_insert_after(OckStationList *self, OckStation *station, OckStat
 	gint pos = 0;
 
 	pos = g_list_index(priv->stations, after);
-	pos += 1; // tricky but does what we want even for pos == -1
+	pos += 1; /* tricky but does what we want even for pos == -1 */
 	ock_station_list_insert(self, station, pos);
 }
 
@@ -604,7 +603,7 @@ ock_station_list_move_after(OckStationList *self, OckStation *station, OckStatio
 	gint pos = 0;
 
 	pos = g_list_index(priv->stations, after);
-	pos += 1; // tricky but does what we want even for pos == -1
+	pos += 1; /* tricky but does what we want even for pos == -1 */
 	ock_station_list_move(self, station, pos);
 }
 
@@ -629,9 +628,10 @@ ock_station_list_prev(OckStationList *self, OckStation *station,
 
 	/* Pickup the right station list, create shuffle list if needed */
 	if (shuffle) {
-		if (priv->shuffled == NULL)
+		if (priv->shuffled == NULL) {
 			priv->shuffled = g_list_copy_deep_shuffle(priv->stations,
 			                 (GCopyFunc) g_object_ref, NULL);
+		}
 		stations = priv->shuffled;
 	} else {
 		if (priv->shuffled) {
@@ -661,9 +661,21 @@ ock_station_list_prev(OckStationList *self, OckStation *station,
 
 	/* With repeat, we may re-shuffle, then return the last station */
 	if (shuffle) {
-		priv->shuffled = g_list_shuffle(priv->shuffled);
-		stations = priv->shuffled;
-		// TODO Ensure that the last station is not the current station
+		GList *last_item;
+
+		stations = g_list_shuffle(priv->shuffled);
+
+		/* In case the last station (that we're about to return) happens to be
+		 * the same as the current station, we do a little a magic trick.
+		 */
+		last_item = g_list_last(stations);
+		if (last_item->data == station) {
+			stations = g_list_remove_link(stations, last_item);
+			stations = g_list_prepend(stations, last_item->data);
+			g_list_free(last_item);
+		}
+
+		priv->shuffled = stations;
 	}
 
 	return g_list_last(stations)->data;
@@ -678,9 +690,10 @@ ock_station_list_next(OckStationList *self, OckStation *station,
 
 	/* Pickup the right station list, create shuffle list if needed */
 	if (shuffle) {
-		if (priv->shuffled == NULL)
+		if (priv->shuffled == NULL) {
 			priv->shuffled = g_list_copy_deep_shuffle(priv->stations,
 			                 (GCopyFunc) g_object_ref, NULL);
+		}
 		stations = priv->shuffled;
 	} else {
 		if (priv->shuffled) {
@@ -710,8 +723,21 @@ ock_station_list_next(OckStationList *self, OckStation *station,
 
 	/* With repeat, we may re-shuffle, then return the first station */
 	if (shuffle) {
-		priv->shuffled = g_list_shuffle(priv->shuffled);
-		stations = priv->shuffled;
+		GList *first_item;
+
+		stations = g_list_shuffle(priv->shuffled);
+
+		/* In case the first station (that we're about to return) happens to be
+		 * the same as the current station, we do a little a magic trick.
+		 */
+		first_item = g_list_first(stations);
+		if (first_item->data == station) {
+			stations = g_list_remove_link(stations, first_item);
+			stations = g_list_append(stations, first_item->data);
+			g_list_free(first_item);
+		}
+
+		priv->shuffled = stations;
 	}
 
 	return stations->data;
