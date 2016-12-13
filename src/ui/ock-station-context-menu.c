@@ -56,6 +56,11 @@ static GParamSpec *properties[PROP_N];
  */
 
 struct _OckStationContextMenuPrivate {
+	/* Widgets */
+	GtkWidget *add_station_menu_item;
+	GtkWidget *remove_station_menu_item;
+	GtkWidget *edit_station_menu_item;
+	/* Selected station if any */
 	OckStation *station;
 };
 
@@ -81,18 +86,9 @@ on_menu_item_activate(GtkMenuItem *item, OckStationContextMenu *self)
 	OckPlayer      *player       = ock_core_player;
 	OckStationList *station_list = ock_core_station_list;
 	OckStation *selected_station = priv->station;
-	const gchar *label;
+	GtkWidget *widget = GTK_WIDGET(item);
 
-	/* Get item label */
-	label = gtk_menu_item_get_label(item);
-
-	if (label == NULL) {
-		CRITICAL("Failed to get label from menu item %p", item);
-		return;
-	}
-
-	/* Add/Edit/Remove Station */
-	if (!g_strcmp0(label, ADD_STATION_LABEL)) {
+	if (widget == priv->add_station_menu_item) {
 		OckStation *current_station;
 		OckStationDialog *dialog;
 		gint response;
@@ -120,7 +116,7 @@ on_menu_item_activate(GtkMenuItem *item, OckStationContextMenu *self)
 
 		gtk_widget_destroy(GTK_WIDGET(dialog));
 
-	} else if (!g_strcmp0(label, EDIT_STATION_LABEL)) {
+	} else if (widget == priv->edit_station_menu_item) {
 		OckStationDialog *dialog;
 		gint response;
 
@@ -135,13 +131,13 @@ on_menu_item_activate(GtkMenuItem *item, OckStationContextMenu *self)
 
 		gtk_widget_destroy(GTK_WIDGET(dialog));
 
-	} else if (!g_strcmp0(label, REMOVE_STATION_LABEL)) {
+	} else if (widget == priv->remove_station_menu_item) {
 		g_assert(selected_station);
 
 		ock_station_list_remove(station_list, selected_station);
 
 	} else {
-		CRITICAL("Unhandled label '%s'", label);
+		CRITICAL("Unhandled menu item %p", item);
 	}
 }
 
@@ -162,22 +158,24 @@ ock_station_context_menu_populate(OckStationContextMenu *self)
 	widget = gtk_menu_item_new_with_label(ADD_STATION_LABEL);
 	gtk_menu_shell_append(GTK_MENU_SHELL(self), widget);
 	g_signal_connect(widget, "activate", G_CALLBACK(on_menu_item_activate), self);
+	priv->add_station_menu_item = widget;
 
-	/* Remove station if any */
-	widget = gtk_menu_item_new_with_label(REMOVE_STATION_LABEL);
-	gtk_menu_shell_append(GTK_MENU_SHELL(self), widget);
-	if (priv->station)
+	/* In case the station list is empty, we have no station here.
+	 * We must handle this case.
+	 */
+	if (priv->station) {
+		/* Remove station */
+		widget = gtk_menu_item_new_with_label(REMOVE_STATION_LABEL);
+		gtk_menu_shell_append(GTK_MENU_SHELL(self), widget);
 		g_signal_connect(widget, "activate", G_CALLBACK(on_menu_item_activate), self);
-	else
-		gtk_widget_set_sensitive(widget, FALSE);
+		priv->remove_station_menu_item = widget;
 
-	/* Edit station if any */
-	widget = gtk_menu_item_new_with_label(EDIT_STATION_LABEL);
-	gtk_menu_shell_append(GTK_MENU_SHELL(self), widget);
-	if (priv->station)
+		/* Edit station */
+		widget = gtk_menu_item_new_with_label(EDIT_STATION_LABEL);
+		gtk_menu_shell_append(GTK_MENU_SHELL(self), widget);
 		g_signal_connect(widget, "activate", G_CALLBACK(on_menu_item_activate), self);
-	else
-		gtk_widget_set_sensitive(widget, FALSE);
+		priv->edit_station_menu_item = widget;
+	}
 
 	/* Showtime */
 	gtk_widget_show_all(GTK_WIDGET(self));

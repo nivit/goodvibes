@@ -41,6 +41,11 @@
  */
 
 struct _OckMainMenuPrivate {
+	/* Widgets */
+	GtkWidget *prefs_menu_item;
+	GtkWidget *about_menu_item;
+	GtkWidget *quit_menu_item;
+	/* Currently opened preferences window */
 	GtkWidget *prefs_window;
 };
 
@@ -76,15 +81,9 @@ static void
 on_menu_item_activate(GtkMenuItem *item, OckMainMenu *self)
 {
 	OckMainMenuPrivate *priv = self->priv;
-	const gchar *label;
+	GtkWidget *widget = GTK_WIDGET(item);
 
-	/* Get item label */
-	label = gtk_menu_item_get_label(item);
-
-	if (label == NULL) {
-		CRITICAL("Failed to get label from menu item");
-
-	} else if (!g_strcmp0(label, PREFS_LABEL)) {
+	if (widget == priv->prefs_menu_item) {
 		GtkWidget *window;
 
 		window = priv->prefs_window;
@@ -97,14 +96,14 @@ on_menu_item_activate(GtkMenuItem *item, OckMainMenu *self)
 
 		gtk_window_present(GTK_WINDOW(window));
 
-	} else if (!g_strcmp0(label, ABOUT_LABEL)) {
+	} else if (widget == priv->about_menu_item) {
 		ock_show_about_dialog(GTK_WINDOW(ock_ui_main_window));
 
-	} else if (!g_strcmp0(label, QUIT_LABEL)) {
+	} else if (widget == priv->quit_menu_item) {
 		ock_framework_quit_loop();
 
 	} else {
-		CRITICAL("Unhandled label '%s'", label);
+		CRITICAL("Unhandled menu item %p", item);
 	}
 }
 
@@ -115,12 +114,17 @@ on_menu_item_activate(GtkMenuItem *item, OckMainMenu *self)
 static void
 ock_main_menu_populate(OckMainMenu *self)
 {
+	OckMainMenuPrivate *priv = self->priv;
 	GtkWidget *widget;
+
+	/* This is supposed to be called once only */
+	g_assert(gtk_container_get_children(GTK_CONTAINER(self)) == NULL);
 
 	/* Preferences */
 	widget = gtk_menu_item_new_with_label(PREFS_LABEL);
 	gtk_menu_shell_append(GTK_MENU_SHELL(self), widget);
 	g_signal_connect(widget, "activate", G_CALLBACK(on_menu_item_activate), self);
+	priv->prefs_menu_item = widget;
 
 	/* Separator */
 	widget = gtk_separator_menu_item_new();
@@ -130,11 +134,13 @@ ock_main_menu_populate(OckMainMenu *self)
 	widget = gtk_menu_item_new_with_label(ABOUT_LABEL);
 	gtk_menu_shell_append(GTK_MENU_SHELL(self), widget);
 	g_signal_connect(widget, "activate", G_CALLBACK(on_menu_item_activate), self);
+	priv->about_menu_item = widget;
 
 	/* Quit */
 	widget = gtk_menu_item_new_with_label(QUIT_LABEL);
 	gtk_menu_shell_append(GTK_MENU_SHELL(self), widget);
 	g_signal_connect(widget, "activate", G_CALLBACK(on_menu_item_activate), self);
+	priv->quit_menu_item = widget;
 
 	/* Showtime */
 	gtk_widget_show_all(GTK_WIDGET(self));
