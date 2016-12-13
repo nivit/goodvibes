@@ -159,7 +159,7 @@ data/dbus-1/Makefile
 data/dbus-1/services/Makefile
 data/dbus-1/services/org.$PACKAGE_CAMEL_NAME.service
 data/desktop/Makefile
-data/desktop/$PACKAGE_NAME.desktop
+data/desktop/$PACKAGE_NAME.desktop.in
 data/icons/Makefile
 data/icons/hicolor/Makefile
 data/icons/hicolor/16x16/Makefile
