@@ -19,6 +19,11 @@ libgszn/libgszn.a
 # Data
 data/dbus-1/services/*.service
 data/desktop/*.desktop
+data/desktop/*.desktop.in
+
+# M4 macros
+!/m4/ock-*.m4
+*.m4
 
 # Autotools stuff
 .dirstamp
@@ -27,9 +32,28 @@ aclocal.m4
 ar-lib
 autom4te.cache/
 compile
+config.guess
 config.log
+config.rpath
 config.status
+config.sub
 configure
 depcomp
 install-sh
 missing
+
+# I18n stuff
+/ABOUT-NLS
+/po/*.pot
+/po/*.gmo
+/po/*.header
+/po/*.mo
+/po/*.sed
+/po/*.sin
+/po/Makefile.in.in
+/po/Makevars.template
+/po/POTFILES
+/po/Rules-quot
+/po/stamp-it
+/po/stamp-po
+
