@@ -19,6 +19,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <locale.h>
+#include <libintl.h>
 
 #include <glib.h>
 #include <glib-object.h>
@@ -96,6 +98,12 @@ ock_framework_cleanup(void)
 void
 ock_framework_init(void)
 {
+	/* Initialize i18n */
+	setlocale(LC_ALL, "");
+        bindtextdomain(PACKAGE_NAME, LOCALE_DIR);
+        bind_textdomain_codeset(PACKAGE_NAME, "UTF-8");
+        textdomain(PACKAGE_NAME);
+
 	/* Register a custom function to transform boolean to string:
 	 * use lowercase instead of the default uppercase.
 	 * This function is used during serialization process, and therefore
