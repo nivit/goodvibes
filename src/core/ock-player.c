@@ -132,7 +132,7 @@ on_station_notify(OckStation *station,
 	g_assert(station == priv->station);
 
 	if (!g_strcmp0(property_name, "stream-uris")) {
-		WARNING("Stream uri changed");
+		DEBUG("Station %p: stream uris have changed", station);
 
 		/* Check if there are some streams, and start playing if needed */
 		if (ock_station_get_stream_uris(station))
