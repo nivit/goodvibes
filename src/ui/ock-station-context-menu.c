@@ -101,7 +101,7 @@ on_menu_item_activate(GtkMenuItem *item, OckStationContextMenu *self)
 
 		/* Check if the current station is part of the station list.
 		 * If it's not the case, it's likely that the user intend
-		 * to add the current station to the list. Let's save himt
+		 * to add the current station to the list. Let's save him
 		 * some time then.
 		 */
 		current_station = ock_player_get_station(player);
@@ -124,6 +124,8 @@ on_menu_item_activate(GtkMenuItem *item, OckStationContextMenu *self)
 		OckStationDialog *dialog;
 		gint response;
 
+		g_assert(selected_station);
+
 		dialog = OCK_STATION_DIALOG(ock_station_dialog_new());
 		ock_station_dialog_populate(dialog, selected_station);
 
@@ -134,6 +136,8 @@ on_menu_item_activate(GtkMenuItem *item, OckStationContextMenu *self)
 		gtk_widget_destroy(GTK_WIDGET(dialog));
 
 	} else if (!g_strcmp0(label, REMOVE_STATION_LABEL)) {
+		g_assert(selected_station);
+
 		ock_station_list_remove(station_list, selected_station);
 
 	} else {
@@ -148,6 +152,7 @@ on_menu_item_activate(GtkMenuItem *item, OckStationContextMenu *self)
 static void
 ock_station_context_menu_populate(OckStationContextMenu *self)
 {
+	OckStationContextMenuPrivate *priv = self->priv;
 	GtkWidget *widget;
 
 	/* This is supposed to be called once only */
@@ -158,15 +163,21 @@ ock_station_context_menu_populate(OckStationContextMenu *self)
 	gtk_menu_shell_append(GTK_MENU_SHELL(self), widget);
 	g_signal_connect(widget, "activate", G_CALLBACK(on_menu_item_activate), self);
 
-	/* Remove station */
+	/* Remove station if any */
 	widget = gtk_menu_item_new_with_label(REMOVE_STATION_LABEL);
 	gtk_menu_shell_append(GTK_MENU_SHELL(self), widget);
-	g_signal_connect(widget, "activate", G_CALLBACK(on_menu_item_activate), self);
+	if (priv->station)
+		g_signal_connect(widget, "activate", G_CALLBACK(on_menu_item_activate), self);
+	else
+		gtk_widget_set_sensitive(widget, FALSE);
 
-	/* Edit station */
+	/* Edit station if any */
 	widget = gtk_menu_item_new_with_label(EDIT_STATION_LABEL);
 	gtk_menu_shell_append(GTK_MENU_SHELL(self), widget);
-	g_signal_connect(widget, "activate", G_CALLBACK(on_menu_item_activate), self);
+	if (priv->station)
+		g_signal_connect(widget, "activate", G_CALLBACK(on_menu_item_activate), self);
+	else
+		gtk_widget_set_sensitive(widget, FALSE);
 
 	/* Showtime */
 	gtk_widget_show_all(GTK_WIDGET(self));
@@ -181,10 +192,9 @@ ock_station_context_menu_set_station(OckStationContextMenu *self, OckStation *st
 {
 	OckStationContextMenuPrivate *priv = self->priv;
 
-	/* This is a construct-only property */
+	/* This is a construct-only property - NULL is allowed */
 	g_assert(priv->station == NULL);
-	g_assert(station != NULL);
-	priv->station = station;
+	g_set_object(&priv->station, station);
 }
 
 static void
@@ -223,7 +233,13 @@ ock_station_context_menu_set_property(GObject      *object,
  */
 
 GtkWidget *
-ock_station_context_menu_new(OckStation *station)
+ock_station_context_menu_new(void)
+{
+	return g_object_new(OCK_TYPE_STATION_CONTEXT_MENU, NULL);
+}
+
+GtkWidget *
+ock_station_context_menu_new_with_station(OckStation *station)
 {
 	return g_object_new(OCK_TYPE_STATION_CONTEXT_MENU,
 	                    "station", station,
@@ -243,7 +259,8 @@ ock_station_context_menu_finalize(GObject *object)
 	TRACE("%p", object);
 
 	/* Unref station */
-	g_object_unref(priv->station);
+	if (priv->station)
+		g_object_unref(priv->station);
 
 	/* Chain up */
 	G_OBJECT_CHAINUP_FINALIZE(ock_station_context_menu, object);

@@ -34,6 +34,7 @@ G_DECLARE_FINAL_TYPE(OckStationContextMenu, ock_station_context_menu, \
 
 /* Methods */
 
-GtkWidget *ock_station_context_menu_new(OckStation *station);
+GtkWidget *ock_station_context_menu_new             (void);
+GtkWidget *ock_station_context_menu_new_with_station(OckStation *station);
 
 #endif /* __OVERCOOKED_UI_OCK_STATION_CONTEXT_MENU_H__ */

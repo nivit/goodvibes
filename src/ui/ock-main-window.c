@@ -37,8 +37,6 @@
 
 #define UI_FILE "ui/main-window.glade"
 
-// FIXME Station list is unusable when the station list is empty
-
 /* For debugging */
 #define CLOSE_ON_FOCUS_OUT TRUE
 

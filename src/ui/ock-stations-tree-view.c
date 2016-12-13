@@ -60,6 +60,7 @@ enum {
 	STATION_COLUMN,
 	STATION_NAME_COLUMN,
 	STATION_WEIGHT_COLUMN,
+	STATION_STYLE_COLUMN,
 	N_COLUMNS
 };
 
@@ -174,10 +175,9 @@ idle_tree_view_row_activated(OckStationsTreeView *self)
 	GtkTreeView *tree_view = GTK_TREE_VIEW(self);
 	GtkTreeSelection *tree_selection = gtk_tree_view_get_selection(tree_view);
 	GtkTreeModel *tree_model = gtk_tree_view_get_model(tree_view);
+	OckPlayer *player = ock_core_player;
 	GtkTreeIter iter;
 	OckStation *station;
-
-	DEBUG("Row activated, executing now");
 
 	/* Check if a drag operation is in progress */
 	if (priv->is_dragging) {
@@ -191,14 +191,16 @@ idle_tree_view_row_activated(OckStationsTreeView *self)
 	                   STATION_COLUMN, &station,
 	                   -1);
 
-	/* Play station */
-	if (station) {
-		OckPlayer *player = ock_core_player;
+	/* Station might be NULL if the station list is empty */
+	if (station == NULL)
+		return FALSE;
 
-		ock_player_set_station(player, station);
-		ock_player_play(player);
-		g_object_unref(station);
-	}
+	/* Play station */
+	ock_player_set_station(player, station);
+	ock_player_play(player);
+
+	/* Cleanup */
+	g_object_unref(station);
 
 	return FALSE;
 }
@@ -234,6 +236,13 @@ on_tree_view_row_activated(OckStationsTreeView *self,
 /*
  * Stations Tree View button-press-event, for context menu on right-click
  */
+
+static void
+on_context_menu_hide(GtkWidget *widget, gpointer data G_GNUC_UNUSED)
+{
+	/* Context menu can be destroyed */
+	g_object_unref(widget);
+}
 
 static gboolean
 on_tree_view_button_press_event(OckStationsTreeView *self,
@@ -279,7 +288,16 @@ on_tree_view_button_press_event(OckStationsTreeView *self,
 
 	/* Create the context menu */
 	GtkWidget *context_menu;
-	context_menu = ock_station_context_menu_new(station);
+	if (station) {
+		context_menu = ock_station_context_menu_new_with_station(station);
+		g_object_unref(station);
+	} else {
+		context_menu = ock_station_context_menu_new();
+	}
+
+	/* We're the owner, therefore responsible for finalization */
+	g_object_ref_sink(context_menu);
+	g_signal_connect(context_menu, "hide", G_CALLBACK(on_context_menu_hide), NULL);
 
 #if GTK_CHECK_VERSION(3,22,0)
 	gtk_menu_popup_at_pointer(GTK_MENU(context_menu), NULL);
@@ -294,7 +312,6 @@ on_tree_view_button_press_event(OckStationsTreeView *self,
 #endif
 
 	/* Free at last */
-	g_object_unref(station);
 	gtk_tree_path_free(path);
 
 	return FALSE;
@@ -486,7 +503,8 @@ station_cell_data_func(GtkTreeViewColumn *tree_column G_GNUC_UNUSED,
                        gpointer           data G_GNUC_UNUSED)
 {
 	gchar *station_name;
-	guint station_weight;
+	PangoWeight station_weight;
+	PangoStyle station_style;
 
 	/* According to the doc, there should be nothing heavy in this function,
 	 * since it's called intensively. No UTF-8 conversion, for example.
@@ -495,11 +513,13 @@ station_cell_data_func(GtkTreeViewColumn *tree_column G_GNUC_UNUSED,
 	gtk_tree_model_get(tree_model, iter,
 	                   STATION_NAME_COLUMN, &station_name,
 	                   STATION_WEIGHT_COLUMN, &station_weight,
+	                   STATION_STYLE_COLUMN, &station_style,
 	                   -1);
 
 	g_object_set(cell,
 	             "text", station_name,
 	             "weight", station_weight,
+	             "style", station_style,
 	             NULL);
 
 	g_free(station_name);
@@ -518,9 +538,6 @@ ock_stations_tree_view_populate(OckStationsTreeView *self)
 
 	OckStationList *station_list = ock_core_station_list;
 	OckPlayer *player = ock_core_player;
-	OckStation *current_station = ock_player_get_station(player);
-	OckStationListIter *iter;
-	OckStation *station;
 
 	TRACE("%p", self);
 
@@ -530,28 +547,57 @@ ock_stations_tree_view_populate(OckStationsTreeView *self)
 	/* Make station list empty */
 	gtk_list_store_clear(list_store);
 
-	/* Populate menu with every station */
-	iter = ock_station_list_iter_new(station_list);
-	while (ock_station_list_iter_loop(iter, &station)) {
+	/* Handle the special-case: empty station list */
+	if (ock_station_list_get_length(station_list) == 0) {
 		GtkTreeIter tree_iter;
-		const gchar *station_name;
-		PangoWeight weight;
 
-		station_name = ock_station_get_name_or_uri(station);
-
-		if (station == current_station)
-			weight = PANGO_WEIGHT_BOLD;
-		else
-			weight = PANGO_WEIGHT_NORMAL;
-
+		/* Populate */
 		gtk_list_store_append(list_store, &tree_iter);
 		gtk_list_store_set(list_store, &tree_iter,
-		                   STATION_COLUMN, station,
-		                   STATION_NAME_COLUMN, station_name,
-		                   STATION_WEIGHT_COLUMN, weight,
+		                   STATION_COLUMN, NULL,
+		                   STATION_NAME_COLUMN, "Right click to add station",
+		                   STATION_WEIGHT_COLUMN, PANGO_WEIGHT_NORMAL,
+		                   STATION_STYLE_COLUMN, PANGO_STYLE_ITALIC,
 		                   -1);
+
+		/* Configure behavior */
+		gtk_tree_view_set_hover_selection(tree_view, FALSE);
+		gtk_tree_view_set_activate_on_single_click(tree_view, FALSE);
+
+	} else {
+		OckStation *current_station = ock_player_get_station(player);
+		OckStation *station;
+		OckStationListIter *iter;
+
+		/* Populate menu with every station */
+		iter = ock_station_list_iter_new(station_list);
+
+		while (ock_station_list_iter_loop(iter, &station)) {
+			GtkTreeIter tree_iter;
+			const gchar *station_name;
+			PangoWeight weight;
+
+			station_name = ock_station_get_name_or_uri(station);
+
+			if (station == current_station)
+				weight = PANGO_WEIGHT_BOLD;
+			else
+				weight = PANGO_WEIGHT_NORMAL;
+
+			gtk_list_store_append(list_store, &tree_iter);
+			gtk_list_store_set(list_store, &tree_iter,
+			                   STATION_COLUMN, station,
+			                   STATION_NAME_COLUMN, station_name,
+			                   STATION_WEIGHT_COLUMN, weight,
+			                   STATION_STYLE_COLUMN, PANGO_STYLE_NORMAL,
+			                   -1);
+		}
+		ock_station_list_iter_free(iter);
+
+		/* Configure behavior */
+		gtk_tree_view_set_hover_selection(tree_view, TRUE);
+		gtk_tree_view_set_activate_on_single_click(tree_view, TRUE);
 	}
-	ock_station_list_iter_free(iter);
 
 	/* Unblock list store handlers */
 	g_signal_handlers_unblock(list_store, list_store_handlers, self);
@@ -600,15 +646,16 @@ ock_stations_tree_view_constructed(GObject *object)
 	 */
 
 	/*
-	 * Create the stations list store. It has 3 columns:
+	 * Create the stations list store. It has 4 columns:
 	 * - the station object
 	 * - the station represented by a string (for displaying)
 	 * - the station's font weight (bold characters for current station)
+	 * - the station's font style (italic characters if no station)
 	 */
 
 	/* Create a new list store */
 	GtkListStore *list_store;
-	list_store = gtk_list_store_new(3, G_TYPE_OBJECT, G_TYPE_STRING, G_TYPE_UINT);
+	list_store = gtk_list_store_new(4, G_TYPE_OBJECT, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_UINT);
 
 	/* Associate it with the tree view */
 	gtk_tree_view_set_model(tree_view, GTK_TREE_MODEL(list_store));
