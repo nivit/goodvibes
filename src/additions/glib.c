@@ -117,10 +117,6 @@ g_variant_builder_add_dictentry_array_string(GVariantBuilder *b, const gchar *ke
 	va_list ap;
 	gchar *s;
 
-	// TODO Check if string is consumed or duplicated.
-	//      If duplicated, we probably need to free stuff in ock-dbus-server-*
-	//      or otherwise, we just don't use g_object_get... ?
-
 	g_variant_builder_init(&ab, G_VARIANT_TYPE_ARRAY);
 
 	va_start(ap, key);

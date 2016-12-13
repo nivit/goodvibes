@@ -184,12 +184,12 @@ g_variant_new_metadata(OckStation *station, OckMetadata *metadata)
 	GVariantBuilder b;
 	gchar *track_id;
 	const gchar *uri;
-	const gchar *artist;
-	const gchar *title;
-	const gchar *album;
-	const gchar *genre;
-	const gchar *year;
-	const gchar *comment;
+	gchar *artist;
+	gchar *title;
+	gchar *album;
+	gchar *genre;
+	gchar *year;
+	gchar *comment;
 
 	g_variant_builder_init(&b, G_VARIANT_TYPE("a{sv}"));
 
@@ -229,6 +229,13 @@ g_variant_new_metadata(OckStation *station, OckMetadata *metadata)
 		g_variant_builder_add_dictentry_string(&b, "xesam:contentCreated", year);
 	if (comment)
 		g_variant_builder_add_dictentry_array_string(&b, "xesam:comment", comment, NULL);
+
+	g_free(artist);
+	g_free(title);
+	g_free(album);
+	g_free(genre);
+	g_free(year);
+	g_free(comment);
 
 end:
 	return g_variant_builder_end(&b);
