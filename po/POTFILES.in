@@ -1,1 +1,4 @@
 data/desktop/overcooked.desktop.in
+data/ui/main-window.glade
+data/ui/prefs-window.glade
+data/ui/station-dialog.glade
