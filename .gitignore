@@ -6,9 +6,9 @@ Makefile.in
 *~
 
 # Binaries and libraries
-cli/overctl
-src/overcooked
-libgszn/libgszn.a
+/cli/overctl
+/src/overcooked
+/libgszn/libgszn.a
 
 # Generated files
 /AUTHORS
@@ -17,30 +17,30 @@ libgszn/libgszn.a
 *enum-types.[ch]
 
 # Data
-data/dbus-1/services/*.service
-data/desktop/*.desktop
-data/desktop/*.desktop.in
+/data/dbus-1/services/*.service
+/data/desktop/*.desktop
+/data/desktop/*.desktop.in
 
 # M4 macros
 !/m4/ock-*.m4
-*.m4
+/m4/*.m4
 
 # Autotools stuff
 .dirstamp
-INSTALL
-aclocal.m4
-ar-lib
-autom4te.cache/
-compile
-config.guess
-config.log
-config.rpath
-config.status
-config.sub
-configure
-depcomp
-install-sh
-missing
+/INSTALL
+/aclocal.m4
+/ar-lib
+/autom4te.cache/
+/compile
+/config.guess
+/config.log
+/config.rpath
+/config.status
+/config.sub
+/configure
+/depcomp
+/install-sh
+/missing
 
 # I18n stuff
 /ABOUT-NLS
