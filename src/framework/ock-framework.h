@@ -21,6 +21,7 @@
 #define __OVERCOOKED_FRAMEWORK_OCK_FRAMEWORK_H__
 
 #include <glib.h>
+#include <glib/gi18n.h> /* _() is defined here */
 
 #include "framework/ock-errorable.h"
 #include "framework/ock-feature.h"

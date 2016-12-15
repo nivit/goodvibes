@@ -40,6 +40,16 @@ AC_PROG_RANLIB()
 AM_PROG_AR()
 
 # ------------------------------------- #
+#      Internationalization (i18n)      #
+# ------------------------------------- #
+
+AS_ECHO(["---- I18n ----"])
+
+# Init gettext
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.19.8])
+
+# ------------------------------------- #
 #         Mandatory dependencies        #
 # ------------------------------------- #
 
@@ -149,7 +159,7 @@ data/dbus-1/Makefile
 data/dbus-1/services/Makefile
 data/dbus-1/services/org.$PACKAGE_CAMEL_NAME.service
 data/desktop/Makefile
-data/desktop/$PACKAGE_NAME.desktop
+data/desktop/$PACKAGE_NAME.desktop.in
 data/icons/Makefile
 data/icons/hicolor/Makefile
 data/icons/hicolor/16x16/Makefile
@@ -167,6 +177,7 @@ data/icons/hicolor/256x256/apps/Makefile
 data/icons/src/Makefile
 data/ui/Makefile
 libgszn/Makefile
+po/Makefile.in
 src/Makefile
 ])
 

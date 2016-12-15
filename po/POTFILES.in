@@ -1,0 +1,19 @@
+# Desktop files
+data/desktop/overcooked.desktop.in
+
+# Glade ui files
+data/ui/main-window.glade
+data/ui/prefs-window.glade
+data/ui/station-dialog.glade
+
+# Source files
+src/core/ock-conf.c
+src/core/ock-station-list.c
+src/ui/ock-main-menu.c
+src/ui/ock-main-window.c
+src/ui/ock-prefs-window.c
+src/ui/ock-station-context-menu.c
+src/ui/ock-station-dialog.c
+src/ui/ock-tray.c
+src/ui/feat/ock-hotkeys.c
+

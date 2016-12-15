@@ -25,16 +25,16 @@
 #include "additions/glib-object.h"
 
 #include "framework/log.h"
-#include "framework/ock-param-specs.h"
+#include "framework/ock-framework.h"
 
 #include "core/ock-core.h"
 
 #include "ui/ock-station-context-menu.h"
 #include "ui/ock-station-dialog.h"
 
-#define ADD_STATION_LABEL    "Add new station"
-#define REMOVE_STATION_LABEL "Remove station"
-#define EDIT_STATION_LABEL   "Edit station"
+#define ADD_STATION_LABEL    _("Add new station")
+#define REMOVE_STATION_LABEL _("Remove station")
+#define EDIT_STATION_LABEL   _("Edit station")
 
 /*
  * Properties

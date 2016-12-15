@@ -882,14 +882,11 @@ ock_station_list_save(OckStationList *self)
 	if (err == NULL) {
 		INFO("Station list saved to '%s'", priv->save_path);
 	} else {
-		gchar *str;
+		INFO("Failed to save station list: %s", err->message);
+		ock_errorable_emit_error_printf
+		(OCK_ERRORABLE(self), "%s: %s",
+		 _("Failed to save station list"), err->message);
 
-		str = g_strdup_printf("Failed to save station list: %s", err->message);
-
-		INFO("%s", str);
-		ock_errorable_emit_error(OCK_ERRORABLE(self), str);
-
-		g_free(str);
 		g_clear_error(&err);
 	}
 }

@@ -95,7 +95,7 @@ set_station_label(GtkLabel *label, OckStation *station)
 	if (station)
 		station_title = ock_station_get_name_or_uri(station);
 	else
-		station_title = "No station selected";
+		station_title = _("No station selected");
 
 	gtk_label_set_text(label, station_title);
 }
@@ -108,17 +108,17 @@ set_status_label(GtkLabel *label, OckPlayerState state, OckMetadata *metadata)
 
 		switch (state) {
 		case OCK_PLAYER_STATE_PLAYING:
-			state_str = "Playing";
+			state_str = _("Playing");
 			break;
 		case OCK_PLAYER_STATE_CONNECTING:
-			state_str = "Connecting...";
+			state_str = _("Connecting...");
 			break;
 		case OCK_PLAYER_STATE_BUFFERING:
-			state_str = "Buffering...";
+			state_str = _("Buffering...");
 			break;
 		case OCK_PLAYER_STATE_STOPPED:
 		default:
-			state_str = "Stopped";
+			state_str = _("Stopped");
 			break;
 		}
 
@@ -136,7 +136,7 @@ set_status_label(GtkLabel *label, OckPlayerState state, OckMetadata *metadata)
 		else if (artist_title)
 			str = g_strdup(artist_title);
 		else
-			str = g_strdup("Playing");
+			str = g_strdup(_("Playing"));
 
 		gtk_label_set_text(label, str);
 
@@ -424,25 +424,25 @@ ock_main_window_setup_widgets(OckMainWindow *self)
 	 * react to external changes.
 	 */
 
-	setup_action("Start/Stop playing the current station.",
+	setup_action(_("Start/Stop playing the current station."),
 	             priv->play_button, "clicked",
 	             G_CALLBACK(on_button_clicked), self);
 
-	setup_action("Jump to the previous station.",
+	setup_action(_("Jump to the previous station."),
 	             priv->prev_button, "clicked",
 	             G_CALLBACK(on_button_clicked), self);
 
-	setup_action("Jump to the next station.",
+	setup_action(_("Jump to the next station."),
 	             priv->next_button, "clicked",
 	             G_CALLBACK(on_button_clicked), self);
 
-	setup_setting("Whether to loop on the station list. "
-	              "Only affects the behaviour of the previous/next actions.",
+	setup_setting(_("Whether to loop on the station list. "
+	                "Only affects the behaviour of the previous/next actions."),
 	              priv->repeat_toggle_button, "active",
 	              player_obj, "repeat");
 
-	setup_setting("Whether to browse the station list in a random order. "
-	              "Only affects the behaviour of the previous/next actions.",
+	setup_setting(_("Whether to browse the station list in a random order. "
+	                "Only affects the behaviour of the previous/next actions."),
 	              priv->shuffle_toggle_button, "active",
 	              player_obj, "shuffle");
 

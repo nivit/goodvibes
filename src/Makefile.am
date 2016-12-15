@@ -255,10 +255,11 @@ overcooked_SOURCES =			\
 	$(ock_ui_sources)		\
 	$(ock_ui_built_sources)
 
-overcooked_CFLAGS = $(sort	\
-	$(ock_framework_cflags)	\
-	$(ock_core_cflags)	\
-	$(ock_ui_cflags)	\
+overcooked_CFLAGS = $(sort		\
+	-DLOCALE_DIR=\"$(localedir)\"	\
+	$(ock_framework_cflags)		\
+	$(ock_core_cflags)		\
+	$(ock_ui_cflags)		\
 	)
 
 overcooked_LDADD = $(sort	\

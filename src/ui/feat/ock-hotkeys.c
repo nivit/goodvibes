@@ -132,8 +132,8 @@ ock_hotkeys_bind(OckHotkeys *self)
 
 		INFO("Failed to bind the following keys: %s", text);
 		ock_errorable_emit_error_printf
-		(OCK_ERRORABLE(self),
-		 "Failed to bind the following keys: \n%s", text);
+		(OCK_ERRORABLE(self), "%s: \n%s",
+		 _("Failed to bind the following keys"), text);
 
 		g_free(text);
 	} else {
