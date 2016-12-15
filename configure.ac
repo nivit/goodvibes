@@ -45,12 +45,9 @@ AM_PROG_AR()
 
 AS_ECHO(["---- I18n ----"])
 
-# This is expected in po/Makefile.in.in (provided by intltool)
-AC_SUBST([GETTEXT_PACKAGE], [$PACKAGE_NAME])
-AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE], "$GETTEXT_PACKAGE")
-
-# Init intltool
-IT_PROG_INTLTOOL([0.40])
+# Init gettext
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.19.8])
 
 # ------------------------------------- #
 #         Mandatory dependencies        #

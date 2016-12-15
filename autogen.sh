@@ -1,10 +1,9 @@
 #!/bin/sh
-# https://www.sourceware.org/autobook/autobook/autobook_43.html
+# Run this before running ./configure
 
 echo "Running $0..."
 
-autoreconf --force --install && \
-intltoolize --copy --force --automake
+autoreconf --force --install --verbose || exit $?
 
 echo "Done, please type './configure' to continue."
 
