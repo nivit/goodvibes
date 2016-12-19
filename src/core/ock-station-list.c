@@ -218,8 +218,7 @@ struct _OckStationList {
 
 G_DEFINE_TYPE_WITH_CODE(OckStationList, ock_station_list, G_TYPE_OBJECT,
                         G_ADD_PRIVATE(OckStationList)
-                        G_IMPLEMENT_INTERFACE(OCK_TYPE_ERRORABLE,
-                                        ock_errorable_dummy_interface_init))
+                        G_IMPLEMENT_INTERFACE(OCK_TYPE_ERRORABLE, NULL))
 
 /*
  * Serialization settings

@@ -38,8 +38,7 @@ struct _OckHotkeys {
 };
 
 G_DEFINE_TYPE_WITH_CODE(OckHotkeys, ock_hotkeys, OCK_TYPE_FEATURE,
-                        G_IMPLEMENT_INTERFACE(OCK_TYPE_ERRORABLE,
-                                        ock_errorable_dummy_interface_init))
+                        G_IMPLEMENT_INTERFACE(OCK_TYPE_ERRORABLE, NULL))
 
 /*
  * Signal handlers & callbacks

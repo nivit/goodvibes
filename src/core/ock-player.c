@@ -110,8 +110,7 @@ struct _OckPlayer {
 
 G_DEFINE_TYPE_WITH_CODE(OckPlayer, ock_player, G_TYPE_OBJECT,
                         G_ADD_PRIVATE(OckPlayer)
-                        G_IMPLEMENT_INTERFACE(OCK_TYPE_ERRORABLE,
-                                        ock_errorable_dummy_interface_init))
+                        G_IMPLEMENT_INTERFACE(OCK_TYPE_ERRORABLE, NULL))
 
 /*
  * Signal handlers

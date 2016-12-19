@@ -86,8 +86,7 @@ struct _OckEngine {
 
 G_DEFINE_TYPE_WITH_CODE(OckEngine, ock_engine, G_TYPE_OBJECT,
                         G_ADD_PRIVATE(OckEngine)
-                        G_IMPLEMENT_INTERFACE(OCK_TYPE_ERRORABLE,
-                                        ock_errorable_dummy_interface_init))
+                        G_IMPLEMENT_INTERFACE(OCK_TYPE_ERRORABLE, NULL))
 
 /*
  * GStreamer helpers
@@ -457,7 +456,7 @@ on_bus_message_error(GstBus *bus G_GNUC_UNUSED, GstMessage *msg, OckEngine *self
 	/* Display error */
 	DEBUG("Gst bus error msg: %s:%d: %s",
 	      g_quark_to_string(error->domain), error->code, error->message);
-	DEBUG("Gst bus error debug : %s", debug);
+	DEBUG("Gst bus error debug: %s", debug);
 
 	/* Emit an error signal */
 	ock_errorable_emit_error(OCK_ERRORABLE(self), error->message);
