@@ -65,13 +65,13 @@ on_caphe_notify_inhibited(CapheMain    *caphe,
 	const gchar *inhibitor_id = caphe_main_get_inhibitor_id(caphe);
 
 	if (inhibited)
-		DEBUG("Sleep inhibited (%s)", inhibitor_id);
+		INFO("Sleep inhibited (%s)", inhibitor_id);
 	else
-		DEBUG("Sleep uninhibited");
+		INFO("Sleep uninhibited");
 }
 
 static gboolean
-when_timeout(OckInhibitor *self)
+when_timeout_check_playback_status(OckInhibitor *self)
 {
 	OckInhibitorPrivate *priv = self->priv;
 	OckPlayer *player = ock_core_player;
@@ -107,7 +107,8 @@ on_player_notify_state(OckPlayer    *player,
 	if (priv->when_timeout_id > 0)
 		g_source_remove(priv->when_timeout_id);
 
-	priv->when_timeout_id = g_timeout_add_seconds(1, (GSourceFunc) when_timeout, self);
+	priv->when_timeout_id = g_timeout_add_seconds
+		(1, (GSourceFunc) when_timeout_check_playback_status, self);
 }
 
 /*
@@ -130,8 +131,9 @@ ock_inhibitor_disable(OckFeature *feature)
 	/* Signal handlers */
 	g_signal_handlers_disconnect_by_data(player, feature);
 
-	/* No more inhibition */
-	caphe_main_uninhibit(caphe_get_default());
+	/* Cleanup libcaphe */
+	g_signal_handlers_disconnect_by_data(caphe_get_default(), self);
+	caphe_cleanup();
 
 	/* Chain up */
 	OCK_FEATURE_CHAINUP_DISABLE(ock_inhibitor, feature);
@@ -140,13 +142,25 @@ ock_inhibitor_disable(OckFeature *feature)
 static void
 ock_inhibitor_enable(OckFeature *feature)
 {
+	OckInhibitor *self = OCK_INHIBITOR(feature);
+	OckInhibitorPrivate *priv = self->priv;
 	OckPlayer *player = ock_core_player;
 
 	/* Chain up */
 	OCK_FEATURE_CHAINUP_ENABLE(ock_inhibitor, feature);
 
-	/* Signal handlers */
-	g_signal_connect(player, "notify::state", G_CALLBACK(on_player_notify_state), feature);
+	/* Init libcaphe */
+	caphe_init(g_get_application_name());
+	g_signal_connect(caphe_get_default(), "notify::inhibited",
+	                 G_CALLBACK(on_caphe_notify_inhibited), self);
+
+	/* Connect to signal handlers */
+	g_signal_connect(player, "notify::state", G_CALLBACK(on_player_notify_state), self);
+
+	/* Schedule a check for the current playback status */
+	g_assert(priv->when_timeout_id == 0);
+	priv->when_timeout_id = g_timeout_add_seconds
+		(1, (GSourceFunc) when_timeout_check_playback_status, self);
 }
 
 /*
@@ -158,10 +172,6 @@ ock_inhibitor_finalize(GObject *object)
 {
 	TRACE("%p", object);
 
-	/* Cleanup libcaphe */
-	g_signal_handlers_disconnect_by_data(caphe_get_default(), object);
-	caphe_cleanup();
-
 	/* Chain up */
 	G_OBJECT_CHAINUP_FINALIZE(ock_inhibitor, object);
 }
@@ -170,11 +180,6 @@ static void
 ock_inhibitor_constructed(GObject *object)
 {
 	TRACE("%p", object);
-
-	/* Init libcaphe */
-	caphe_init(g_get_application_name());
-	g_signal_connect(caphe_get_default(), "notify::inhibited",
-	                 G_CALLBACK(on_caphe_notify_inhibited), object);
 
 	/* Chain up */
 	G_OBJECT_CHAINUP_CONSTRUCTED(ock_inhibitor, object);
