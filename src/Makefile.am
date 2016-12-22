@@ -133,6 +133,7 @@ $(eval $(call make_types,core/ock-core-enum-types,$(ock_core_types_prereqs)))
 # Compiler options
 
 ock_core_cflags = 		\
+	$(CAPHE_CFLAGS)		\
 	$(GSZN_CFLAGS)		\
 	$(GLIB_CFLAGS)		\
 	$(XML_CFLAGS)		\
@@ -141,6 +142,7 @@ ock_core_cflags = 		\
 
 ock_core_ldadd =		\
 	-lm			\
+	$(CAPHE_LIBS)		\
 	$(GSZN_LIBS)		\
 	$(GLIB_LIBS)		\
 	$(XML_LIBS)		\
@@ -168,10 +170,10 @@ ock_core_sources += core/feat/ock-dbus-server-mpris2.c core/feat/ock-dbus-server
 ock_core_cflags  += -DDBUS_SERVER_MPRIS2_ENABLED
 endif
 
-if INHIBIT_ENABLED
+if INHIBITOR_ENABLED
 ock_core_sources += core/feat/ock-inhibitor.c core/feat/ock-inhibitor.h
-ock_core_cflags  += $(INHIBIT_CFLAGS) -DINHIBIT_ENABLED
-ock_core_ldadd   += $(INHIBIT_LIBS)
+ock_core_cflags  += $(INHIBITOR_CFLAGS) -DINHIBITOR_ENABLED
+ock_core_ldadd   += $(INHIBITOR_LIBS)
 endif
 
 

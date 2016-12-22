@@ -17,27 +17,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * This code was mainly taken from:
- *   systemd-inhibit (systemd source tree: src/login/inhibit.c)
- * For other ways to inhibit sleep:
- *   caffeine-ng
- *   xfce4-power-manager
- */
-
-// TODO This thing doesn't work ! Get rid of that.
-
 #include <signal.h>
 
 #include <glib.h>
-#include <gio/gio.h>
-#include <gio/gunixfdlist.h>
 #include <glib-object.h>
 
-#include "additions/glib.h"
+#include "caphe/caphe.h"
 
 #include "framework/log.h"
-#include "framework/ock-feature.h"
+#include "framework/ock-framework.h"
 
 #include "core/ock-core.h"
 
@@ -48,10 +36,8 @@
  */
 
 struct _OckInhibitorPrivate {
-	/* DBus connection */
-	GDBusConnection *dbus_connection;
-	/* File descriptor to inhibit sleep */
-	gint             inhibit_fd;
+	guint when_timeout_id;
+	gboolean error_emited;
 };
 
 typedef struct _OckInhibitorPrivate OckInhibitorPrivate;
@@ -63,209 +49,90 @@ struct _OckInhibitor {
 	OckInhibitorPrivate *priv;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE(OckInhibitor, ock_inhibitor, OCK_TYPE_FEATURE)
-
-/*
- * DBus callbacks
- */
-
-static void ock_inhibitor_check_player_state(OckInhibitor *self, OckPlayer *player);
-
-static void
-on_bus_acquired(GObject      *source_object G_GNUC_UNUSED,
-                GAsyncResult *result,
-                gpointer      user_data)
-{
-	OckInhibitor *self = OCK_INHIBITOR(user_data);
-	OckInhibitorPrivate *priv = self->priv;
-	OckPlayer *player = ock_core_player;
-	GError *error = NULL;
-
-	g_assert(priv->dbus_connection == NULL);
-
-	/* Get the dbus connection */
-	priv->dbus_connection = g_bus_get_finish(result, &error);
-	if (priv->dbus_connection == NULL) {
-		/* Error is guaranteed to be set */
-		WARNING("Failed to acquire dbus connection: %s", error->message);
-		g_error_free(error);
-		return;
-	}
-	DEBUG("Dbus connection acquired");
-
-	/* Now we must check the player state, in case it's playing */
-	ock_inhibitor_check_player_state(self, player);
-}
-
-static void
-on_message_reply(GObject      *source_object,
-                 GAsyncResult *result,
-                 gpointer      user_data)
-{
-	OckInhibitor *self = OCK_INHIBITOR(user_data);
-	OckInhibitorPrivate *priv = self->priv;
-	GDBusConnection *connection = G_DBUS_CONNECTION(source_object);
-	OckPlayer *player = ock_core_player;
-	GError *error = NULL;
-	GDBusMessage *reply;
-	GUnixFDList *fd_list;
-	gint fd;
-
-	/* Get the message reply */
-	reply = g_dbus_connection_send_message_with_reply_finish
-	        (connection, result, &error);
-
-	if (reply == NULL) {
-		/* Error is guaranteed to be set */
-		WARNING("Local error while sending message: %s", error->message);
-		g_error_free(error);
-		return;
-	}
-
-	if (g_dbus_message_get_message_type(reply) == G_DBUS_MESSAGE_TYPE_ERROR) {
-		g_dbus_message_to_gerror(reply, &error);
-		WARNING("Reply message is an error: %s", error->message);
-		g_error_free(error);
-		goto cleanup;
-	}
-
-	/* The message is supposed to hold a file descriptor */
-	fd_list = g_dbus_message_get_unix_fd_list(reply);
-	if (fd_list == NULL) {
-		WARNING("Reply message has no file descriptors");
-		goto cleanup;
-	}
-
-	fd = g_unix_fd_list_get(fd_list, 0, &error);
-	if (error) {
-		WARNING("Failed to get fd: %s", error->message);
-		g_error_free(error);
-		goto cleanup;
-	}
-
-	/* At this point, we succeeded to inhibit sleep.
-	 * We must save the file descriptor, since we will close it
-	 * when we want to uninhibit.
-	 */
-	DEBUG("Inhibit file descriptor: %d", fd);
-	priv->inhibit_fd = fd;
-
-	/* One last verification: ensure that music is still playing.
-	 * It's possible (though unlikely) that music was stopped while
-	 * we were waiting for the inhibitor file descriptor.
-	 */
-	ock_inhibitor_check_player_state(self, player);
-
-	/* Cleanup before exiting */
-cleanup:
-	g_object_unref(reply);
-}
-
-/*
- * Private methods
- */
-
-static void
-ock_inhibitor_start(OckInhibitor *self)
-{
-	OckInhibitorPrivate *priv = self->priv;
-	GDBusMessage *message;
-
-	/* May be inhibited already */
-	if (priv->inhibit_fd >= 0) {
-		DEBUG("Inhibit file descriptor is already set");
-		return;
-	}
-
-	/* Ensure we can access DBus */
-	if (priv->dbus_connection == NULL) {
-		DEBUG("Not connected to dbus");
-		return;
-	}
-
-	/* Inhibit */
-	DEBUG("Inhibiting sleep");
-
-	/* Create the message to send to the login manager */
-	message = g_dbus_message_new_method_call
-	          ("org.freedesktop.login1",
-	           "/org/freedesktop/login1",
-	           "org.freedesktop.login1.Manager",
-	           "Inhibit");
-
-	g_dbus_message_set_body
-	(message,
-	 g_variant_new("(ssss)",
-	               "sleep",
-	               PACKAGE_NAME,
-	               PACKAGE_CAMEL_NAME " is playing and prevents sleeping",
-	               "block"));
-
-	/* Send the message asynchronously */
-	g_dbus_connection_send_message_with_reply
-	(priv->dbus_connection,
-	 message,
-	 G_DBUS_SEND_MESSAGE_FLAGS_NONE,
-	 -1,
-	 NULL, /* out_serial */
-	 NULL, /* cancellable */
-	 on_message_reply,
-	 self);
-
-	/* Cleanup */
-	g_object_unref(message);
-}
-
-static void
-ock_inhibitor_stop(OckInhibitor *self)
-{
-	OckInhibitorPrivate *priv = self->priv;
-
-	/* May be unhinibited already */
-	if (priv->inhibit_fd < 0) {
-		DEBUG("Inhibit file descriptor is not set");
-		return;
-	}
-
-	/* Uninhibit */
-	DEBUG("Uninhibiting sleep");
-	close(priv->inhibit_fd);
-	priv->inhibit_fd = -1;
-}
-
-static void
-ock_inhibitor_check_player_state(OckInhibitor *self, OckPlayer *player)
-{
-	OckPlayerState player_state;
-
-	player_state = ock_player_get_state(player);
-
-	switch (player_state) {
-	case OCK_PLAYER_STATE_PLAYING:
-		ock_inhibitor_start(self);
-		break;
-	case OCK_PLAYER_STATE_STOPPED:
-		ock_inhibitor_stop(self);
-		break;
-	default:
-		break;
-	}
-}
+G_DEFINE_TYPE_WITH_CODE(OckInhibitor, ock_inhibitor, OCK_TYPE_FEATURE,
+                        G_ADD_PRIVATE(OckInhibitor)
+                        G_IMPLEMENT_INTERFACE(OCK_TYPE_ERRORABLE, NULL))
 
 /*
  * Signal handlers & callbacks
  */
 
 static void
+on_caphe_inhibit_finished(CapheMain *caphe G_GNUC_UNUSED,
+                          gboolean success,
+                          OckInhibitor *self)
+{
+	OckInhibitorPrivate *priv = self->priv;
+
+	/* In case of error, we notify the user, only for the first error.
+	 * The following errors are silent.
+	 */
+
+	if (success)
+		return;
+
+	g_info("Failed to inhibit system sleep");
+
+	if (priv->error_emited)
+		return;
+
+	ock_errorable_emit_error(OCK_ERRORABLE(self), _("Failed to inhibit system sleep"));
+	priv->error_emited = TRUE;
+}
+
+static void
+on_caphe_notify_inhibited(CapheMain    *caphe,
+                          GParamSpec   *pspec G_GNUC_UNUSED,
+                          OckInhibitor *self G_GNUC_UNUSED)
+{
+	gboolean inhibited = caphe_main_get_inhibited(caphe);
+	const gchar *inhibitor_id = caphe_main_get_inhibitor_id(caphe);
+
+	if (inhibited)
+		INFO("System sleep inhibited (%s)", inhibitor_id);
+	else
+		INFO("System sleep uninhibited");
+}
+
+static gboolean
+when_timeout_check_playback_status(OckInhibitor *self)
+{
+	OckInhibitorPrivate *priv = self->priv;
+	OckPlayer *player = ock_core_player;
+	OckPlayerState player_state = ock_player_get_state(player);
+
+	/* Not interested about the transitional states */
+	if (player_state == OCK_PLAYER_STATE_PLAYING)
+		caphe_main_inhibit(caphe_get_default(), "Playing");
+	else if (player_state == OCK_PLAYER_STATE_STOPPED)
+		caphe_main_uninhibit(caphe_get_default());
+
+	priv->when_timeout_id = 0;
+
+	return G_SOURCE_REMOVE;
+}
+
+static void
 on_player_notify_state(OckPlayer    *player,
-                       GParamSpec   *pspec,
+                       GParamSpec   *pspec G_GNUC_UNUSED,
                        OckInhibitor *self)
 {
-	const gchar *property_name = g_param_spec_get_name(pspec);
+	OckInhibitorPrivate *priv = self->priv;
+	OckPlayerState player_state = ock_player_get_state(player);
 
-	TRACE("%p, %s, %p", player, property_name, self);
+	/* Not interested about the transitional states */
+	if (player_state != OCK_PLAYER_STATE_PLAYING &&
+	    player_state != OCK_PLAYER_STATE_STOPPED)
+		return;
 
-	ock_inhibitor_check_player_state(self, player);
+	/* Delay the actual inhibition, just in case the states are getting
+	 * crazy and changing fast.
+	 */
+	if (priv->when_timeout_id > 0)
+		g_source_remove(priv->when_timeout_id);
+
+	priv->when_timeout_id = g_timeout_add_seconds
+		(1, (GSourceFunc) when_timeout_check_playback_status, self);
 }
 
 /*
@@ -279,17 +146,21 @@ ock_inhibitor_disable(OckFeature *feature)
 	OckInhibitorPrivate *priv = self->priv;
 	OckPlayer *player = ock_core_player;
 
+	/* Remove pending operation */
+	if (priv->when_timeout_id) {
+		g_source_remove(priv->when_timeout_id);
+		priv->when_timeout_id = 0;
+	}
+
+	/* Reset error emission */
+	priv->error_emited = FALSE;
+
 	/* Signal handlers */
 	g_signal_handlers_disconnect_by_data(player, feature);
 
-	/* Stop inhibitor */
-	ock_inhibitor_stop(self);
-
-	/* Unref the dbus connection */
-	if (priv->dbus_connection) {
-		g_object_unref(priv->dbus_connection);
-		priv->dbus_connection = NULL;
-	}
+	/* Cleanup libcaphe */
+	g_signal_handlers_disconnect_by_data(caphe_get_default(), self);
+	caphe_cleanup();
 
 	/* Chain up */
 	OCK_FEATURE_CHAINUP_DISABLE(ock_inhibitor, feature);
@@ -298,21 +169,50 @@ ock_inhibitor_disable(OckFeature *feature)
 static void
 ock_inhibitor_enable(OckFeature *feature)
 {
+	OckInhibitor *self = OCK_INHIBITOR(feature);
+	OckInhibitorPrivate *priv = self->priv;
 	OckPlayer *player = ock_core_player;
 
 	/* Chain up */
 	OCK_FEATURE_CHAINUP_ENABLE(ock_inhibitor, feature);
 
-	/* Acquire the connection to dbus */
-	g_bus_get(G_BUS_TYPE_SYSTEM, NULL, on_bus_acquired, feature);
+	/* Init libcaphe */
+	caphe_init(g_get_application_name());
+	g_signal_connect(caphe_get_default(), "notify::inhibited",
+	                 G_CALLBACK(on_caphe_notify_inhibited), self);
+	g_signal_connect(caphe_get_default(), "inhibit-finished",
+	                 G_CALLBACK(on_caphe_inhibit_finished), self);
 
-	/* Signal handlers */
-	g_signal_connect(player, "notify::state", G_CALLBACK(on_player_notify_state), feature);
+	/* Connect to signal handlers */
+	g_signal_connect(player, "notify::state", G_CALLBACK(on_player_notify_state), self);
+
+	/* Schedule a check for the current playback status */
+	g_assert(priv->when_timeout_id == 0);
+	priv->when_timeout_id = g_timeout_add_seconds
+		(1, (GSourceFunc) when_timeout_check_playback_status, self);
 }
 
 /*
  * GObject methods
  */
+
+static void
+ock_inhibitor_finalize(GObject *object)
+{
+	TRACE("%p", object);
+
+	/* Chain up */
+	G_OBJECT_CHAINUP_FINALIZE(ock_inhibitor, object);
+}
+
+static void
+ock_inhibitor_constructed(GObject *object)
+{
+	TRACE("%p", object);
+
+	/* Chain up */
+	G_OBJECT_CHAINUP_CONSTRUCTED(ock_inhibitor, object);
+}
 
 static void
 ock_inhibitor_init(OckInhibitor *self)
@@ -321,17 +221,19 @@ ock_inhibitor_init(OckInhibitor *self)
 
 	/* Initialize private pointer */
 	self->priv = ock_inhibitor_get_instance_private(self);
-
-	/* Initialize inhibit file descriptor */
-	self->priv->inhibit_fd = -1;
 }
 
 static void
 ock_inhibitor_class_init(OckInhibitorClass *class)
 {
+	GObjectClass *object_class = G_OBJECT_CLASS(class);
 	OckFeatureClass *feature_class = OCK_FEATURE_CLASS(class);
 
 	TRACE("%p", class);
+
+	/* Override GObject methods */
+	object_class->finalize = ock_inhibitor_finalize;
+	object_class->constructed = ock_inhibitor_constructed;
 
 	/* Override OckFeature methods */
 	feature_class->enable = ock_inhibitor_enable;

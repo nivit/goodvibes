@@ -2,6 +2,7 @@ SUBDIRS =	\
 	cli	\
 	data	\
 	libgszn	\
+	libcaphe\
 	po	\
 	src
 

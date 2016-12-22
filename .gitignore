@@ -9,6 +9,8 @@ Makefile.in
 /cli/overctl
 /src/overcooked
 /libgszn/libgszn.a
+/libcaphe/caphe/libcaphe.a
+/libcaphe/tests/caphe-test
 
 # Generated files
 /AUTHORS
