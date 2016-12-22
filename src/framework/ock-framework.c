@@ -104,6 +104,10 @@ ock_framework_init(void)
         bind_textdomain_codeset(PACKAGE_NAME, "UTF-8");
         textdomain(PACKAGE_NAME);
 
+        /* Some GLib utility functions */
+        g_set_application_name(PACKAGE_LONG_NAME);
+        g_set_prgname(PACKAGE_NAME);
+
 	/* Register a custom function to transform boolean to string:
 	 * use lowercase instead of the default uppercase.
 	 * This function is used during serialization process, and therefore

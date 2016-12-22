@@ -36,7 +36,7 @@
 #ifdef DBUS_SERVER_MPRIS2_ENABLED
 #include "core/feat/ock-dbus-server-mpris2.h"
 #endif
-#ifdef INHIBIT_ENABLED
+#ifdef INHIBITOR_ENABLED
 #include "core/feat/ock-inhibitor.h"
 #endif
 
@@ -188,7 +188,7 @@ ock_core_init(void)
 	ock_framework_features_append(feature);
 	ock_framework_configurables_append(feature);
 #endif
-#ifdef INHIBIT_ENABLED
+#ifdef INHIBITOR_ENABLED
 	feature = ock_feature_new(OCK_TYPE_INHIBITOR, FALSE);
 	features[idx++] = feature;
 	ock_framework_features_append(feature);

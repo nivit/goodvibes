@@ -55,7 +55,7 @@ AM_GNU_GETTEXT_VERSION([0.19.8])
 
 # Check for core dependencies
 # - gio-unix-2.0 is needed for libcaphe. In a perfect world, libcaphe
-# (and therefore gio-unix-2.0) should depend on the inhibit feature.
+# (and therefore gio-unix-2.0) should depend on the inhibitor feature.
 # - libxml-2.0 is needed for libgszn (which is a mandatory dependency)
 
 AS_ECHO(["---- Core ----"])
@@ -126,12 +126,12 @@ AS_ECHO(["---- Core Features ----"])
 OCK_FEATURE_ENABLE([dbus_native],    [native dbus server support], [$feat_noextra])
 OCK_FEATURE_ENABLE([dbus_mpris2],    [mpris2 dbus server support], [$feat_noextra])
 OCK_FEATURE_ENABLE([console_output], [console output support],     [$feat_noextra])
-OCK_FEATURE_ENABLE([inhibit],        [inhibit support],            [$feat_extra])
+OCK_FEATURE_ENABLE([inhibitor],      [inhibitor support],          [$feat_noextra])
 
 AM_CONDITIONAL([DBUS_NATIVE_ENABLED],    [test "$enable_dbus_native" = "yes"])
 AM_CONDITIONAL([DBUS_MPRIS2_ENABLED],    [test "$enable_dbus_mpris2" = "yes"])
 AM_CONDITIONAL([CONSOLE_OUTPUT_ENABLED], [test "$enable_console_output" = "yes"])
-AM_CONDITIONAL([INHIBIT_ENABLED],        [test "$enable_inhibit" = "yes"])
+AM_CONDITIONAL([INHIBITOR_ENABLED],      [test "$enable_inhibitor" = "yes"])
 
 # Check for ui features dependencies
 # If the ui is disabled, ensure features are disabled as well.
@@ -214,7 +214,7 @@ AS_ECHO(["
 	Console output    : $enable_console_output
 	Native dbus server: $enable_dbus_native
 	Mpris2 dbus server: $enable_dbus_mpris2
-	Inhibit           : $enable_inhibit
+	Inhibitor         : $enable_inhibitor
 
 	Ui                : $enable_ui
 	--
