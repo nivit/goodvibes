@@ -93,6 +93,7 @@ struct _OckPrefsWindowPrivate {
 	GtkWidget *console_output_switch;
 	/* Player */
 	GtkWidget *player_vbox;
+	GtkWidget *player_grid;
 	GtkWidget *autoplay_check;
 	GtkWidget *inhibitor_label;
 	GtkWidget *inhibitor_switch;
@@ -298,6 +299,7 @@ ock_prefs_window_populate_widgets(OckPrefsWindow *self)
 
 	/* Player */
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, player_vbox);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, player_grid);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, autoplay_check);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, inhibitor_label);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, inhibitor_switch);
@@ -411,6 +413,12 @@ ock_prefs_window_setup_layout(OckPrefsWindow *self)
 {
 	OckPrefsWindowPrivate *priv = self->priv;
 
+	/* Main */
+	g_object_set(priv->window_vbox,
+	             "margin", 0,
+	             "spacing", 0,
+	             NULL);
+
 	/* Controls */
 	g_object_set(priv->controls_vbox,
 	             "margin", OCK_UI_WINDOW_BORDER,
@@ -460,6 +468,12 @@ ock_prefs_window_setup_layout(OckPrefsWindow *self)
 	             "margin", OCK_UI_WINDOW_BORDER,
 	             "spacing", OCK_UI_GROUP_SPACING,
 	             NULL);
+	g_object_set(priv->player_grid,
+	             "row-spacing", OCK_UI_ELEM_SPACING,
+	             "column-spacing", OCK_UI_LABEL_SPACING,
+	             "halign", GTK_ALIGN_END,
+	             NULL);
+
 }
 
 /*
