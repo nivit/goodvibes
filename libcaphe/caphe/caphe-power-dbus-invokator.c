@@ -179,6 +179,37 @@ caphe_power_dbus_invokator_inhibit(CapheDbusInvokator *dbus_invokator,
  */
 
 static void
+caphe_power_dbus_invokator_finalize(GObject *object)
+{
+	CaphePowerDbusInvokator *self = CAPHE_POWER_DBUS_INVOKATOR(object);
+	CaphePowerDbusInvokatorPrivate *priv = self->priv;
+	CapheDbusInvokator *dbus_invokator = CAPHE_DBUS_INVOKATOR(object);
+	GDBusProxy *proxy = caphe_dbus_invokator_get_proxy(dbus_invokator);
+
+	TRACE("%p", object);
+
+	if (proxy == NULL)
+		goto chainup;
+
+	if (priv->cookie == 0)
+		goto chainup;
+
+	/* We must uninhibit without callback */
+	g_dbus_proxy_call(proxy,
+	                  "UnInhibit",
+	                  g_variant_new("(u)", priv->cookie),
+	                  G_DBUS_CALL_FLAGS_NO_AUTO_START,
+	                  -1,
+	                  NULL,
+	                  NULL,
+	                  NULL);
+
+chainup:
+	if (G_OBJECT_CLASS(caphe_power_dbus_invokator_parent_class)->finalize)
+		G_OBJECT_CLASS(caphe_power_dbus_invokator_parent_class)->finalize(object);
+}
+
+static void
 caphe_power_dbus_invokator_init(CaphePowerDbusInvokator *self)
 {
 	CaphePowerDbusInvokatorPrivate *priv =
@@ -193,9 +224,13 @@ caphe_power_dbus_invokator_init(CaphePowerDbusInvokator *self)
 static void
 caphe_power_dbus_invokator_class_init(CaphePowerDbusInvokatorClass *class)
 {
+	GObjectClass            *object_class = G_OBJECT_CLASS(class);
 	CapheDbusInvokatorClass *dbus_invokator_class = CAPHE_DBUS_INVOKATOR_CLASS(class);
 
 	TRACE("%p", class);
+
+	/* GObject methods */
+	object_class->finalize             = caphe_power_dbus_invokator_finalize;
 
 	/* Implement methods */
 	dbus_invokator_class->inhibit      = caphe_power_dbus_invokator_inhibit;

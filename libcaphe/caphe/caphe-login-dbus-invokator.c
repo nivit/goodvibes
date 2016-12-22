@@ -185,6 +185,24 @@ caphe_login_dbus_invokator_inhibit(CapheDbusInvokator *dbus_invokator,
  */
 
 static void
+caphe_login_dbus_invokator_finalize(GObject *object)
+{
+	CapheLoginDbusInvokator *self = CAPHE_LOGIN_DBUS_INVOKATOR(object);
+	CapheLoginDbusInvokatorPrivate *priv = self->priv;
+
+	TRACE("%p", object);
+
+	if (priv->fd < 0)
+		goto chainup;
+
+	close(priv->fd);
+
+chainup:
+	if (G_OBJECT_CLASS(caphe_login_dbus_invokator_parent_class)->finalize)
+		G_OBJECT_CLASS(caphe_login_dbus_invokator_parent_class)->finalize(object);
+}
+
+static void
 caphe_login_dbus_invokator_init(CapheLoginDbusInvokator *self)
 {
 	CapheLoginDbusInvokatorPrivate *priv =
@@ -202,9 +220,13 @@ caphe_login_dbus_invokator_init(CapheLoginDbusInvokator *self)
 static void
 caphe_login_dbus_invokator_class_init(CapheLoginDbusInvokatorClass *class)
 {
+	GObjectClass            *object_class = G_OBJECT_CLASS(class);
 	CapheDbusInvokatorClass *dbus_invokator_class = CAPHE_DBUS_INVOKATOR_CLASS(class);
 
 	TRACE("%p", class);
+
+	/* GObject methods */
+	object_class->finalize             = caphe_login_dbus_invokator_finalize;
 
 	/* Implement methods */
 	dbus_invokator_class->inhibit      = caphe_login_dbus_invokator_inhibit;
