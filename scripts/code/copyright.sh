@@ -17,6 +17,8 @@ unit_name()
 
     if echo $file | grep -q libgszn; then
 	echo "Libgszn"
+    elif echo $file | grep -q libcaphe; then
+	echo "Libcaphe"
     else
 	echo "Overcooked Radio Player"
     fi

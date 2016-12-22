@@ -21,12 +21,8 @@ make_namespace()
     # Take out the first directory in the name
     local first_dir=$(echo $file | cut -d/ -f1)
 
-    # Libgszn
-    if [ $first_dir == libgszn ]; then
-	echo __LIBGSZN_${bn}__
-
-    # Overcooked
-    elif [ $first_dir == src ] || [ $first_dir == cli ]; then
+   # Overcooked sources
+    if [ $first_dir == src ] || [ $first_dir == cli ]; then
 	local next_dirs=$(echo $file | cut -d/ -f2- | xargs dirname)
 
 	if [ $next_dirs == '.' ]; then
@@ -37,10 +33,13 @@ make_namespace()
 	    echo __OVERCOOKED_${dn}_${bn}__
 	fi
 
-    # Unexpected
+
+    # Anything else
     else
-	echo >&2 "Unexpected dir: '$first_dir'"
-	echo __${bn}__
+	local first_dir_up=$(echo $first_dir | tr '\-.' _ | tr '[:lower:]' '[:upper:]')    
+
+	echo __${first_dir_up}_${bn}__
+
     fi
 }
 
