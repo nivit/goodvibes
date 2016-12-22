@@ -133,6 +133,7 @@ $(eval $(call make_types,core/ock-core-enum-types,$(ock_core_types_prereqs)))
 # Compiler options
 
 ock_core_cflags = 		\
+	$(CAPHE_CFLAGS)		\
 	$(GSZN_CFLAGS)		\
 	$(GLIB_CFLAGS)		\
 	$(XML_CFLAGS)		\
@@ -141,6 +142,7 @@ ock_core_cflags = 		\
 
 ock_core_ldadd =		\
 	-lm			\
+	$(CAPHE_LIBS)		\
 	$(GSZN_LIBS)		\
 	$(GLIB_LIBS)		\
 	$(XML_LIBS)		\

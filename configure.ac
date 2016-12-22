@@ -35,7 +35,7 @@ AC_PROG_CC()
 AC_PROG_INSTALL()
 PKG_PROG_PKG_CONFIG()
 
-# To build libgszn as a static library
+# To build static libraries (libgszn, libcaphe)
 AC_PROG_RANLIB()
 AM_PROG_AR()
 
@@ -54,10 +54,13 @@ AM_GNU_GETTEXT_VERSION([0.19.8])
 # ------------------------------------- #
 
 # Check for core dependencies
+# - gio-unix-2.0 is needed for libcaphe. In a perfect world, libcaphe
+# (and therefore gio-unix-2.0) should depend on the inhibit feature.
+# - libxml-2.0 is needed for libgszn (which is a mandatory dependency)
 
 AS_ECHO(["---- Core ----"])
 
-PKG_CHECK_MODULES([GLIB],    [glib-2.0, gio-2.0, gobject-2.0 >= 2.42])
+PKG_CHECK_MODULES([GLIB],    [glib-2.0, gio-2.0, gobject-2.0, gio-unix-2.0 >= 2.42])
 PKG_CHECK_MODULES([LIBSOUP], [libsoup-2.4 >= 2.42])
 PKG_CHECK_MODULES([GST],     [gstreamer-1.0, gstreamer-base-1.0, gstreamer-audio-1.0 >= 1.4.4])
 PKG_CHECK_MODULES([XML],     [libxml-2.0 >= 2.9.4])
@@ -67,6 +70,12 @@ GSZN_CFLAGS="-I.."
 GSZN_LIBS="../libgszn/libgszn.a"
 AC_SUBST(GSZN_CFLAGS)
 AC_SUBST(GSZN_LIBS)
+
+# Libcaphe flags
+CAPHE_CFLAGS="-I../libcaphe/"
+CAPHE_LIBS="../libcaphe/caphe/libcaphe.a"
+AC_SUBST(CAPHE_CFLAGS)
+AC_SUBST(CAPHE_LIBS)
 
 # ------------------------------------- #
 #         Optional dependencies         #
@@ -118,8 +127,6 @@ OCK_FEATURE_ENABLE([dbus_native],    [native dbus server support], [$feat_noextr
 OCK_FEATURE_ENABLE([dbus_mpris2],    [mpris2 dbus server support], [$feat_noextra])
 OCK_FEATURE_ENABLE([console_output], [console output support],     [$feat_noextra])
 OCK_FEATURE_ENABLE([inhibit],        [inhibit support],            [$feat_extra])
-
-OCK_FEATURE_PKG_CHECK([inhibit], [INHIBIT], [gio-unix-2.0 >= 2.42])
 
 AM_CONDITIONAL([DBUS_NATIVE_ENABLED],    [test "$enable_dbus_native" = "yes"])
 AM_CONDITIONAL([DBUS_MPRIS2_ENABLED],    [test "$enable_dbus_mpris2" = "yes"])
@@ -176,6 +183,9 @@ data/icons/hicolor/256x256/Makefile
 data/icons/hicolor/256x256/apps/Makefile
 data/icons/src/Makefile
 data/ui/Makefile
+libcaphe/Makefile
+libcaphe/caphe/Makefile
+libcaphe/tests/Makefile
 libgszn/Makefile
 po/Makefile.in
 src/Makefile
