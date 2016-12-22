@@ -119,7 +119,7 @@ g_object_get_property_uint_bounds(GObject *object, const gchar *property_name,
 	pspec = g_object_class_find_property(G_OBJECT_GET_CLASS(object), property_name);
 	g_assert(pspec);
 	g_assert(G_IS_PARAM_SPEC_UINT(pspec));
-	
+
 	pspec_uint = G_PARAM_SPEC_UINT(pspec);
 	if (minimum)
 		*minimum = pspec_uint->minimum;

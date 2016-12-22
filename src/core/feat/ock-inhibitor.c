@@ -132,7 +132,7 @@ on_player_notify_state(OckPlayer    *player,
 		g_source_remove(priv->when_timeout_id);
 
 	priv->when_timeout_id = g_timeout_add_seconds
-		(1, (GSourceFunc) when_timeout_check_playback_status, self);
+	                        (1, (GSourceFunc) when_timeout_check_playback_status, self);
 }
 
 /*
@@ -189,7 +189,7 @@ ock_inhibitor_enable(OckFeature *feature)
 	/* Schedule a check for the current playback status */
 	g_assert(priv->when_timeout_id == 0);
 	priv->when_timeout_id = g_timeout_add_seconds
-		(1, (GSourceFunc) when_timeout_check_playback_status, self);
+	                        (1, (GSourceFunc) when_timeout_check_playback_status, self);
 }
 
 /*

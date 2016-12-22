@@ -100,13 +100,13 @@ ock_framework_init(void)
 {
 	/* Initialize i18n */
 	setlocale(LC_ALL, "");
-        bindtextdomain(PACKAGE_NAME, LOCALE_DIR);
-        bind_textdomain_codeset(PACKAGE_NAME, "UTF-8");
-        textdomain(PACKAGE_NAME);
+	bindtextdomain(PACKAGE_NAME, LOCALE_DIR);
+	bind_textdomain_codeset(PACKAGE_NAME, "UTF-8");
+	textdomain(PACKAGE_NAME);
 
-        /* Some GLib utility functions */
-        g_set_application_name(PACKAGE_LONG_NAME);
-        g_set_prgname(PACKAGE_NAME);
+	/* Some GLib utility functions */
+	g_set_application_name(PACKAGE_LONG_NAME);
+	g_set_prgname(PACKAGE_NAME);
 
 	/* Register a custom function to transform boolean to string:
 	 * use lowercase instead of the default uppercase.
