@@ -171,6 +171,8 @@ ock_hotkeys_enable(OckFeature *feature)
 static void
 ock_hotkeys_finalize(GObject *object)
 {
+	TRACE("%p", object);
+
 	/* Chain up */
 	G_OBJECT_CHAINUP_FINALIZE(ock_hotkeys, object);
 }
@@ -178,6 +180,8 @@ ock_hotkeys_finalize(GObject *object)
 static void
 ock_hotkeys_constructed(GObject *object)
 {
+	TRACE("%p", object);
+
 	/* Chain up */
 	G_OBJECT_CHAINUP_CONSTRUCTED(ock_hotkeys, object);
 }
