@@ -308,27 +308,17 @@ setup_adjustment(GtkAdjustment *adjustment, GObject *obj, const gchar *obj_prop)
 }
 
 static void
-setup_action(const gchar *tooltip_text,
-             GtkWidget *widget, const gchar *widget_signal,
+setup_action(GtkWidget *widget, const gchar *widget_signal,
              GCallback callback, gpointer data)
 {
-	/* Tooltip */
-	if (tooltip_text)
-		gtk_widget_set_tooltip_text(widget, tooltip_text);
-
 	/* Signal handler */
 	g_signal_connect(widget, widget_signal, callback, data);
 }
 
 static void
-setup_setting(const gchar *tooltip_text,
-              GtkWidget *widget, const gchar *widget_prop,
+setup_setting(GtkWidget *widget, const gchar *widget_prop,
               GObject *obj, const gchar *obj_prop)
 {
-	/* Tooltip */
-	if (tooltip_text)
-		gtk_widget_set_tooltip_text(widget, tooltip_text);
-
 	/* Binding: obj 'prop' <-> widget 'prop'
 	 * Order matters, don't mix up source and target here...
 	 */
@@ -414,36 +404,25 @@ ock_main_window_setup_widgets(OckMainWindow *self)
 
 	/*
 	 * Setup settings and actions.
-	 * These functions calls set the widgets tooltips. Additionally, they
-	 * create the link between the widgets and program.
-	 * - settings: the link is a binding between the gtk widget and
-	 * an internal object.
-	 * - actions: the link is a callback invoked when the widget is
-	 * activated/clicked or whatever. This is a one-way link from the ui to
-	 * the application, and additional work is needed if the widget should
-	 * react to external changes.
+	 * These function calls create the link between the widgets and the program.
+	 * - settings: the link is a binding between the gtk widget and an internal object.
+	 * - actions : the link is a callback invoked when the widget is clicked. This is a
+	 * one-way link from the ui to the application, and additional work would be needed
+	 * if the widget was to react to external changes.
 	 */
-
-	setup_action(_("Start/Stop playing the current station."),
-	             priv->play_button, "clicked",
+	setup_action(priv->play_button, "clicked",
 	             G_CALLBACK(on_button_clicked), self);
 
-	setup_action(_("Jump to the previous station."),
-	             priv->prev_button, "clicked",
+	setup_action(priv->prev_button, "clicked",
 	             G_CALLBACK(on_button_clicked), self);
 
-	setup_action(_("Jump to the next station."),
-	             priv->next_button, "clicked",
+	setup_action(priv->next_button, "clicked",
 	             G_CALLBACK(on_button_clicked), self);
 
-	setup_setting(_("Whether to loop on the station list. "
-	                "Only affects the behaviour of the previous/next actions."),
-	              priv->repeat_toggle_button, "active",
+	setup_setting(priv->repeat_toggle_button, "active",
 	              player_obj, "repeat");
 
-	setup_setting(_("Whether to browse the station list in a random order. "
-	                "Only affects the behaviour of the previous/next actions."),
-	              priv->shuffle_toggle_button, "active",
+	setup_setting(priv->shuffle_toggle_button, "active",
 	              player_obj, "shuffle");
 
 	/* Volume button comes with automatic tooltip, so we just need to bind.
