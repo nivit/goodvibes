@@ -151,6 +151,10 @@ log_default_handler(const gchar   *domain,
 	if (level > log_level)
 		return;
 
+	/* Discard debug messages that don't belong to us */
+	if (domain && level > G_LOG_LEVEL_INFO)
+		return;
+
 	/* Prefix depends on log level.
 	 * Cast is needed at the moment to avoid a gcc warning.
 	 * This is because GLogLevelFlags *may be* 8-bits long
