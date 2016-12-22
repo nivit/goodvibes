@@ -193,6 +193,7 @@ ock_core_init(void)
 	features[idx++] = feature;
 	ock_framework_features_append(feature);
 	ock_framework_configurables_append(feature);
+	ock_framework_errorables_append(feature);
 #endif
 
 

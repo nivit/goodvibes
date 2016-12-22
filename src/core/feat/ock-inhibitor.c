@@ -24,10 +24,8 @@
 
 #include "caphe/caphe.h"
 
-#include "additions/glib.h"
-
 #include "framework/log.h"
-#include "framework/ock-feature.h"
+#include "framework/ock-framework.h"
 
 #include "core/ock-core.h"
 
@@ -39,6 +37,7 @@
 
 struct _OckInhibitorPrivate {
 	guint when_timeout_id;
+	gboolean error_emited;
 };
 
 typedef struct _OckInhibitorPrivate OckInhibitorPrivate;
@@ -50,11 +49,36 @@ struct _OckInhibitor {
 	OckInhibitorPrivate *priv;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE(OckInhibitor, ock_inhibitor, OCK_TYPE_FEATURE)
+G_DEFINE_TYPE_WITH_CODE(OckInhibitor, ock_inhibitor, OCK_TYPE_FEATURE,
+                        G_ADD_PRIVATE(OckInhibitor)
+                        G_IMPLEMENT_INTERFACE(OCK_TYPE_ERRORABLE, NULL))
 
 /*
  * Signal handlers & callbacks
  */
+
+static void
+on_caphe_inhibit_finished(CapheMain *caphe G_GNUC_UNUSED,
+                          gboolean success,
+                          OckInhibitor *self)
+{
+	OckInhibitorPrivate *priv = self->priv;
+
+	/* In case of error, we notify the user, only for the first error.
+	 * The following errors are silent.
+	 */
+
+	if (success)
+		return;
+
+	g_info("Failed to inhibit system sleep");
+
+	if (priv->error_emited)
+		return;
+
+	ock_errorable_emit_error(OCK_ERRORABLE(self), _("Failed to inhibit system sleep"));
+	priv->error_emited = TRUE;
+}
 
 static void
 on_caphe_notify_inhibited(CapheMain    *caphe,
@@ -65,9 +89,9 @@ on_caphe_notify_inhibited(CapheMain    *caphe,
 	const gchar *inhibitor_id = caphe_main_get_inhibitor_id(caphe);
 
 	if (inhibited)
-		INFO("Sleep inhibited (%s)", inhibitor_id);
+		INFO("System sleep inhibited (%s)", inhibitor_id);
 	else
-		INFO("Sleep uninhibited");
+		INFO("System sleep uninhibited");
 }
 
 static gboolean
@@ -128,6 +152,9 @@ ock_inhibitor_disable(OckFeature *feature)
 		priv->when_timeout_id = 0;
 	}
 
+	/* Reset error emission */
+	priv->error_emited = FALSE;
+
 	/* Signal handlers */
 	g_signal_handlers_disconnect_by_data(player, feature);
 
@@ -153,6 +180,8 @@ ock_inhibitor_enable(OckFeature *feature)
 	caphe_init(g_get_application_name());
 	g_signal_connect(caphe_get_default(), "notify::inhibited",
 	                 G_CALLBACK(on_caphe_notify_inhibited), self);
+	g_signal_connect(caphe_get_default(), "inhibit-finished",
+	                 G_CALLBACK(on_caphe_inhibit_finished), self);
 
 	/* Connect to signal handlers */
 	g_signal_connect(player, "notify::state", G_CALLBACK(on_player_notify_state), self);
