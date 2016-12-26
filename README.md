@@ -119,21 +119,22 @@ Overcooked depends on the following packages.
 
 To build the core:
 
-|       Library         |         Debian package           |
-| --------------------- | -------------------------------- |
-| __GLib/GIO/GObject__	| libglib2.0-dev                   |
-| __LibSoup__		| libsoup2.4-dev                   |
-| __Libxml2__		| libxml2-dev                      |
-| __GStreamer__		| libgstreamer1.0-dev              |
-|			| libgstreamer-plugins-base1.0-dev |            
+- GLib/GIO/GObject
+- LibSoup
+- Libxml2
+- GStreamer
 
 To build the full-featured ui:
 
-|       Library         |    Debian package    |
-| --------------------- | -------------------- |
-| __GTK+__		| libgtk-3-dev         |
-| __Libkeybinder__	| libkeybinder-3.0-dev |
-| __Libnotify__		| libnotify-dev        |
+- GTK+
+- Libkeybinder
+- Libnotify
 
 For more details, please refer to the file `configure.ac`.
+
+To install all the dependencies under Debian, run:
+
+	sudo apt install build-essential
+	sudo apt install libglib2.0-dev libsoup2.4-dev libxml2-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+	sudo apt install libgtk-3-dev libkeybinder-3.0-dev libnotify-dev
 
