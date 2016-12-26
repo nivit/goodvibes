@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Goodvibes Radio Player
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *

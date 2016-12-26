@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Goodvibes Radio Player
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *
@@ -22,9 +22,9 @@
 
 #include <glib.h>
 
-#include "core/ock-core.h"
+#include "core/gv-core.h"
 #ifdef UI_ENABLED
-#include "ui/ock-ui.h"
+#include "ui/gv-ui.h"
 #endif
 
 #include "options.h"
@@ -86,13 +86,13 @@ options_parse(int *argc, char **argv[])
 	memset(&options, 0, sizeof(struct options));
 
 	/* Create context & entries */
-	context = g_option_context_new("- An overcooked radio player");
+	context = g_option_context_new("- A radio player providing good vibrations");
 	g_option_context_add_main_entries(context, entries, NULL);
 
 	/* Add option groups and perform some init code at the same time */
-	g_option_context_add_group(context, ock_core_audio_backend_init_get_option_group());
+	g_option_context_add_group(context, gv_core_audio_backend_init_get_option_group());
 #ifdef UI_ENABLED
-	g_option_context_add_group(context, ock_ui_toolkit_init_get_option_group());
+	g_option_context_add_group(context, gv_ui_toolkit_init_get_option_group());
 #endif
 
 	/* Add description */
@@ -127,5 +127,5 @@ void
 options_cleanup(void)
 {
 	/* Run some cleanup code that matches the init code done in parse() */
-	ock_core_audio_backend_cleanup();
+	gv_core_audio_backend_cleanup();
 }

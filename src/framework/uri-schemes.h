@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Goodvibes Radio Player
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *
@@ -17,12 +17,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __OVERCOOKED_FRAMEWORK_URI_SCHEMES_H__
-#define __OVERCOOKED_FRAMEWORK_URI_SCHEMES_H__
+#ifndef __GOODVIBES_FRAMEWORK_URI_SCHEMES_H__
+#define __GOODVIBES_FRAMEWORK_URI_SCHEMES_H__
 
 extern const gchar *SUPPORTED_URI_SCHEMES[];
 extern const gchar *SUPPORTED_MIME_TYPES[];
 
 gboolean is_uri_scheme_supported(const gchar *uri);
 
-#endif /* __OVERCOOKED_FRAMEWORK_URI_SCHEMES_H__ */
+#endif /* __GOODVIBES_FRAMEWORK_URI_SCHEMES_H__ */

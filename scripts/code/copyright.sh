@@ -20,7 +20,7 @@ unit_name()
     elif echo $file | grep -q libcaphe; then
 	echo "Libcaphe"
     else
-	echo "Overcooked Radio Player"
+	echo "Goodvibes Radio Player"
     fi
 }
 

@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Goodvibes Radio Player
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *
@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __OVERCOOKED_FRAMEWORK_VT_CODES_H__
-#define __OVERCOOKED_FRAMEWORK_VT_CODES_H__
+#ifndef __GOODVIBES_FRAMEWORK_VT_CODES_H__
+#define __GOODVIBES_FRAMEWORK_VT_CODES_H__
 
 /* Terminal codes (ANSI/VT100) */
 
@@ -69,4 +69,4 @@
 #define VT_LIGHT_CYAN(str)   VT_CODE_ESC VT_CODE_LIGHT_CYAN   str VT_CODE_ESC VT_CODE_RESET
 #define VT_WHITE(str)        VT_CODE_ESC VT_CODE_WHITE        str VT_CODE_ESC VT_CODE_RESET
 
-#endif /* __OVERCOOKED_FRAMEWORK_VT_CODES_H__ */
+#endif /* __GOODVIBES_FRAMEWORK_VT_CODES_H__ */

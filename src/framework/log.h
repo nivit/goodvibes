@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Goodvibes Radio Player
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *
@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __OVERCOOKED_FRAMEWORK_LOG_H__
-#define __OVERCOOKED_FRAMEWORK_LOG_H__
+#ifndef __GOODVIBES_FRAMEWORK_LOG_H__
+#define __GOODVIBES_FRAMEWORK_LOG_H__
 
 #include <glib.h>
 #include <glib-object.h>
@@ -53,4 +53,4 @@ void log_trace_property_access(const gchar *file, const gchar *func, GObject *ob
 #define TRACE_SET_PROPERTY(obj, prop_id, value, pspec) \
 	log_trace_property_access(__FILE__, __func__, obj, prop_id, value, pspec, TRUE)
 
-#endif /* __OVERCOOKED_FRAMEWORK_LOG_H__ */
+#endif /* __GOODVIBES_FRAMEWORK_LOG_H__ */

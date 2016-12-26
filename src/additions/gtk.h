@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Goodvibes Radio Player
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *
@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __OVERCOOKED_ADDITIONS_GTK_H__
-#define __OVERCOOKED_ADDITIONS_GTK_H__
+#ifndef __GOODVIBES_ADDITIONS_GTK_H__
+#define __GOODVIBES_ADDITIONS_GTK_H__
 
 #include <gtk/gtk.h>
 
@@ -79,4 +79,4 @@ const gchar *gtk_get_compile_version_string(void);
 		gtk_widget_set_margin_bottom(widget, margin); \
 	} while (0)
 
-#endif /* __OVERCOOKED_ADDITIONS_GTK_H__ */
+#endif /* __GOODVIBES_ADDITIONS_GTK_H__ */

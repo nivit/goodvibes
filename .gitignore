@@ -6,8 +6,8 @@ Makefile.in
 *~
 
 # Binaries and libraries
-/cli/overctl
-/src/overcooked
+/cli/goodvibesctl
+/src/goodvibes
 /libgszn/libgszn.a
 /libcaphe/caphe/libcaphe.a
 /libcaphe/tests/caphe-test
@@ -24,7 +24,7 @@ Makefile.in
 /data/desktop/*.desktop.in
 
 # M4 macros
-!/m4/ock-*.m4
+!/m4/gv-*.m4
 /m4/*.m4
 
 # Autotools stuff

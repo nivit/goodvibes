@@ -3,7 +3,7 @@
 # Init autoconf
 # 2.60: obsoleting plenty of stuff
 AC_PREREQ([2.60])
-AC_INIT([overcooked], [0.1-dev])
+AC_INIT([goodvibes], [0.1-dev])
 : ${CPPFLAGS="-std=gnu99 -Wall -Wextra -Wshadow"}
 
 # Init automake
@@ -16,12 +16,12 @@ AM_SILENT_RULES([yes])
 AC_CONFIG_MACRO_DIRS([m4])
 
 # Additional package information
-OCK_ADD_GLOBAL_VAR([PACKAGE_CAMEL_NAME],   ["Overcooked"])
-OCK_ADD_GLOBAL_VAR([PACKAGE_LONG_NAME],    ["Overcooked Radio Player"])
-OCK_ADD_GLOBAL_VAR([PACKAGE_AUTHOR_NAME],  ["Arnaud Rebillout"])
-OCK_ADD_GLOBAL_VAR([PACKAGE_AUTHOR_EMAIL], ["<elboulangero@gmail.com>"])
-OCK_ADD_GLOBAL_VAR([PACKAGE_COPYRIGHT],    ["Copyright (C) 2015-2016"])
-OCK_ADD_GLOBAL_VAR([PACKAGE_WEBSITE],      ["https://github.com/elboulangero/Overcooked"])
+GV_ADD_GLOBAL_VAR([PACKAGE_CAMEL_NAME],   ["Goodvibes"])
+GV_ADD_GLOBAL_VAR([PACKAGE_LONG_NAME],    ["Goodvibes Radio Player"])
+GV_ADD_GLOBAL_VAR([PACKAGE_AUTHOR_NAME],  ["Arnaud Rebillout"])
+GV_ADD_GLOBAL_VAR([PACKAGE_AUTHOR_EMAIL], ["<elboulangero@gmail.com>"])
+GV_ADD_GLOBAL_VAR([PACKAGE_COPYRIGHT],    ["Copyright (C) 2015-2016"])
+GV_ADD_GLOBAL_VAR([PACKAGE_WEBSITE],      ["https://github.com/elboulangero/goodvibes"])
 
 # ------------------------------------- #
 #              Toolchain                #
@@ -115,18 +115,18 @@ fi
 
 AS_ECHO(["---- Ui ----"])
 
-OCK_FEATURE_ENABLE([ui], [Gtk+ graphical user interface], [$feat_extra])
-OCK_FEATURE_PKG_CHECK([ui], [UI], [gtk+-3.0 >= 3.12.0])
+GV_FEATURE_ENABLE([ui], [Gtk+ graphical user interface], [$feat_extra])
+GV_FEATURE_PKG_CHECK([ui], [UI], [gtk+-3.0 >= 3.12.0])
 AM_CONDITIONAL([UI_ENABLED], [test "$enable_ui" = "yes"])
 
 # Check for core features dependencies
 
 AS_ECHO(["---- Core Features ----"])
 
-OCK_FEATURE_ENABLE([dbus_native],    [native dbus server support], [$feat_noextra])
-OCK_FEATURE_ENABLE([dbus_mpris2],    [mpris2 dbus server support], [$feat_noextra])
-OCK_FEATURE_ENABLE([console_output], [console output support],     [$feat_noextra])
-OCK_FEATURE_ENABLE([inhibitor],      [inhibitor support],          [$feat_noextra])
+GV_FEATURE_ENABLE([dbus_native],    [native dbus server support], [$feat_noextra])
+GV_FEATURE_ENABLE([dbus_mpris2],    [mpris2 dbus server support], [$feat_noextra])
+GV_FEATURE_ENABLE([console_output], [console output support],     [$feat_noextra])
+GV_FEATURE_ENABLE([inhibitor],      [inhibitor support],          [$feat_noextra])
 
 AM_CONDITIONAL([DBUS_NATIVE_ENABLED],    [test "$enable_dbus_native" = "yes"])
 AM_CONDITIONAL([DBUS_MPRIS2_ENABLED],    [test "$enable_dbus_mpris2" = "yes"])
@@ -143,11 +143,11 @@ if test "$enable_ui" = "no"; then
   feat_extra="no"
 fi
 
-OCK_FEATURE_ENABLE([hotkeys],       [hotkeys support],       [$feat_extra])
-OCK_FEATURE_ENABLE([notifications], [notifications support], [$feat_extra])
+GV_FEATURE_ENABLE([hotkeys],       [hotkeys support],       [$feat_extra])
+GV_FEATURE_ENABLE([notifications], [notifications support], [$feat_extra])
 
-OCK_FEATURE_PKG_CHECK([hotkeys],       [HOTKEYS],       [keybinder-3.0 >= 0.3])
-OCK_FEATURE_PKG_CHECK([notifications], [NOTIFICATIONS], [libnotify >= 0.7])
+GV_FEATURE_PKG_CHECK([hotkeys],       [HOTKEYS],       [keybinder-3.0 >= 0.3])
+GV_FEATURE_PKG_CHECK([notifications], [NOTIFICATIONS], [libnotify >= 0.7])
 
 AM_CONDITIONAL([HOTKEYS_ENABLED],       [test "$enable_hotkeys" = "yes"])
 AM_CONDITIONAL([NOTIFICATIONS_ENABLED], [test "$enable_notifications" = "yes"])
@@ -206,8 +206,8 @@ fi
 AS_ECHO(["
 -------------------------------------------------------------
 
-	Overcooked Radio Player
-	=======================
+	Goodvibes Radio Player
+	======================
 
 	Core
 	----

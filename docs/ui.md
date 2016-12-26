@@ -25,7 +25,7 @@ that must be the parent. Ever had this warning in your console ?
 
 	Gtk-Message: GtkDialog mapped without a transient parent. This is discouraged.
 
-But Overcooked is mainly a status icon, and doesn't really have a main window to
+But Goodvibes is mainly a status icon, and doesn't really have a main window to
 speak of.
 
 Loosely speaking, we could use the popup window as the transient parent, since

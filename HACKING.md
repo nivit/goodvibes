@@ -23,10 +23,10 @@ If we decide that your hacks should be integrated upstream, then you will have
 to transform it in proper commits, make sure it fits into the current design,
 that it respects the coding style and so on.
 
-Please note that my first goal for Overcooked is to ensure a long-term
+Please note that my first goal for Goodvibes is to ensure a long-term
 maintenance. There are more than enough software with a short lifetime around,
 and I don't want to add one more to the list. I don't want to let my users down
-in a year or so. I sincerely wish that Overcooked make it through the years,
+in a year or so. I sincerely wish that Goodvibes make it through the years,
 and users can rely on it to listen internet radios.
 
 Therefore, clean design and zero hacks is my priority. Dirty hacks are OK to
@@ -38,7 +38,7 @@ not OK for long-term maintenance, and therefore won't make it upstream.
 Design Overview
 ---------------
 
-Overcooked is written in C/GObject. The code is heavily object-oriented, and if
+Goodvibes is written in C/GObject. The code is heavily object-oriented, and if
 you're not familiar with GObject, you will have to accept that some magic is
 going on, here and there. Good luck with that ;)
 
@@ -46,7 +46,7 @@ The code is neatly split into different parts:
 
 - `additions`: this is where I extend some of the libraries I use, where I add
   some functions that I wish would exist already.
-- `core`: the core of Overcooked, basically enough to have the software up and
+- `core`: the core of Goodvibes, basically enough to have the software up and
   running, without the ui.
 - `framework`: the name says it all.
 - `libgszn`: a standalone library for GObject serialization. It is used to read

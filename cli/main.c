@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Goodvibes Radio Player
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *
@@ -49,7 +49,7 @@ void
 help_and_exit(int exit_code)
 {
 
-#define REVISION()         print("Overctl (version " PACKAGE_VERSION ")");
+#define REVISION()         print("Goodvibesctl (version " PACKAGE_VERSION ")");
 #define USAGE(name)        print("Usage: %s <command> [<args>]", name);
 #define TITLE(str)         print(BOLD(str ":"))
 #define COMMAND(cmd, desc) print(BOLD("  %-28s") "%s", cmd, desc)

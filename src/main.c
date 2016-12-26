@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Goodvibes Radio Player
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *
@@ -26,10 +26,10 @@
 
 #include "framework/log.h"
 
-#include "framework/ock-framework.h"
-#include "core/ock-core.h"
+#include "framework/gv-framework.h"
+#include "core/gv-core.h"
 #ifdef UI_ENABLED
-#include "ui/ock-ui.h"
+#include "ui/gv-ui.h"
 #endif
 
 #include "options.h"
@@ -74,9 +74,9 @@ string_compile_libraries(void)
 	if (text == NULL)
 		text = g_strjoin(", ",
 		                 glib_get_compile_version_string(),
-		                 ock_core_audio_backend_compile_version_string(),
+		                 gv_core_audio_backend_compile_version_string(),
 #ifdef UI_ENABLED
-		                 ock_ui_toolkit_compile_version_string(),
+		                 gv_ui_toolkit_compile_version_string(),
 #endif
 		                 NULL);
 
@@ -91,9 +91,9 @@ string_runtime_libraries(void)
 	if (text == NULL)
 		text = g_strjoin(", ",
 		                 glib_get_runtime_version_string(),
-		                 ock_core_audio_backend_runtime_version_string(),
+		                 gv_core_audio_backend_runtime_version_string(),
 #ifdef UI_ENABLED
-		                 ock_ui_toolkit_runtime_version_string(),
+		                 gv_ui_toolkit_runtime_version_string(),
 #endif
 		                 NULL);
 
@@ -180,17 +180,17 @@ main(int argc, char *argv[])
 
 	/* Initialize the framework */
 	DEBUG("---- Initializing framework ----");
-	ock_framework_init();
+	gv_framework_init();
 
 	/* Initialize the core */
 	DEBUG("---- Initializing core ----");
-	ock_core_init();
+	gv_core_init();
 
 #ifdef UI_ENABLED
 	/* Initialize the user interface */
 	if (!options.without_ui) {
 		DEBUG("---- Initializing ui ----");
-		ock_ui_init();
+		gv_ui_init();
 	}
 #endif
 
@@ -202,9 +202,9 @@ main(int argc, char *argv[])
 
 	DEBUG("---- Peeping into lists ----");
 
-	DEBUG("%s", stringify_list("Feature list     : ", ock_framework_feature_list));
-	DEBUG("%s", stringify_list("Configurable list: ", ock_framework_configurable_list));
-	DEBUG("%s", stringify_list("Errorable list   : ", ock_framework_errorable_list));
+	DEBUG("%s", stringify_list("Feature list     : ", gv_framework_feature_list));
+	DEBUG("%s", stringify_list("Configurable list: ", gv_framework_configurable_list));
+	DEBUG("%s", stringify_list("Errorable list   : ", gv_framework_errorable_list));
 
 
 
@@ -213,10 +213,10 @@ main(int argc, char *argv[])
 	 * ----------------------------------------------- */
 
 	DEBUG("---- Warming up core ----");
-	ock_core_warm_up(options.uri_to_play);
+	gv_core_warm_up(options.uri_to_play);
 
 	DEBUG("---- Warming up ui ----");
-	ock_ui_warm_up();
+	gv_ui_warm_up();
 
 
 
@@ -225,7 +225,7 @@ main(int argc, char *argv[])
 	 * ----------------------------------------------- */
 
 	DEBUG(">>>> Running the main loop <<<<");
-	ock_framework_run_loop();
+	gv_framework_run_loop();
 	DEBUG(">>>> Main loop terminated <<<<");
 
 
@@ -235,23 +235,23 @@ main(int argc, char *argv[])
 	 * ----------------------------------------------- */
 
 	DEBUG("---- Cooling down ui ----");
-	ock_ui_cool_down();
+	gv_ui_cool_down();
 
 	DEBUG("---- Cooling down core ----");
-	ock_core_cool_down();
+	gv_core_cool_down();
 
 #ifdef UI_ENABLED
 	if (!options.without_ui) {
 		DEBUG("---- Cleaning up ui ----");
-		ock_ui_cleanup();
+		gv_ui_cleanup();
 	}
 #endif
 
 	DEBUG("---- Cleaning up core ----");
-	ock_core_cleanup();
+	gv_core_cleanup();
 
 	DEBUG("---- Cleaning up framework ----");
-	ock_framework_cleanup();
+	gv_framework_cleanup();
 
 	log_cleanup();
 	options_cleanup();

@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Goodvibes Radio Player
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *
@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __OVERCOOKED_OPTIONS_H__
-#define __OVERCOOKED_OPTIONS_H__
+#ifndef __GOODVIBES_OPTIONS_H__
+#define __GOODVIBES_OPTIONS_H__
 
 struct options {
 	/* Options */
@@ -37,4 +37,4 @@ extern struct options options;
 void options_parse(int *argc, char **argv[]);
 void options_cleanup(void);
 
-#endif /* __OVERCOOKED_OPTIONS_H__ */
+#endif /* __GOODVIBES_OPTIONS_H__ */

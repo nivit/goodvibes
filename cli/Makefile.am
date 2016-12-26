@@ -1,10 +1,10 @@
-bin_PROGRAMS = overctl
+bin_PROGRAMS = goodvibesctl
 
-overctl_SOURCES =	\
+goodvibesctl_SOURCES =	\
 	main.c
 
-overctl_CPPFLAGS =	\
+goodvibesctl_CPPFLAGS =	\
 	$(GLIB_CFLAGS)
 
-overctl_LDADD =		\
+goodvibesctl_LDADD =	\
 	$(GLIB_LIBS)

@@ -35,7 +35,7 @@ $(1).c: $(2)
 	$$^ > $$@
 
 $(1).h: $(2)
-	$(eval ns := __OVERCOOKED_$(shell basename $(1) | tr a-z- A-Z_)_H__)
+	$(eval ns := __GOODVIBES_$(shell basename $(1) | tr a-z- A-Z_)_H__)
 	$$(AM_V_GEN) glib-mkenums						\
 	--fhead "#ifndef $(ns)\n"						\
 	--fhead "#define $(ns)\n"						\
@@ -57,13 +57,13 @@ endef
 #                  Additions                            #
 # ----------------------------------------------------- #
 
-ock_additions_sources =					\
+gv_additions_sources =					\
 	additions/glib.c	additions/glib.h	\
 	additions/glib-object.c	additions/glib-object.h	\
 	additions/gst.c		additions/gst.h
 
 if UI_ENABLED
-ock_additions_sources +=				\
+gv_additions_sources +=				\
 	additions/gtk.c		additions/gtk.h
 endif
 
@@ -75,28 +75,28 @@ endif
 
 # Sources
 
-ock_framework_sources =							\
+gv_framework_sources =							\
 	framework/log.c			framework/log.h			\
-	framework/ock-errorable.c	framework/ock-errorable.h	\
-	framework/ock-feature.c		framework/ock-feature.h		\
-	framework/ock-file-helpers.c	framework/ock-file-helpers.h	\
-	framework/ock-framework.c	framework/ock-framework.h	\
-	framework/ock-list.c		framework/ock-list.h		\
-					framework/ock-param-specs.h	\
+	framework/gv-errorable.c	framework/gv-errorable.h	\
+	framework/gv-feature.c		framework/gv-feature.h		\
+	framework/gv-file-helpers.c	framework/gv-file-helpers.h	\
+	framework/gv-framework.c	framework/gv-framework.h	\
+	framework/gv-list.c		framework/gv-list.h		\
+					framework/gv-param-specs.h	\
 	framework/uri-schemes.c		framework/uri-schemes.h		\
 					framework/vt-codes.h
 
 
 # Generated types
 
-ock_framework_built_sources =			\
-	framework/ock-framework-enum-types.c	\
-	framework/ock-framework-enum-types.h
+gv_framework_built_sources =			\
+	framework/gv-framework-enum-types.c	\
+	framework/gv-framework-enum-types.h
 
-ock_framework_types_prereqs =			\
-	framework/ock-feature.h
+gv_framework_types_prereqs =			\
+	framework/gv-feature.h
 
-$(eval $(call make_types,framework/ock-framework-enum-types,$(ock_framework_types_prereqs)))
+$(eval $(call make_types,framework/gv-framework-enum-types,$(gv_framework_types_prereqs)))
 
 # Compiler options - handled in core compiler options
 
@@ -108,31 +108,31 @@ $(eval $(call make_types,framework/ock-framework-enum-types,$(ock_framework_type
 
 # Sources
 
-ock_core_sources =					\
-	core/ock-conf.c		core/ock-conf.h		\
-	core/ock-core.c		core/ock-core.h		\
-	core/ock-engine.c	core/ock-engine.h	\
-	core/ock-metadata.c	core/ock-metadata.h	\
-	core/ock-player.c	core/ock-player.h	\
-	core/ock-playlist.c	core/ock-playlist.h	\
-	core/ock-station.c	core/ock-station.h	\
-	core/ock-station-list.c	core/ock-station-list.h
+gv_core_sources =					\
+	core/gv-conf.c		core/gv-conf.h		\
+	core/gv-core.c		core/gv-core.h		\
+	core/gv-engine.c	core/gv-engine.h	\
+	core/gv-metadata.c	core/gv-metadata.h	\
+	core/gv-player.c	core/gv-player.h	\
+	core/gv-playlist.c	core/gv-playlist.h	\
+	core/gv-station.c	core/gv-station.h	\
+	core/gv-station-list.c	core/gv-station-list.h
 
 # Enum Types
 
-ock_core_built_sources =		\
-	core/ock-core-enum-types.c	\
-	core/ock-core-enum-types.h
+gv_core_built_sources =			\
+	core/gv-core-enum-types.c	\
+	core/gv-core-enum-types.h
 
-ock_core_types_prereqs =		\
-	core/ock-engine.h		\
-	core/ock-player.h
+gv_core_types_prereqs =			\
+	core/gv-engine.h		\
+	core/gv-player.h
 
-$(eval $(call make_types,core/ock-core-enum-types,$(ock_core_types_prereqs)))
+$(eval $(call make_types,core/gv-core-enum-types,$(gv_core_types_prereqs)))
 
 # Compiler options
 
-ock_core_cflags = 		\
+gv_core_cflags = 		\
 	$(CAPHE_CFLAGS)		\
 	$(GSZN_CFLAGS)		\
 	$(GLIB_CFLAGS)		\
@@ -140,11 +140,11 @@ ock_core_cflags = 		\
 	$(LIBSOUP_CFLAGS)	\
 	$(GST_CFLAGS)
 
-ock_core_static_ldadd =		\
+gv_core_static_ldadd =		\
 	$(CAPHE_LIBS)		\
 	$(GSZN_LIBS)
 
-ock_core_shared_ldadd =		\
+gv_core_shared_ldadd =		\
 	-lm			\
 	$(GLIB_LIBS)		\
 	$(XML_LIBS)		\
@@ -154,27 +154,27 @@ ock_core_shared_ldadd =		\
 # Features
 
 if CONSOLE_OUTPUT_ENABLED
-ock_core_sources += core/feat/ock-console-output.c core/feat/ock-console-output.h
-ock_core_cflags  += -DCONSOLE_OUTPUT_ENABLED
+gv_core_sources += core/feat/gv-console-output.c core/feat/gv-console-output.h
+gv_core_cflags  += -DCONSOLE_OUTPUT_ENABLED
 endif
 
 if DBUS_NATIVE_ENABLED
-ock_core_sources += core/feat/ock-dbus-server.c core/feat/ock-dbus-server.h \
-		    core/feat/ock-dbus-server-native.c core/feat/ock-dbus-server-native.h
-ock_core_cflags  += -DDBUS_SERVER_NATIVE_ENABLED
+gv_core_sources += core/feat/gv-dbus-server.c core/feat/gv-dbus-server.h \
+		    core/feat/gv-dbus-server-native.c core/feat/gv-dbus-server-native.h
+gv_core_cflags  += -DDBUS_SERVER_NATIVE_ENABLED
 endif
 
 if DBUS_MPRIS2_ENABLED
 if ! DBUS_NATIVE_ENABLED
-ock_core_sources += core/feat/ock-dbus-server.c core/feat/ock-dbus-server.h
+gv_core_sources += core/feat/gv-dbus-server.c core/feat/gv-dbus-server.h
 endif
-ock_core_sources += core/feat/ock-dbus-server-mpris2.c core/feat/ock-dbus-server-mpris2.h
-ock_core_cflags  += -DDBUS_SERVER_MPRIS2_ENABLED
+gv_core_sources += core/feat/gv-dbus-server-mpris2.c core/feat/gv-dbus-server-mpris2.h
+gv_core_cflags  += -DDBUS_SERVER_MPRIS2_ENABLED
 endif
 
 if INHIBITOR_ENABLED
-ock_core_sources += core/feat/ock-inhibitor.c core/feat/ock-inhibitor.h
-ock_core_cflags  += -DINHIBITOR_ENABLED
+gv_core_sources += core/feat/gv-inhibitor.c core/feat/gv-inhibitor.h
+gv_core_cflags  += -DINHIBITOR_ENABLED
 endif
 
 
@@ -186,48 +186,48 @@ endif
 # Sources
 
 if UI_ENABLED
-ock_ui_sources =							\
+gv_ui_sources =								\
 					ui/global.h			\
-	ui/ock-about-dialog.c		ui/ock-about-dialog.h		\
-	ui/ock-builder-helpers.c	ui/ock-builder-helpers.h	\
-	ui/ock-main-menu.c		ui/ock-main-menu.h		\
-	ui/ock-main-window.c		ui/ock-main-window.h		\
-	ui/ock-prefs-window.c		ui/ock-prefs-window.h		\
-	ui/ock-station-context-menu.c	ui/ock-station-context-menu.h	\
-	ui/ock-station-dialog.c		ui/ock-station-dialog.h		\
-	ui/ock-stations-tree-view.c	ui/ock-stations-tree-view.h	\
-	ui/ock-stock-icons.c		ui/ock-stock-icons.h		\
-	ui/ock-tray.c			ui/ock-tray.h			\
-	ui/ock-ui.c			ui/ock-ui.h
+	ui/gv-about-dialog.c		ui/gv-about-dialog.h		\
+	ui/gv-builder-helpers.c		ui/gv-builder-helpers.h		\
+	ui/gv-main-menu.c		ui/gv-main-menu.h		\
+	ui/gv-main-window.c		ui/gv-main-window.h		\
+	ui/gv-prefs-window.c		ui/gv-prefs-window.h		\
+	ui/gv-station-context-menu.c	ui/gv-station-context-menu.h	\
+	ui/gv-station-dialog.c		ui/gv-station-dialog.h		\
+	ui/gv-stations-tree-view.c	ui/gv-stations-tree-view.h	\
+	ui/gv-stock-icons.c		ui/gv-stock-icons.h		\
+	ui/gv-tray.c			ui/gv-tray.h			\
+	ui/gv-ui.c			ui/gv-ui.h
 
 # Enum Types
 
-ock_ui_built_sources =		\
-	ui/ock-ui-enum-types.c	\
-	ui/ock-ui-enum-types.h
+gv_ui_built_sources =		\
+	ui/gv-ui-enum-types.c	\
+	ui/gv-ui-enum-types.h
 
-ock_ui_types_prereqs =		\
-	ui/ock-tray.h
+gv_ui_types_prereqs =		\
+	ui/gv-tray.h
 
-$(eval $(call make_types,ui/ock-ui-enum-types,$(ock_ui_types_prereqs)))
+$(eval $(call make_types,ui/gv-ui-enum-types,$(gv_ui_types_prereqs)))
 
 # Compiler options
 
-ock_ui_cflags       = $(UI_CFLAGS) -DUI_ENABLED
-ock_ui_shared_ldadd = $(UI_LIBS)
+gv_ui_cflags       = $(UI_CFLAGS) -DUI_ENABLED
+gv_ui_shared_ldadd = $(UI_LIBS)
 
 # Features
 
 if HOTKEYS_ENABLED
-ock_ui_sources      += ui/feat/ock-hotkeys.c ui/feat/ock-hotkeys.h
-ock_ui_cflags       += $(HOTKEYS_CFLAGS) -DHOTKEYS_ENABLED
-ock_ui_shared_ldadd += $(HOTKEYS_LIBS)
+gv_ui_sources      += ui/feat/gv-hotkeys.c ui/feat/gv-hotkeys.h
+gv_ui_cflags       += $(HOTKEYS_CFLAGS) -DHOTKEYS_ENABLED
+gv_ui_shared_ldadd += $(HOTKEYS_LIBS)
 endif
 
 if NOTIFICATIONS_ENABLED
-ock_ui_sources      += ui/feat/ock-notifications.c ui/feat/ock-notifications.h
-ock_ui_cflags       += $(NOTIFICATIONS_CFLAGS) -DNOTIFICATIONS_ENABLED
-ock_ui_shared_ldadd += $(NOTIFICATIONS_LIBS)
+gv_ui_sources      += ui/feat/gv-notifications.c ui/feat/gv-notifications.h
+gv_ui_cflags       += $(NOTIFICATIONS_CFLAGS) -DNOTIFICATIONS_ENABLED
+gv_ui_shared_ldadd += $(NOTIFICATIONS_LIBS)
 endif
 
 endif # UI_ENABLED
@@ -235,10 +235,10 @@ endif # UI_ENABLED
 
 
 # ----------------------------------------------------- #
-#                  Overcooked                           #
+#               Goodvibes Radio Player                  #
 # ----------------------------------------------------- #
 
-bin_PROGRAMS = overcooked
+bin_PROGRAMS = goodvibes
 
 # We use sort() to remove duplicates in CFLAGS and LDADD.
 # I know, it's not recommended to use sort() in Automake,
@@ -249,48 +249,47 @@ bin_PROGRAMS = overcooked
 # here's a bit of reading I recommend:
 # http://eli.thegreenplace.net/2013/07/09/library-order-in-static-linking
 
-overcooked_SOURCES =			\
+goodvibes_SOURCES =			\
 	main.c				\
 	options.c	options.h	\
-	$(ock_additions_sources)	\
-	$(ock_framework_sources)	\
-	$(ock_framework_built_sources)	\
-	$(ock_core_sources)		\
-	$(ock_core_built_sources)	\
-	$(ock_ui_sources)		\
-	$(ock_ui_built_sources)
+	$(gv_additions_sources)		\
+	$(gv_framework_sources)		\
+	$(gv_framework_built_sources)	\
+	$(gv_core_sources)		\
+	$(gv_core_built_sources)	\
+	$(gv_ui_sources)		\
+	$(gv_ui_built_sources)
 
-overcooked_CFLAGS  =			\
+goodvibes_CFLAGS  =			\
 	-DLOCALE_DIR=\"$(localedir)\"
 
-overcooked_CFLAGS += $(sort		\
-	$(ock_framework_cflags)		\
-	$(ock_core_cflags)		\
-	$(ock_ui_cflags)		\
+goodvibes_CFLAGS += $(sort		\
+	$(gv_framework_cflags)		\
+	$(gv_core_cflags)		\
+	$(gv_ui_cflags)			\
 	)
 
-overcooked_LDADD  = 			\
-	$(ock_core_static_ldadd)
+goodvibes_LDADD  = 			\
+	$(gv_core_static_ldadd)
 
-overcooked_LDADD += $(sort		\
-	$(ock_framework_shared_ldadd)	\
-	$(ock_core_shared_ldadd)	\
-	$(ock_ui_shared_ldadd)		\
+goodvibes_LDADD += $(sort		\
+	$(gv_framework_shared_ldadd)	\
+	$(gv_core_shared_ldadd)		\
+	$(gv_ui_shared_ldadd)		\
 	)
 
 BUILT_SOURCES =				\
-	$(ock_framework_built_sources)	\
-	$(ock_core_built_sources)	\
-	$(ock_ui_built_sources)
+	$(gv_framework_built_sources)	\
+	$(gv_core_built_sources)	\
+	$(gv_ui_built_sources)
 
-CLEANFILES =			\
-	$(BUILT_SOURCES)
+CLEANFILES = $(BUILT_SOURCES)
 
 print-flags:
 	@echo -- CPPFLAGS --
-	@echo $(CPPFLAGS) $(AM_CPPFLAGS) $(overcooked_CPPFLAGS)
+	@echo $(CPPFLAGS) $(AM_CPPFLAGS) $(goodvibes_CPPFLAGS)
 	@echo -- CFLAGS --
-	@echo $(CFLAGS) $(AM_CFLAGS) $(overcooked_CFLAGS)
+	@echo $(CFLAGS) $(AM_CFLAGS) $(goodvibes_CFLAGS)
 	@echo -- LDADD --
-	@echo $(LDADD) $(AM_LDADD) $(overcooked_LDADD)
+	@echo $(LDADD) $(AM_LDADD) $(goodvibes_LDADD)
 	@echo -- done --

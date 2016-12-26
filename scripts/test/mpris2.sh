@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MPRIS_OBJ='org.mpris.MediaPlayer2.Overcooked'
+MPRIS_OBJ='org.mpris.MediaPlayer2.Goodvibes'
 MPRIS_PATH='/org/mpris/MediaPlayer2'
 MPRIS_IFACE='org.mpris.MediaPlayer2'
 
@@ -17,8 +17,8 @@ print_usage()
     echo ""
     echo "Examples:"
     echo "  $0 call Player Play"
-    echo "  $0 call TrackList GoTo objpath:\"/org/Overcooked/StationList/0x55be33e73a60\""
-    echo "  $0 call TrackList GetTracksMetadata array:objpath:\"/org/Overcooked/StationList/0x56502c272620\",\"/org/Overcooked/StationList/0x56502c272660\""
+    echo "  $0 call TrackList GoTo objpath:\"/org/Goodvibes/StationList/0x55be33e73a60\""
+    echo "  $0 call TrackList GetTracksMetadata array:objpath:\"/org/Goodvibes/StationList/0x56502c272620\",\"/org/Goodvibes/StationList/0x56502c272660\""
 }
 
 iface_real()

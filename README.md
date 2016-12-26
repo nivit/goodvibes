@@ -1,39 +1,39 @@
-Overcooked Radio Player
-=======================
+Goodvibes Radio Player
+======================
 
 
 
 About
 -----
 
-Overcooked Radio Player is a simple, lightweight internet radio player for the
+Goodvibes Radio Player is a simple, lightweight internet radio player for the
 GNU/Linux platform.
 
 My main motivation is to provide a simple, reliable radio player, and hopefully
 to keep it alive for many years. Long-term maintenance is the goal.
 
-Overcooked was originally inspired by [RadioTray](http://radiotray.sourceforge.net/)
+Goodvibes was originally inspired by [RadioTray](http://radiotray.sourceforge.net/)
 from Carlos Ribeiro. Both are similar in appearance, but have nothing in common
 under the hood.
 
-Overcooked is released under the [General Public License (GPL) version 3](LICENSE).
+Goodvibes is released under the [General Public License (GPL) version 3](LICENSE).
 
-The projet is hosted on Github at <https://github.com/elboulangero/Overcooked>.
+The projet is hosted on Github at <https://github.com/elboulangero/goodvibes>.
 
 
 
 Using
 -----
 
-Overcooked comes with a minimalistic interface: it's just an icon in the system tray.
+Goodvibes comes with a minimalistic interface: it's just an icon in the system tray.
 A left-click displays the control panel, a right-click pops up a short menu.
 
 Adding radios require a little work from you, since you need to know the URL of
 the radio stream you want to listen to. And for that, either you're good at 
 googling, either you know how to inspect web pages and find a needle in a
-haystack. If you're not so talented, you might find Overcooked a bit useless.
+haystack. If you're not so talented, you might find Goodvibes a bit useless.
 
-Overcooked comes with the following features:
+Goodvibes comes with the following features:
 - Music player basics
   - play/stop/previous/next
   - repeat/shuffle/volume
@@ -50,14 +50,14 @@ Overcooked comes with the following features:
   - Notifications
   - Console output
 
-For the command-line freaks, Overcooked can be launched without the UI.
+For the command-line freaks, Goodvibes can be launched without the UI.
 
 
 
 Compiling
 ---------
 
-Overcooked uses the `autotools` as a build system.
+Goodvibes uses the `autotools` as a build system.
 The procedure to compile is the usual one:
 
 	./autogen.sh
@@ -68,7 +68,7 @@ If you want the build to be more verbose, invoke configure as such:
 
 	./configure --enable-silent-rules
 
-Overcooked build is quite modular. Features that require an external library
+Goodvibes build is quite modular. Features that require an external library
 are compiled only if the required dependencies are found on your system.
 Otherwise they're excluded from the build.
 
@@ -115,7 +115,7 @@ As root, run the following command:
 Required Packages
 -----------------
 
-Overcooked depends on the following packages.
+Goodvibes depends on the following packages.
 
 To build the core:
 

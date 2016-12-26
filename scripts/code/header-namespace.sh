@@ -21,16 +21,16 @@ make_namespace()
     # Take out the first directory in the name
     local first_dir=$(echo $file | cut -d/ -f1)
 
-   # Overcooked sources
+   # Goodvibes sources
     if [ $first_dir == src ] || [ $first_dir == cli ]; then
 	local next_dirs=$(echo $file | cut -d/ -f2- | xargs dirname)
 
 	if [ $next_dirs == '.' ]; then
-	    echo __OVERCOOKED_${bn}__
+	    echo __GOODVIBES_${bn}__
 	else
 	    local dn=$(echo $next_dirs | tr '/' '_' | tr '[:lower:]' '[:upper:]')
 
-	    echo __OVERCOOKED_${dn}_${bn}__
+	    echo __GOODVIBES_${dn}_${bn}__
 	fi
 
 

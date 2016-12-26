@@ -124,7 +124,7 @@ Why Having This Feature Thing ?
 -------------------------------
 
 You will see in the code that some features are quite isolated from the rest
-of the code. First, there's a `OckFeature` object, that is the parent of all
+of the code. First, there's a `GvFeature` object, that is the parent of all
 features. Then, features just need to inherit this object, connect to some
 signals from the core, and that's it.
 

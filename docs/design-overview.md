@@ -68,5 +68,5 @@ Report an error to the user
 In order to report an error to the user, just follow the following steps:
 
 - Have your object implement the `errorable` interface.
-- Emit an error signal with `ock_errorable_emit_error()`.
+- Emit an error signal with `gv_errorable_emit_error()`.
 - Ensure the object is added to the list of errorable objects.

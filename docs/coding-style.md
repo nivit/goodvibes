@@ -59,7 +59,7 @@ GObject C File Layout
 If you find yourself writing a new file, therefore creating a new object, you
 might want to use a script that generates all the boilerplate.
 
-	./scripts/code/ock-object-make.sh
+	./scripts/code/gv-object-make.sh
 
 Have a look at the structure of the C file created, and please notice a few
 things.

@@ -170,43 +170,43 @@ real object state.
 
 For example, GStreamer has its own `GstObject`. And at some point, I thought it
 was cool, and furthermore it seemed that it would solve some of the problems
-I faced. So I defined my own `OckObject` for a while. I then removed it quickly
+I faced. So I defined my own `GvObject` for a while. I then removed it quickly
 enough. Here's my feedback from that experience.
 
-First questions that arises: should all my objects inherit from OckObject ?
+First questions that arises: should all my objects inherit from GvObject ?
 Or only those who have a solid reason for that ?
 
 At first, I went for the latter, because I thought that if an object has no
-reason to inherit OckObject, then it should remain as lightweight and simple as
+reason to inherit GvObject, then it should remain as lightweight and simple as
 possible, and inherit GObject.
 
 So I ended up with a mix of objects that were either GObject derived, either
-OckObject derived. It's a bit of a mess suddenly, because the separation
+GvObject derived. It's a bit of a mess suddenly, because the separation
 between both, and the reasons for choosing the right parent, was all very
 unclear.
 
 Then, serialization kicked in, and I had another dilemna. If the serialization
-API targets OckObject, then GObject derived objects were left out, and couldn't
+API targets GvObject, then GObject derived objects were left out, and couldn't
 be serialized. On the other hand, if the API targeted GObject, I couldn't take
-advantage of some of the specific features OckObject, that were actually very
+advantage of some of the specific features GvObject, that were actually very
 helpful for serializing.
 
-Which made me change my mind: if I define a OckObject base-class, then I should
+Which made me change my mind: if I define a GvObject base-class, then I should
 embrace it completely, and have every object inherit it. It looked nice and
 consistent now, but I lost a bit of the initial lightness in the process, and
 I was wondering if it was worth it.
 
 But still, I was happy because now the serialization was easier to implement,
-since I embedded some convenient stuff for it within my base class OckObject.
+since I embedded some convenient stuff for it within my base class GvObject.
 
 But then, another problem kicked in. The UI part by implemented by inheriting
 GTK widgets. How will I serialize this GObject derived objects, now that the
-serialization API targets the OckObject type ? My only solution here was to
+serialization API targets the GvObject type ? My only solution here was to
 rewrite the UI, use composition instead of inheritance, so that my UI objects
-could be derived from OckObject and be serializable.
+could be derived from GvObject and be serializable.
 
 I didn't do that though. Instead, I came back to GObject for the base class.
-For all the problems that I solved with OckObject, I thought again and solved
+For all the problems that I solved with GvObject, I thought again and solved
 them differently, and in a better way.
 
 After all that, I draw some conclusions for myself:

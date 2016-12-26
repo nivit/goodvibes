@@ -1,5 +1,5 @@
 /*
- * Overcooked Radio Player
+ * Goodvibes Radio Player
  *
  * Copyright (C) 2015-2016 Arnaud Rebillout
  *
@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __OVERCOOKED_ADDITIONS_GLIB_H__
-#define __OVERCOOKED_ADDITIONS_GLIB_H__
+#ifndef __GOODVIBES_ADDITIONS_GLIB_H__
+#define __GOODVIBES_ADDITIONS_GLIB_H__
 
 #include <glib.h>
 
@@ -49,4 +49,4 @@ void g_variant_builder_add_dictentry_array_string(GVariantBuilder *b,
                                                   const gchar     *key,
                                                   ...) G_GNUC_NULL_TERMINATED;
 
-#endif /* __OVERCOOKED_ADDITIONS_GLIB_H__ */
+#endif /* __GOODVIBES_ADDITIONS_GLIB_H__ */
