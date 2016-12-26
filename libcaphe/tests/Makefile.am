@@ -7,7 +7,7 @@ caphe_test_CPPFLAGS =	\
 	$(GLIB_CFLAGS)	\
 	-I..
 
-caphe_test_LDADD =	\
-	$(GLIB_LIBS)	\
-	-L../caphe	\
-	-lcaphe
+caphe_test_LDADD =		\
+	../caphe/libcaphe.a	\
+	$(GLIB_LIBS)
+
