@@ -47,7 +47,7 @@ AS_ECHO(["---- I18n ----"])
 
 # Init gettext
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.19.8])
+AM_GNU_GETTEXT_VERSION([0.19.7])
 
 # ------------------------------------- #
 #         Mandatory dependencies        #
@@ -63,7 +63,7 @@ AS_ECHO(["---- Core ----"])
 PKG_CHECK_MODULES([GLIB],    [glib-2.0, gio-2.0, gobject-2.0, gio-unix-2.0 >= 2.42])
 PKG_CHECK_MODULES([LIBSOUP], [libsoup-2.4 >= 2.42])
 PKG_CHECK_MODULES([GST],     [gstreamer-1.0, gstreamer-base-1.0, gstreamer-audio-1.0 >= 1.4.4])
-PKG_CHECK_MODULES([XML],     [libxml-2.0 >= 2.9.4])
+PKG_CHECK_MODULES([XML],     [libxml-2.0 >= 2.9.3])
 
 # Libgszn flags
 GSZN_CFLAGS="-I.."
