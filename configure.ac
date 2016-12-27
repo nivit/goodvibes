@@ -4,7 +4,7 @@
 # 2.60: obsoleting plenty of stuff
 AC_PREREQ([2.60])
 AC_INIT([overcooked], [0.1-dev])
-: ${CFLAGS="-std=gnu99 -Wall -Wextra -Wshadow"}
+: ${CPPFLAGS="-std=gnu99 -Wall -Wextra -Wshadow"}
 
 # Init automake
 # 1.11: silent-rules
@@ -60,7 +60,7 @@ AM_GNU_GETTEXT_VERSION([0.19.7])
 
 AS_ECHO(["---- Core ----"])
 
-PKG_CHECK_MODULES([GLIB],    [glib-2.0, gio-2.0, gobject-2.0, gio-unix-2.0 >= 2.42])
+PKG_CHECK_MODULES([GLIB],    [glib-2.0, gobject-2.0, gio-2.0, gio-unix-2.0 >= 2.42])
 PKG_CHECK_MODULES([LIBSOUP], [libsoup-2.4 >= 2.42])
 PKG_CHECK_MODULES([GST],     [gstreamer-1.0, gstreamer-base-1.0, gstreamer-audio-1.0 >= 1.4.4])
 PKG_CHECK_MODULES([XML],     [libxml-2.0 >= 2.9.3])

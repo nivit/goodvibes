@@ -20,8 +20,8 @@
 /*
  * Compilation:
  *   packages="glib-2.0 gio-2.0 gio-unix-2.0"
- *   gcc $(pkg-config --cflags $packages --libs $packages) *.c -o main
- *   gcc $(pkg-config --cflags $packages --libs $packages) -DENABLE_TRACE *.c -o main
+ *   gcc $(pkg-config --cflags --libs $packages) *.c -o main
+ *   gcc $(pkg-config --cflags --libs $packages) -DENABLE_TRACE *.c -o main
  *
  * Execution:
  *   G_MESSAGES_DEBUG=all ./main
