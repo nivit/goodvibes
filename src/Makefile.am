@@ -140,10 +140,12 @@ ock_core_cflags = 		\
 	$(LIBSOUP_CFLAGS)	\
 	$(GST_CFLAGS)
 
-ock_core_ldadd =		\
-	-lm			\
+ock_core_static_ldadd =		\
 	$(CAPHE_LIBS)		\
-	$(GSZN_LIBS)		\
+	$(GSZN_LIBS)
+
+ock_core_shared_ldadd =		\
+	-lm			\
 	$(GLIB_LIBS)		\
 	$(XML_LIBS)		\
 	$(LIBSOUP_LIBS)		\
@@ -172,8 +174,7 @@ endif
 
 if INHIBITOR_ENABLED
 ock_core_sources += core/feat/ock-inhibitor.c core/feat/ock-inhibitor.h
-ock_core_cflags  += $(INHIBITOR_CFLAGS) -DINHIBITOR_ENABLED
-ock_core_ldadd   += $(INHIBITOR_LIBS)
+ock_core_cflags  += -DINHIBITOR_ENABLED
 endif
 
 
@@ -212,21 +213,21 @@ $(eval $(call make_types,ui/ock-ui-enum-types,$(ock_ui_types_prereqs)))
 
 # Compiler options
 
-ock_ui_cflags = $(UI_CFLAGS) -DUI_ENABLED
-ock_ui_ldadd  = $(UI_LIBS)
+ock_ui_cflags       = $(UI_CFLAGS) -DUI_ENABLED
+ock_ui_shared_ldadd = $(UI_LIBS)
 
 # Features
 
 if HOTKEYS_ENABLED
-ock_ui_sources += ui/feat/ock-hotkeys.c	ui/feat/ock-hotkeys.h
-ock_ui_cflags  += $(HOTKEYS_CFLAGS) -DHOTKEYS_ENABLED
-ock_ui_ldadd   += $(HOTKEYS_LIBS)
+ock_ui_sources      += ui/feat/ock-hotkeys.c ui/feat/ock-hotkeys.h
+ock_ui_cflags       += $(HOTKEYS_CFLAGS) -DHOTKEYS_ENABLED
+ock_ui_shared_ldadd += $(HOTKEYS_LIBS)
 endif
 
 if NOTIFICATIONS_ENABLED
-ock_ui_sources += ui/feat/ock-notifications.c ui/feat/ock-notifications.h
-ock_ui_cflags  += $(NOTIFICATIONS_CFLAGS) -DNOTIFICATIONS_ENABLED
-ock_ui_ldadd   += $(NOTIFICATIONS_LIBS)
+ock_ui_sources      += ui/feat/ock-notifications.c ui/feat/ock-notifications.h
+ock_ui_cflags       += $(NOTIFICATIONS_CFLAGS) -DNOTIFICATIONS_ENABLED
+ock_ui_shared_ldadd += $(NOTIFICATIONS_LIBS)
 endif
 
 endif # UI_ENABLED
@@ -239,12 +240,14 @@ endif # UI_ENABLED
 
 bin_PROGRAMS = overcooked
 
-#
-# Sources
 # We use sort() to remove duplicates in CFLAGS and LDADD.
-# I know, it's not recommended to use sort in Automake,
+# I know, it's not recommended to use sort() in Automake,
 # but it works and does a wonderful job, so let it be.
-#
+
+# Also, notice in LDADD that the static libraries MUST come first,
+# otherwise the link might fail. If you're interested in the matter,
+# here's a bit of reading I recommend:
+# http://eli.thegreenplace.net/2013/07/09/library-order-in-static-linking
 
 overcooked_SOURCES =			\
 	main.c				\
@@ -257,17 +260,22 @@ overcooked_SOURCES =			\
 	$(ock_ui_sources)		\
 	$(ock_ui_built_sources)
 
-overcooked_CFLAGS = $(sort		\
-	-DLOCALE_DIR=\"$(localedir)\"	\
+overcooked_CFLAGS  =			\
+	-DLOCALE_DIR=\"$(localedir)\"
+
+overcooked_CFLAGS += $(sort		\
 	$(ock_framework_cflags)		\
 	$(ock_core_cflags)		\
 	$(ock_ui_cflags)		\
 	)
 
-overcooked_LDADD = $(sort	\
-	$(ock_framework_ldadd)	\
-	$(ock_core_ldadd)	\
-	$(ock_ui_ldadd)		\
+overcooked_LDADD  = 			\
+	$(ock_core_static_ldadd)
+
+overcooked_LDADD += $(sort		\
+	$(ock_framework_shared_ldadd)	\
+	$(ock_core_shared_ldadd)	\
+	$(ock_ui_shared_ldadd)		\
 	)
 
 BUILT_SOURCES =				\
