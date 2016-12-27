@@ -37,7 +37,11 @@ void log_trace_property_access(const gchar *file, const gchar *func, GObject *ob
  * Use that for logs intended for developpers.
  */
 
-#define ERROR(fmt, ...)    log_msg(G_LOG_LEVEL_ERROR,    __FILE__, __func__, fmt, ##__VA_ARGS__)
+#define ERROR(fmt, ...)    do { \
+		log_msg(G_LOG_LEVEL_ERROR,    __FILE__, __func__, fmt, ##__VA_ARGS__); \
+		__builtin_unreachable(); \
+	} while (0)
+
 #define CRITICAL(fmt, ...) log_msg(G_LOG_LEVEL_CRITICAL, __FILE__, __func__, fmt, ##__VA_ARGS__)
 #define WARNING(fmt, ...)  log_msg(G_LOG_LEVEL_WARNING,  __FILE__, __func__, fmt, ##__VA_ARGS__)
 #define INFO(fmt, ...)     log_msg(G_LOG_LEVEL_INFO,     __FILE__, __func__, fmt, ##__VA_ARGS__)

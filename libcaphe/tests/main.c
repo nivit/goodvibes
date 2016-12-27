@@ -145,15 +145,13 @@ main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	if (argc == 2) {
-		if (!g_strcmp0(argv[1], "inhibit"))
-			idle_func = (GSourceFunc) when_idle_inhibit;
-		else if (!g_strcmp0(argv[1], "stress"))
-			idle_func = (GSourceFunc) when_idle_stress;
-		else {
-			print_usage(argv[0]);
-			exit(EXIT_FAILURE);
-		}
+	if (!g_strcmp0(argv[1], "inhibit"))
+		idle_func = (GSourceFunc) when_idle_inhibit;
+	else if (!g_strcmp0(argv[1], "stress"))
+		idle_func = (GSourceFunc) when_idle_stress;
+	else {
+		print_usage(argv[0]);
+		exit(EXIT_FAILURE);
 	}
 
 	/* Init */

@@ -389,8 +389,8 @@ on_inhibitor_notify_inhibited(CapheInhibitor *inhibitor,
 {
 	CapheMainPrivate *priv = self->priv;
 	gboolean inhibited = caphe_inhibitor_get_inhibited(inhibitor);
-	guint signal_name;
-	gboolean signal_arg;
+	guint signal_name = 0;
+	gboolean signal_arg = FALSE;
 
 	TRACE("%s, 'inhibited=%s', %p",  get_inhibitor_id(priv->inhibitors, inhibitor),
 	      inhibited ? "true" : "false", self);
