@@ -155,14 +155,19 @@ main(int argc, char *argv[])
 	}
 
 	/* Run in background.
-	 * This option may be used along with the 'logfile' option, therefore:
+	 * This option may be used along with the 'logfile' option, therefore the
+	 * arguments for daemon() must be as follow:
 	 * - nochdir = 1: we MUST NOT change the working directory
 	 *   (otherwise a relative path for logfile won't work)
 	 * - noclose = 0: we MUST close std{in/out/err} BEFORE initializing the logs
 	 *   (and let the log system re-open std{out/err} afterward if needed).
 	 */
-	if (options.background)
-		daemon(1, 0);
+	if (options.background) {
+		if (daemon(1, 0) == -1) {
+			perror("Failed to daemonize");
+			return EXIT_FAILURE;
+		}
+	}
 
 	/* Initialize log system, warm it up with a few logs */
 	log_init(options.log_level, options.colorless, options.output_file);
