@@ -134,7 +134,7 @@ For more details, please refer to the file `configure.ac`.
 
 To install all the dependencies under Debian, run:
 
-	sudo apt install build-essential
+	sudo apt install build-essential autoconf autopoint
 	sudo apt install libglib2.0-dev libsoup2.4-dev libxml2-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 	sudo apt install libgtk-3-dev libkeybinder-3.0-dev libnotify-dev
 
