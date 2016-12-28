@@ -18,7 +18,9 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include <glib.h>
 
@@ -164,7 +166,7 @@ main(int argc, char *argv[])
 	 */
 	if (options.background) {
 		if (daemon(1, 0) == -1) {
-			perror("Failed to daemonize");
+			g_printerr("Failed to daemonize: %s\n", strerror(errno));
 			return EXIT_FAILURE;
 		}
 	}
