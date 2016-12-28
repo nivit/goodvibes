@@ -1,0 +1,15 @@
+language: c
+
+branches:
+  only:
+    - shippable
+
+build:
+  pre_ci_boot:
+    image_name: elboulangero/goodvibes-debian
+    image_tag: latest
+    pull: true
+    options: "-e HOME=/root"
+
+  ci:
+    - ./autogen.sh && ./configure --enable-all && make
