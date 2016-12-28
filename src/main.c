@@ -215,8 +215,10 @@ main(int argc, char *argv[])
 	DEBUG("---- Warming up core ----");
 	gv_core_warm_up(options.uri_to_play);
 
+#ifdef UI_ENABLED
 	DEBUG("---- Warming up ui ----");
 	gv_ui_warm_up();
+#endif
 
 
 
@@ -234,8 +236,10 @@ main(int argc, char *argv[])
 	 * Cleanup                                         *
 	 * ----------------------------------------------- */
 
+#ifdef UI_ENABLED
 	DEBUG("---- Cooling down ui ----");
 	gv_ui_cool_down();
+#endif
 
 	DEBUG("---- Cooling down core ----");
 	gv_core_cool_down();
