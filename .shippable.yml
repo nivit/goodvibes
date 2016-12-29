@@ -4,12 +4,18 @@ branches:
   only:
     - shippable
 
+env:
+  - IMAGE_NAME="elboulangero/goodvibes-debian"
+  - IMAGE_NAME="elboulangero/goodvibes-ubuntu"
+  - IMAGE_NAME="elboulangero/goodvibes-fedora"
+
 build:
   pre_ci_boot:
-    image_name: elboulangero/goodvibes-debian
+    image_name: $IMAGE_NAME
     image_tag: latest
     pull: true
     options: "-e HOME=/root"
 
   ci:
     - ./autogen.sh && ./configure --enable-all && make
+
