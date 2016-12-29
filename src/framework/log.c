@@ -90,7 +90,7 @@ static LogStrings log_strings_colorful = {
 /* Global variables that control the behavior of logs */
 
 static FILE *log_stream;
-static GLogLevelFlags log_level;
+static gint log_level;
 static LogStrings *log_strings = &log_strings_colorless;
 
 /* Copies of std{out/err}, in case we redirect it */
@@ -99,7 +99,7 @@ static int stdout_copy = -1;
 static int stderr_copy = -1;
 
 /* Convert from string to log level */
-static GLogLevelFlags
+static gint
 string_to_log_level(const gchar *str)
 {
 	GLogLevelFlags level = G_LOG_LEVEL_MESSAGE;

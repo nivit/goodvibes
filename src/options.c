@@ -58,7 +58,7 @@ static GOptionEntry entries[] = {
 		"version", 'v', 0, G_OPTION_ARG_NONE, &options.print_version,
 		"Print the version and exit", NULL
 	},
-	{ NULL }
+	{ .long_name = NULL }
 };
 
 static gchar *description = "Log levels, from the most chatty to the most quiet:\n"
