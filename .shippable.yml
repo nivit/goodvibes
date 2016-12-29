@@ -2,7 +2,7 @@ language: c
 
 branches:
   only:
-    - shippable
+    - master
 
 compiler:
   - gcc
