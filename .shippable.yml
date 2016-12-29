@@ -1,0 +1,27 @@
+language: c
+
+branches:
+  only:
+    - master
+
+compiler:
+  - gcc
+  - clang
+
+env:
+  global:
+    - CPPFLAGS="-std=gnu99 -Wall -Wextra -Wshadow -Werror -Wno-deprecated-declarations"
+  matrix:
+    - IMAGE_NAME="elboulangero/goodvibes-debian"
+    - IMAGE_NAME="elboulangero/goodvibes-ubuntu"
+    - IMAGE_NAME="elboulangero/goodvibes-fedora"
+
+build:
+  pre_ci_boot:
+    image_name: $IMAGE_NAME
+    image_tag: latest
+    pull: true
+
+  ci:
+    - ./autogen.sh && CPPFLAGS="$CPPFLAGS" ./configure --enable-all && make
+
