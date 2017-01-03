@@ -5,27 +5,27 @@
   <object class="GtkImage" id="next_image">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="icon_name">media-skip-forward</property>
+    <property name="icon_name">media-skip-forward-symbolic</property>
   </object>
   <object class="GtkImage" id="play_image">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="icon_name">media-playback-start</property>
+    <property name="icon_name">media-playback-start-symbolic</property>
   </object>
   <object class="GtkImage" id="prev_image">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="icon_name">media-skip-backward</property>
+    <property name="icon_name">media-skip-backward-symbolic</property>
   </object>
   <object class="GtkImage" id="repeat_image">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="icon_name">media-playlist-repeat</property>
+    <property name="icon_name">media-playlist-repeat-symbolic</property>
   </object>
   <object class="GtkImage" id="shuffle_image">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="icon_name">media-playlist-shuffle</property>
+    <property name="icon_name">media-playlist-shuffle-symbolic</property>
   </object>
   <object class="GtkBox" id="window_vbox">
     <property name="visible">True</property>
