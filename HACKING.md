@@ -69,8 +69,11 @@ Program Invocation
 
 To get a brief overview of the command-line options available, invoke with `-h`.
 
-The option you will use the most is `-l` to change the log level. Colors are
-enabled by default, but you can disable it with `-c` if it hurts your eyes.
+The option you will use the most is `-l` to change the log level. Here is a typical line:
+
+	./src/goodvibes -l trace
+
+Colors are enabled by default, but you can disable it with `-c` if it hurts your eyes.
 Colors are automatically disabled when logs are redirected to a file.
 
 Logs are all sent to `stderr`, whatever the log level.
@@ -85,6 +88,10 @@ them all, invoke with `--help-all`. For more details, refer to:
 - [Running GLib Applications](https://developer.gnome.org/glib/stable/glib-running.html)
 - [Running GStreamer Applications](https://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gst-running.html)
 - [Running GTK+ Applications](https://developer.gnome.org/gtk3/stable/gtk-running.html)
+
+Hardcore GTK+ debugging can be done with [GtkInspector](https://wiki.gnome.org/Projects/GTK+/Inspector):
+
+	./src/goodvibes --gtk-debug=interactive
 
 
 
