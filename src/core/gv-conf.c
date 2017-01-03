@@ -69,8 +69,14 @@ G_DEFINE_TYPE_WITH_CODE(GvConf, gv_conf, G_TYPE_OBJECT,
 static gchar *
 serialize_object_name(const gchar *object_type_name)
 {
-	if (g_str_has_prefix(object_type_name, "Gv"))
-		object_type_name += 3;
+	static const gchar *prefix = "Gv";
+	static guint prefix_len = 0;
+
+	if (prefix_len == 0)
+		prefix_len = strlen(prefix);
+
+	if (g_str_has_prefix(object_type_name, prefix))
+		object_type_name += prefix_len;
 
 	return g_strdup(object_type_name);
 }
@@ -78,7 +84,9 @@ serialize_object_name(const gchar *object_type_name)
 static gchar *
 deserialize_object_name(const gchar *object_name)
 {
-	return g_strconcat("Gv", object_name, NULL);
+	static const gchar *prefix = "Gv";
+
+	return g_strconcat(prefix, object_name, NULL);
 }
 
 static gchar *
