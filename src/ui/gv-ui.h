@@ -22,10 +22,11 @@
 
 #include <glib.h>
 
-void gv_ui_init     (void);
-void gv_ui_cleanup  (void);
-void gv_ui_warm_up  (void);
-void gv_ui_cool_down(void);
+void gv_ui_early_init(int *argc, char **argv[]);
+void gv_ui_init      (void);
+void gv_ui_cleanup   (void);
+void gv_ui_warm_up   (void);
+void gv_ui_cool_down (void);
 
 /*
  * Underlying toolkit

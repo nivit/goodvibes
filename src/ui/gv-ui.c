@@ -70,7 +70,7 @@ gv_ui_cleanup(void)
 
 	/* Ui objects */
 
-	GtkWidget       *main_window   = gv_ui_main_window;
+	GtkWidget      *main_window   = gv_ui_main_window;
 	GvTray         *tray          = gv_ui_tray;
 
 	gv_framework_configurables_remove(tray);
@@ -87,9 +87,6 @@ gv_ui_cleanup(void)
 void
 gv_ui_init(void)
 {
-	/* Gtk+ must have been initialized beforehand, let's check that */
-	g_assert(gtk_is_initialized());
-
 	/* Stock icons */
 	gv_stock_icons_init();
 
@@ -144,6 +141,21 @@ gv_ui_init(void)
 	gv_ui_main_window = main_window;
 }
 
+void
+gv_ui_early_init(int *argc, char **argv[])
+{
+	/* According to the doc, there should be no need for gtk_init() if we
+	 * use gtk_get_option_group() along with g_option_context_parse().
+	 * However experienced proved it wrong:
+	 *
+	 *     https://bugzilla.gnome.org/show_bug.cgi?id=776807
+	 *
+	 * So, let's play safe and initialize gtk early right now.
+	 */
+
+	gtk_init(argc, argv);
+}
+
 /*
  * Underlying toolkit
  */
@@ -151,22 +163,12 @@ gv_ui_init(void)
 GOptionGroup *
 gv_ui_toolkit_init_get_option_group(void)
 {
-	GOptionGroup *group;
-
-	/* According to the doc, there's no need to call gtk_init()
-	 * if we invoke gtk_get_option_group().
-	 * By peeping into the code, it seems that the argument for
-	 * gtk_get_option_group() should be TRUE if we want the same
-	 * behavior as gtk_init().
+	/* Very not sure about the argument to pass here. From my experience:
+	 * - if we don't use gtk_init(), we should pass TRUE.
+	 * - if we use gtk_init(), passing FALSE is ok.
 	 */
-	group = gtk_get_option_group(TRUE);
 
-	/* Gtk doesn't offer a function to check if it's initialized.
-	 * So we do that manually with our homemade functions.
-	 */
-	gtk_set_initialized();
-
-	return group;
+	return gtk_get_option_group(FALSE);
 }
 
 const gchar *

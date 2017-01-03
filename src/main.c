@@ -141,6 +141,19 @@ int
 main(int argc, char *argv[])
 {
 	/* ----------------------------------------------- *
+	 * Everything that needs to be done first          *
+	 * ----------------------------------------------- */
+
+	gv_core_early_init(&argc, &argv);
+
+#ifdef UI_ENABLED
+	if (!options.without_ui)
+		gv_ui_early_init(&argc, &argv);
+#endif
+
+
+
+	/* ----------------------------------------------- *
 	 * Command-line options & log handling             *
 	 * ----------------------------------------------- */
 

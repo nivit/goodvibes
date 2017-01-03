@@ -25,15 +25,17 @@
 #include "core/gv-station.h"
 #include "core/gv-station-list.h"
 
-/* Global variables, valid after create(), invalid after destroy() */
+/* Global variables */
+
 extern GvConf        *gv_core_conf;
 extern GvPlayer      *gv_core_player;
 extern GvStationList *gv_core_station_list;
 
-void gv_core_init     (void);
-void gv_core_cleanup  (void);
-void gv_core_warm_up  (const gchar *uri_to_play);
-void gv_core_cool_down(void);
+void gv_core_early_init(int *argc, char **argv[]);
+void gv_core_init      (void);
+void gv_core_cleanup   (void);
+void gv_core_warm_up   (const gchar *uri_to_play);
+void gv_core_cool_down (void);
 
 /*
  * Underlying audio backend

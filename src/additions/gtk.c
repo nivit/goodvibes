@@ -21,24 +21,6 @@
 #include <gtk/gtk.h>
 
 /*
- * Main Loop and Events
- */
-
-static gboolean gtk_initialized;
-
-void
-gtk_set_initialized(void)
-{
-	gtk_initialized = TRUE;
-}
-
-gboolean
-gtk_is_initialized(void)
-{
-	return gtk_initialized;
-}
-
-/*
  * Version Information
  */
 

@@ -157,6 +157,7 @@ gv_core_init(void)
 	gv_framework_errorables_append(player);
 
 
+
 	/* ----------------------------------------------- *
 	 * Features                                        *
 	 * ----------------------------------------------- */
@@ -208,6 +209,12 @@ gv_core_init(void)
 	gv_core_player = player;
 }
 
+void
+gv_core_early_init(int *argc G_GNUC_UNUSED, char **argv[] G_GNUC_UNUSED)
+{
+	/* Actually there's nothing to do here */
+}
+
 /*
  * Underlying audio backend
  */
@@ -226,15 +233,7 @@ gv_core_audio_backend_cleanup(void)
 GOptionGroup *
 gv_core_audio_backend_init_get_option_group(void)
 {
-	GOptionGroup *group;
-
-	/* This call also runs the gst_init() code. It's not obvious when reading
-	 * the documentation, but the name of the function strongly suggests it.
-	 * Peeping into the code leaves no doubt though.
-	 */
-	group = gst_init_get_option_group();
-
-	return group;
+	return gst_init_get_option_group();
 }
 
 const gchar *

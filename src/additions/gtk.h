@@ -23,13 +23,6 @@
 #include <gtk/gtk.h>
 
 /*
- * Main Loop and Events
- */
-
-void         gtk_set_initialized           (void);
-gboolean     gtk_is_initialized            (void);
-
-/*
  * Version Information
  */
 
