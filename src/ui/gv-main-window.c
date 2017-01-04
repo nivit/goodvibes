@@ -153,9 +153,9 @@ set_play_button(GtkButton *button, GvPlayerState state)
 	const gchar *icon_name;
 
 	if (state == GV_PLAYER_STATE_STOPPED)
-		icon_name = "media-playback-start";
+		icon_name = "media-playback-start-symbolic";
 	else
-		icon_name = "media-playback-stop";
+		icon_name = "media-playback-stop-symbolic";
 
 	image = gtk_image_new_from_icon_name(icon_name, GTK_ICON_SIZE_BUTTON);
 	gtk_button_set_image(button, image);
