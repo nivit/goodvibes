@@ -178,6 +178,30 @@ make_playlist_id(GvStation *station)
 	return g_strdup_printf(PLAYLISTID_PATH "/%s", gv_station_get_uid(station));
 }
 
+static gboolean
+parse_playlist_id(const gchar    *playlist_id,
+                  GvStationList  *station_list,
+                  GvStation     **station)
+{
+	const gchar *station_uid;
+
+	g_assert(station != NULL);
+	*station = NULL;
+
+	if (!g_strcmp0(playlist_id, "/"))
+		return TRUE;
+
+	if (!g_str_has_prefix(playlist_id, PLAYLISTID_PATH "/"))
+		return FALSE;
+
+	station_uid = playlist_id + strlen(PLAYLISTID_PATH "/");
+	*station = gv_station_list_find_by_uid(station_list, station_uid);
+	if (*station == NULL)
+		return FALSE;
+
+	return TRUE;
+}
+
 static gchar *
 make_track_id(GvStation *station)
 {
@@ -209,6 +233,100 @@ parse_track_id(const gchar     *track_id,
 		return FALSE;
 
 	return TRUE;
+}
+
+static gint
+compare_alphabetically(GvStation *a, GvStation *b)
+{
+	const gchar *str1 = gv_station_get_name_or_uri(a);
+	const gchar *str2 = gv_station_get_name_or_uri(b);
+
+	return g_strcmp0(str1, str2);
+}
+
+static GList *
+build_station_list(GvStationList *station_list, gboolean alphabetical,
+                   gboolean reverse, guint start_index, guint max_count)
+{
+	GvStationListIter *iter;
+	GvStation *station;
+	GList *list = NULL;
+
+	/* Build a GList */
+	iter = gv_station_list_iter_new(station_list);
+
+	while (gv_station_list_iter_loop(iter, &station))
+		list = g_list_append(list, station);
+
+	gv_station_list_iter_free(iter);
+
+	/* Order alphabetically if needed */
+	if (alphabetical)
+		list = g_list_sort(list, (GCompareFunc) compare_alphabetically);
+
+	/* Reverse order if needed */
+	if (reverse)
+		list = g_list_reverse(list);
+
+	/* Handle start index */
+	while (start_index > 0) {
+		if (list == NULL)
+			break;
+
+		list = g_list_delete_link(list, list);
+		start_index--;
+	}
+
+	/* Handle max count */
+	GList *tmp = list;
+
+	while (max_count > 0) {
+		if (tmp == NULL)
+			break;
+
+		tmp = tmp->next;
+		max_count--;
+	}
+
+	if (tmp != NULL) {
+		if (tmp == list) {
+			g_list_free(list);
+			list = NULL;
+		} else {
+			tmp->prev->next = NULL;
+			tmp->prev = NULL;
+			g_list_free(tmp);
+		}
+	}
+
+	return list;
+}
+
+static GVariant *
+g_variant_new_playlist(GvStation *station)
+{
+	GVariantBuilder b;
+	gchar *playlist_id;
+
+	g_variant_builder_init(&b, G_VARIANT_TYPE("(b(oss))"));
+
+	if (station)
+		g_variant_builder_add(&b, "b", TRUE);
+	else
+		g_variant_builder_add(&b, "b", FALSE);
+
+	playlist_id = make_playlist_id(station);
+	g_variant_builder_add(&b, "o", playlist_id);
+	g_free(playlist_id);
+
+	if (station) {
+		g_variant_builder_add(&b, "s", gv_station_get_name_or_uri(station));
+		g_variant_builder_add(&b, "s", NULL);
+	} else {
+		g_variant_builder_add(&b, "ss", NULL, NULL);
+	}
+
+	return g_variant_builder_end(&b);
 }
 
 static GVariant *
@@ -598,15 +716,66 @@ method_activate_playlist(GvDbusServer  *dbus_server G_GNUC_UNUSED,
                          GVariant      *params,
                          GError       **error)
 {
+	GvPlayer *player = gv_core_player;
+	GvStationList *station_list = gv_core_station_list;
+	const gchar *playlist_id;
+	GvStation *station;
 
+	g_variant_get(params, "(&o)", &playlist_id);
+
+	if (!parse_playlist_id(playlist_id, station_list, &station)) {
+		g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_FAILED,
+		            "Invalid param 'PlaylistId'.");
+		return NULL;
+	}
+
+	if (station == NULL)
+		return NULL;
+
+	gv_player_set_station(player, station);
+	gv_player_play(player);
+
+	return NULL;
 }
 
 static GVariant *
 method_get_playlists(GvDbusServer  *dbus_server G_GNUC_UNUSED,
                      GVariant      *params,
-                     GError       **error)
+                     GError       **error G_GNUC_UNUSED)
 {
+	GvStationList *station_list = gv_core_station_list;
+	GVariantBuilder b;
+	GList *list, *item;
+	guint32 start_index, max_count;
+	const gchar *order;
+	gboolean reverse_order;
+	gboolean alphabetical;
 
+	g_variant_get(params, "(uu&sb)", &start_index, &max_count, &order, &reverse_order);
+
+	/* We only support 'Alphabetical' */
+	if (!g_strcmp0(order, "Alphabetical"))
+		alphabetical = TRUE;
+	else
+		alphabetical = FALSE;
+
+	/* Make a list */
+	list = build_station_list(station_list, alphabetical, reverse_order,
+	                          start_index, max_count);
+
+	/* Make a GVariant */
+	g_variant_builder_init(&b, G_VARIANT_TYPE("a(oss)"));
+
+	for (item = list; item; item = item->next) {
+		GvStation *station = item->data;
+		g_variant_builder_add_value(&b, g_variant_new_playlist(station));
+	}
+
+	/* Cleanup */
+	g_list_free(list);
+
+	/* Return */
+	return g_variant_builder_end(&b);
 }
 
 static GvDbusMethod playlists_methods[] = {
@@ -887,7 +1056,7 @@ static GVariant *
 prop_get_orderings(GvDbusServer *dbus_server G_GNUC_UNUSED)
 {
 	static const gchar *supported_orderings[] = {
-		"UserDefined", NULL
+		"Alphabetical", "UserDefined", NULL
 	};
 
 	return g_variant_new_strv(supported_orderings, -1);
@@ -897,32 +1066,9 @@ static GVariant *
 prop_get_active_playlist(GvDbusServer *dbus_server G_GNUC_UNUSED)
 {
 	GvPlayer *player = gv_core_player;
-	GvStation *station;
-	GVariantBuilder b;
-	gchar *playlist_id;
+	GvStation *station = gv_player_get_station(player);
 
-	station = gv_player_get_station(player);
-	playlist_id = make_playlist_id(station);
-
-	g_variant_builder_init(&b, G_VARIANT_TYPE("(b(oss))"));
-
-	if (station)
-		g_variant_builder_add(&b, "b", TRUE);
-	else
-		g_variant_builder_add(&b, "b", FALSE);
-
-	g_variant_builder_add(&b, "o", playlist_id);
-
-	if (station) {
-		g_variant_builder_add(&b, "s", gv_station_get_name_or_uri(station));
-		g_variant_builder_add(&b, "s", NULL);
-	} else {
-		g_variant_builder_add(&b, "ss", NULL, NULL);
-	}
-
-	g_free(playlist_id);
-
-	return g_variant_builder_end(&b);
+	return g_variant_new_playlist(station);
 }
 
 static GvDbusProperty playlists_properties[] = {
