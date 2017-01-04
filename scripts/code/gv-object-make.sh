@@ -75,7 +75,7 @@ objname="$(sed 's/^gv-//' <<< $objname)"
 # -------------------------------------------------------- #
 
 # Select source depending on the type
-srcdir="scripts/gv-object-templates"
+srcdir="scripts/code/gv-object-templates"
 srcfile=""
 case "$type" in
     core|framework|ui)
