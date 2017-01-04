@@ -612,11 +612,11 @@ method_add_track(GvDbusServer  *dbus_server G_GNUC_UNUSED,
 	GvPlayer *player = gv_core_player;
 	GvStationList *station_list = gv_core_station_list;
 	const gchar *uri;
-	const gchar *after_track;
+	const gchar *after_track_id;
 	gboolean set_as_current;
 	GvStation *station, *after_station;
 
-	g_variant_get(params, "(&s&ob)", &uri, &after_track, &set_as_current);
+	g_variant_get(params, "(&s&ob)", &uri, &after_track_id, &set_as_current);
 
 	/* Ensure URI is valid */
 	if (!is_uri_scheme_supported(uri)) {
@@ -626,7 +626,7 @@ method_add_track(GvDbusServer  *dbus_server G_GNUC_UNUSED,
 	}
 
 	/* Handle after track */
-	if (!parse_track_id(after_track, station_list, &after_station)) {
+	if (!parse_track_id(after_track_id, station_list, &after_station)) {
 		g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_FAILED,
 		            "Invalid param 'AfterTrack'.");
 		return NULL;
@@ -1023,7 +1023,7 @@ prop_get_tracks(GvDbusServer *dbus_server G_GNUC_UNUSED)
 	GvStation *station;
 	GVariantBuilder b;
 
-	g_variant_builder_init(&b, G_VARIANT_TYPE ("ao"));
+	g_variant_builder_init(&b, G_VARIANT_TYPE("ao"));
 	iter = gv_station_list_iter_new(station_list);
 
 	while (gv_station_list_iter_loop(iter, &station)) {
