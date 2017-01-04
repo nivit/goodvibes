@@ -274,15 +274,26 @@ on_window_key_press_event(GtkWindow     *window,
 static gboolean
 on_window_focus_change(GtkWindow     *window,
                        GdkEventFocus *focus_event,
-                       gpointer data G_GNUC_UNUSED)
+                       gpointer       data G_GNUC_UNUSED)
 {
+	GvMainWindow *self = GV_MAIN_WINDOW(window);
+	GvMainWindowPrivate *priv = self->priv;
+	GvStationsTreeView *stations_tree_view = GV_STATIONS_TREE_VIEW(priv->stations_tree_view);
+
 	g_assert(focus_event->type == GDK_FOCUS_CHANGE);
 
 	//DEBUG("Main window %s focus", focus_event->in ? "gained" : "lost");
 
-	/* Close window if focus was lost */
-	if (focus_event->in == FALSE && CLOSE_ON_FOCUS_OUT)
-		gtk_window_close(window);
+	if (focus_event->in)
+		return FALSE;
+
+	if (!CLOSE_ON_FOCUS_OUT)
+		return FALSE;
+
+	if (gv_stations_tree_view_has_context_menu(stations_tree_view))
+		return FALSE;
+
+	gtk_window_close(window);
 
 	return FALSE;
 }

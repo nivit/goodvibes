@@ -34,6 +34,7 @@ G_DECLARE_FINAL_TYPE(GvStationsTreeView, gv_stations_tree_view, \
 
 GtkWidget *gv_stations_tree_view_new(void);
 
-void       gv_stations_tree_view_populate(GvStationsTreeView *self);
+gboolean   gv_stations_tree_view_has_context_menu(GvStationsTreeView *self);
+void       gv_stations_tree_view_populate        (GvStationsTreeView *self);
 
 #endif /* __GOODVIBES_UI_GV_STATIONS_TREE_VIEW_H__ */

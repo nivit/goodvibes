@@ -35,6 +35,8 @@
  */
 
 struct _GvStationsTreeViewPrivate {
+	/* Current context menu */
+	GtkWidget *context_menu;
 	/* Dragging operation in progress */
 	gboolean is_dragging;
 	GvStation *station_dragged;
@@ -238,10 +240,17 @@ on_tree_view_row_activated(GvStationsTreeView *self,
  */
 
 static void
-on_context_menu_hide(GtkWidget *widget, gpointer data G_GNUC_UNUSED)
+on_context_menu_hide(GtkWidget *widget, GvStationsTreeView *self)
 {
+	GvStationsTreeViewPrivate *priv = self->priv;
+
+	/* Sanity check */
+	if (widget != priv->context_menu)
+		CRITICAL("'hide' signal from unknown context menu");
+
 	/* Context menu can be destroyed */
 	g_object_unref(widget);
+	priv->context_menu = NULL;
 }
 
 static gboolean
@@ -250,10 +259,13 @@ on_tree_view_button_press_event(GvStationsTreeView *self,
                                 gpointer             data G_GNUC_UNUSED)
 
 {
+	GvStationsTreeViewPrivate *priv = self->priv;
 	GtkTreeView *tree_view = GTK_TREE_VIEW(self);
 	GtkTreeModel *tree_model = gtk_tree_view_get_model(tree_view);
 	GtkTreePath *path;
 	GtkTreeIter iter;
+	GvStation *station;
+	GtkWidget *context_menu;
 
 	DEBUG("Button pressed: %d", event->button);
 
@@ -271,6 +283,12 @@ on_tree_view_button_press_event(GvStationsTreeView *self,
 	if (event->button != 3)
 		return FALSE;
 
+	/* Do nothing if there's already a context menu (this case shouldn't happen) */
+	if (priv->context_menu) {
+		WARNING("Context menu already exists !");
+		return FALSE;
+	}
+
 	/* Get row at this position */
 	path = NULL;
 	gtk_tree_view_get_path_at_pos(tree_view, event->x, event->y,
@@ -280,14 +298,12 @@ on_tree_view_button_press_event(GvStationsTreeView *self,
 		return FALSE;
 
 	/* Get corresponding station */
-	GvStation *station;
 	gtk_tree_model_get_iter(tree_model, &iter, path);
 	gtk_tree_model_get(tree_model, &iter,
 	                   STATION_COLUMN, &station,
 	                   -1);
 
 	/* Create the context menu */
-	GtkWidget *context_menu;
 	if (station) {
 		context_menu = gv_station_context_menu_new_with_station(station);
 		g_object_unref(station);
@@ -295,10 +311,7 @@ on_tree_view_button_press_event(GvStationsTreeView *self,
 		context_menu = gv_station_context_menu_new();
 	}
 
-	/* We're the owner, therefore responsible for finalization */
-	g_object_ref_sink(context_menu);
-	g_signal_connect(context_menu, "hide", G_CALLBACK(on_context_menu_hide), NULL);
-
+	/* Pop it up */
 #if GTK_CHECK_VERSION(3,22,0)
 	gtk_menu_popup_at_pointer(GTK_MENU(context_menu), NULL);
 #else
@@ -310,6 +323,10 @@ on_tree_view_button_press_event(GvStationsTreeView *self,
 	               event->button,
 	               event->time);
 #endif
+
+	/* Save it for later use, handle destruction in callback */
+	priv->context_menu = g_object_ref_sink(context_menu);
+	g_signal_connect(context_menu, "hide", G_CALLBACK(on_context_menu_hide), self);
 
 	/* Free at last */
 	gtk_tree_path_free(path);
@@ -601,6 +618,14 @@ gv_stations_tree_view_populate(GvStationsTreeView *self)
 
 	/* Unblock list store handlers */
 	g_signal_handlers_unblock(list_store, list_store_handlers, self);
+}
+
+gboolean
+gv_stations_tree_view_has_context_menu(GvStationsTreeView *self)
+{
+	GvStationsTreeViewPrivate *priv = self->priv;
+
+	return priv->context_menu ? TRUE : FALSE;
 }
 
 GtkWidget *
