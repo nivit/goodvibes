@@ -100,6 +100,8 @@ debug_interfaces(GvDbusServer *self)
 	DEBUG("Debugging introspection data...");
 
 	for (iface = priv->interface_table; iface->name; iface++) {
+		g_iface = NULL;
+
 		/* Look for matching interface in introspection data */
 		g_ifaces = info->interfaces;
 		while (g_ifaces && (g_iface = *g_ifaces++)) {
@@ -125,6 +127,8 @@ debug_interfaces(GvDbusServer *self)
 
 		/* Look for matching properties in interface */
 		for (prop = iface->properties; prop && prop->name; prop++) {
+			g_prop = NULL;
+
 			g_props = g_iface->properties;
 			while (g_props && (g_prop = *g_props++)) {
 				if (!g_strcmp0(prop->name, g_prop->name))
