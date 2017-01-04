@@ -37,6 +37,7 @@
 #include "core/feat/gv-dbus-server-mpris2.h"
 
 #define TRACKID_PATH         "/org/" PACKAGE_CAMEL_NAME "/StationList"
+#define PLAYLISTID_PATH      "/org/" PACKAGE_CAMEL_NAME "/Playlist"
 
 #define DBUS_NAME            "org.mpris.MediaPlayer2." PACKAGE_CAMEL_NAME
 #define DBUS_PATH            "/org/mpris/MediaPlayer2"
@@ -163,6 +164,19 @@ G_DEFINE_TYPE(GvDbusServerMpris2, gv_dbus_server_mpris2, GV_TYPE_DBUS_SERVER)
 /*
  * Helpers
  */
+
+static gchar *
+make_playlist_id(GvStation *station)
+{
+	/* As suggested in the MPRIS2 specifications, "/" should be used if NULL.
+	 * https://specifications.freedesktop.org/mpris-spec/latest/
+	 * Playlists_Interface.html#Struct:Maybe_Playlist
+	 */
+	if (station == NULL)
+		return g_strdup("/");
+
+	return g_strdup_printf(PLAYLISTID_PATH "/%s", gv_station_get_uid(station));
+}
 
 static gchar *
 make_track_id(GvStation *station)
@@ -863,19 +877,52 @@ static GvDbusProperty tracklist_properties[] = {
 static GVariant *
 prop_get_playlist_count(GvDbusServer *dbus_server G_GNUC_UNUSED)
 {
+	GvStationList *station_list = gv_core_station_list;
+	guint n_stations = gv_station_list_get_length(station_list);
 
+	return g_variant_new_uint32(n_stations);
 }
 
 static GVariant *
 prop_get_orderings(GvDbusServer *dbus_server G_GNUC_UNUSED)
 {
+	static const gchar *supported_orderings[] = {
+		"UserDefined", NULL
+	};
 
+	return g_variant_new_strv(supported_orderings, -1);
 }
 
 static GVariant *
 prop_get_active_playlist(GvDbusServer *dbus_server G_GNUC_UNUSED)
 {
+	GvPlayer *player = gv_core_player;
+	GvStation *station;
+	GVariantBuilder b;
+	gchar *playlist_id;
 
+	station = gv_player_get_station(player);
+	playlist_id = make_playlist_id(station);
+
+	g_variant_builder_init(&b, G_VARIANT_TYPE("(b(oss))"));
+
+	if (station)
+		g_variant_builder_add(&b, "b", TRUE);
+	else
+		g_variant_builder_add(&b, "b", FALSE);
+
+	g_variant_builder_add(&b, "o", playlist_id);
+
+	if (station) {
+		g_variant_builder_add(&b, "s", gv_station_get_name_or_uri(station));
+		g_variant_builder_add(&b, "s", NULL);
+	} else {
+		g_variant_builder_add(&b, "ss", NULL, NULL);
+	}
+
+	g_free(playlist_id);
+
+	return g_variant_builder_end(&b);
 }
 
 static GvDbusProperty playlists_properties[] = {
