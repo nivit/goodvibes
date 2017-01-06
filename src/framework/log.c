@@ -143,6 +143,8 @@ log_default_handler(const gchar   *domain,
                     const gchar   *msg,
                     gpointer       unused_data G_GNUC_UNUSED)
 {
+	GDateTime *now;
+	gchar *now_str;
 	const gchar *prefix;
 
 	level &= G_LOG_LEVEL_MASK;
@@ -154,6 +156,13 @@ log_default_handler(const gchar   *domain,
 	/* Discard debug messages that don't belong to us */
 	if (domain && level > G_LOG_LEVEL_INFO)
 		return;
+
+	/* Start by getting the current time. Note that it would be more
+	 * accurate to get the time earlier, but we don't need such accuracy
+	 * I believe, plus it's more convenient to do it here.
+	 */
+	now = g_date_time_new_now_local();
+	now_str = g_date_time_format(now, "%T");
 
 	/* Prefix depends on log level.
 	 * Cast is needed at the moment to avoid a gcc warning.
@@ -190,13 +199,25 @@ log_default_handler(const gchar   *domain,
 		break;
 	}
 
-	/* Send every log to the log stream */
+	/* Send everything to the log stream */
 	fputs(prefix, log_stream);
 	fputs(" ", log_stream);
+
+	fputs(VT_CODE_ESC VT_CODE_GREY, log_stream);
+	fputs(now_str, log_stream);
+	fputs(VT_CODE_ESC VT_CODE_RESET, log_stream);
+	fputs(" ", log_stream);
+
 	if (domain)
 		fprintf(log_stream, "[%s] ", domain);
+
 	fputs(msg, log_stream);
+
 	fputs("\n", log_stream);
+
+	/* Cleanup */
+	g_date_time_unref(now);
+	g_free(now_str);
 }
 
 void
@@ -249,7 +270,7 @@ log_trace(const gchar *file, const gchar *func, const gchar *fmt, ...)
 	if (LOG_LEVEL_TRACE > log_level)
 		return;
 
-	snprintf(fmt2, sizeof fmt2, "%s%s: %s%s(%s)",
+	snprintf(fmt2, sizeof fmt2, "%s%s: %s()%s: (%s)",
 	         log_strings->grey, file, func, log_strings->reset, fmt);
 
 	va_start(ap, fmt);
