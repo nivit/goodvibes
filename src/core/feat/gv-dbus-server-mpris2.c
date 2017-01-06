@@ -1097,49 +1097,56 @@ on_player_notify(GvPlayer           *player,
 {
 	GvDbusServer *dbus_server = GV_DBUS_SERVER(self);
 	const gchar *property_name = g_param_spec_get_name(pspec);
-	const gchar *prop_name;
-	GVariant *value;
 
 	if (!g_strcmp0(property_name, "state")) {
-		GvPlayerState state;
+		GvPlayerState state = gv_player_get_state(player);
 
-		state = gv_player_get_state(player);
-
-		switch (state) {
-		case GV_PLAYER_STATE_PLAYING:
-		case GV_PLAYER_STATE_STOPPED:
-			prop_name = "PlaybackStatus";
-			value = g_variant_new_playback_status(player);
-			break;
-		default:
-			/* Ignore other states */
+		if (state != GV_PLAYER_STATE_PLAYING &&
+		    state != GV_PLAYER_STATE_STOPPED)
 			return;
-		}
+
+		gv_dbus_server_emit_signal_property_changed
+		(dbus_server, DBUS_IFACE_PLAYER, "PlaybackStatus",
+		 g_variant_new_playback_status(player));
+
 	} else if (!g_strcmp0(property_name, "repeat")) {
-		prop_name = "LoopStatus";
-		value = g_variant_new_loop_status(player);
+		gv_dbus_server_emit_signal_property_changed
+		(dbus_server, DBUS_IFACE_PLAYER, "LoopStatus",
+		 g_variant_new_loop_status(player));
+
 	} else if (!g_strcmp0(property_name, "shuffle")) {
-		prop_name = "Shuffle";
-		value = g_variant_new_shuffle(player);
+		gv_dbus_server_emit_signal_property_changed
+		(dbus_server, DBUS_IFACE_PLAYER, "Shuffle",
+		 g_variant_new_shuffle(player));
+
 	} else if (!g_strcmp0(property_name, "volume")) {
-		prop_name = "Volume";
-		value = g_variant_new_volume(player);
-	} else if (!g_strcmp0(property_name, "station") ||
-	           !g_strcmp0(property_name, "metadata")) {
-		GvStation *station;
-		GvMetadata *metadata;
+		gv_dbus_server_emit_signal_property_changed
+		(dbus_server, DBUS_IFACE_PLAYER, "Volume",
+		 g_variant_new_volume(player));
 
-		station = gv_player_get_station(player);
-		metadata = gv_player_get_metadata(player);
+	} else if (!g_strcmp0(property_name, "station")) {
+		GvStation *station = gv_player_get_station(player);
+		GvMetadata *metadata = gv_player_get_metadata(player);
 
-		prop_name = "Metadata";
-		value = g_variant_new_metadata(station, metadata);
-	} else {
-		return;
+		gv_dbus_server_emit_signal_property_changed
+		(dbus_server, DBUS_IFACE_PLAYER, "Metadata",
+		 g_variant_new_metadata(station, metadata));
+
+		/* This signal should be send only if the station's name
+		 * or the station's icon was changed.
+		 */
+		gv_dbus_server_emit_signal_property_changed
+		(dbus_server, DBUS_IFACE_PLAYLISTS, "PlaylistChanged",
+		 g_variant_new_playlist(station));
+
+	} else if (!g_strcmp0(property_name, "metadata")) {
+		GvStation *station = gv_player_get_station(player);
+		GvMetadata *metadata = gv_player_get_metadata(player);
+
+		gv_dbus_server_emit_signal_property_changed
+		(dbus_server, DBUS_IFACE_PLAYER, "Metadata",
+		 g_variant_new_metadata(station, metadata));
 	}
-
-	gv_dbus_server_emit_signal_property_changed
-	(dbus_server, DBUS_IFACE_PLAYER, prop_name, value);
 }
 
 static void
