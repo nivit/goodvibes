@@ -971,18 +971,18 @@ prop_get_metadata(GvDbusServer *dbus_server G_GNUC_UNUSED)
 }
 
 static GVariant *
-prop_has_current(GvDbusServer *dbus_server G_GNUC_UNUSED)
+prop_get_can_play(GvDbusServer *dbus_server G_GNUC_UNUSED)
 {
-	GvPlayer *player = gv_core_player;
-	gboolean has_current;
+	GvStationList *station_list = gv_core_station_list;
+	guint n_stations;
 
-	has_current = gv_player_get_station(player) ? TRUE : FALSE;
+	n_stations = gv_station_list_get_length(station_list);
 
-	return g_variant_new_boolean(has_current);
+	return g_variant_new_boolean(n_stations > 0 ? TRUE : FALSE);
 }
 
 static GVariant *
-prop_has_prev(GvDbusServer *dbus_server G_GNUC_UNUSED)
+prop_get_can_go_prev(GvDbusServer *dbus_server G_GNUC_UNUSED)
 {
 	GvPlayer *player = gv_core_player;
 	gboolean has_prev;
@@ -993,7 +993,7 @@ prop_has_prev(GvDbusServer *dbus_server G_GNUC_UNUSED)
 }
 
 static GVariant *
-prop_has_next(GvDbusServer *dbus_server G_GNUC_UNUSED)
+prop_get_can_go_next(GvDbusServer *dbus_server G_GNUC_UNUSED)
 {
 	GvPlayer *player = gv_core_player;
 	gboolean has_next;
@@ -1012,10 +1012,10 @@ static GvDbusProperty player_properties[] = {
 	{ "MinimumRate",    prop_get_rate,            NULL },
 	{ "MaximumRate",    prop_get_rate,            NULL },
 	{ "Metadata",       prop_get_metadata,        NULL },
-	{ "CanPlay",        prop_has_current,         NULL },
-	{ "CanPause",       prop_has_current,         NULL },
-	{ "CanGoNext",      prop_has_next,            NULL },
-	{ "CanGoPrevious",  prop_has_prev,            NULL },
+	{ "CanPlay",        prop_get_can_play,        NULL },
+	{ "CanPause",       prop_get_can_play,        NULL },
+	{ "CanGoNext",      prop_get_can_go_next,     NULL },
+	{ "CanGoPrevious",  prop_get_can_go_prev,     NULL },
 	{ "CanSeek",        prop_get_false,           NULL },
 	{ "CanControl",     prop_get_true,            NULL },
 	{ NULL,             NULL,                     NULL }
