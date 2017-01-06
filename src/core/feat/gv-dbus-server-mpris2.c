@@ -37,12 +37,14 @@
 #include "core/feat/gv-dbus-server-mpris2.h"
 
 #define TRACKID_PATH         "/org/" PACKAGE_CAMEL_NAME "/StationList"
+#define PLAYLISTID_PATH      "/org/" PACKAGE_CAMEL_NAME "/Playlist"
 
 #define DBUS_NAME            "org.mpris.MediaPlayer2." PACKAGE_CAMEL_NAME
 #define DBUS_PATH            "/org/mpris/MediaPlayer2"
 #define DBUS_IFACE_ROOT      "org.mpris.MediaPlayer2"
 #define DBUS_IFACE_PLAYER    DBUS_IFACE_ROOT ".Player"
 #define DBUS_IFACE_TRACKLIST DBUS_IFACE_ROOT ".TrackList"
+#define DBUS_IFACE_PLAYLISTS DBUS_IFACE_ROOT ".Playlists"
 
 static const gchar *DBUS_INTROSPECTION =
         "<node>"
@@ -128,6 +130,24 @@ static const gchar *DBUS_INTROSPECTION =
         "        <property name='Tracks'        type='ao' access='read'/>"
         "        <property name='CanEditTracks' type='b'  access='read'/>"
         "    </interface>"
+        "    <interface name='"DBUS_IFACE_PLAYLISTS"'>"
+        "        <method name='ActivatePlaylist'>"
+        "            <arg direction='in'  name='PlaylistId'   type='o'/>"
+        "        </method>"
+        "        <method name='GetPlaylists'>"
+        "            <arg direction='in'  name='Index'        type='u'/>"
+        "            <arg direction='in'  name='MaxCount'     type='u'/>"
+        "            <arg direction='in'  name='Order'        type='s'/>"
+        "            <arg direction='in'  name='ReverseOrder' type='b'/>"
+        "            <arg direction='out' name='Playlists'    type='a(oss)'/>"
+        "        </method>"
+        "        <signal name='PlaylistChanged'>"
+        "            <arg name='Playlist' type='(oss)'/>"
+        "        </signal>"
+        "        <property name='PlaylistCount'  type='u'        access='read'/>"
+        "        <property name='Orderings'      type='as'       access='read'/>"
+        "        <property name='ActivePlaylist' type='(b(oss))' access='read'/>"
+        "    </interface>"
         "</node>";
 
 /*
@@ -144,6 +164,43 @@ G_DEFINE_TYPE(GvDbusServerMpris2, gv_dbus_server_mpris2, GV_TYPE_DBUS_SERVER)
 /*
  * Helpers
  */
+
+static gchar *
+make_playlist_id(GvStation *station)
+{
+	/* As suggested in the MPRIS2 specifications, "/" should be used if NULL.
+	 * https://specifications.freedesktop.org/mpris-spec/latest/
+	 * Playlists_Interface.html#Struct:Maybe_Playlist
+	 */
+	if (station == NULL)
+		return g_strdup("/");
+
+	return g_strdup_printf(PLAYLISTID_PATH "/%s", gv_station_get_uid(station));
+}
+
+static gboolean
+parse_playlist_id(const gchar    *playlist_id,
+                  GvStationList  *station_list,
+                  GvStation     **station)
+{
+	const gchar *station_uid;
+
+	g_assert(station != NULL);
+	*station = NULL;
+
+	if (!g_strcmp0(playlist_id, "/"))
+		return TRUE;
+
+	if (!g_str_has_prefix(playlist_id, PLAYLISTID_PATH "/"))
+		return FALSE;
+
+	station_uid = playlist_id + strlen(PLAYLISTID_PATH "/");
+	*station = gv_station_list_find_by_uid(station_list, station_uid);
+	if (*station == NULL)
+		return FALSE;
+
+	return TRUE;
+}
 
 static gchar *
 make_track_id(GvStation *station)
@@ -178,8 +235,108 @@ parse_track_id(const gchar     *track_id,
 	return TRUE;
 }
 
+static gint
+compare_alphabetically(GvStation *a, GvStation *b)
+{
+	const gchar *str1 = gv_station_get_name_or_uri(a);
+	const gchar *str2 = gv_station_get_name_or_uri(b);
+
+	return g_strcmp0(str1, str2);
+}
+
+static GList *
+build_station_list(GvStationList *station_list, gboolean alphabetical,
+                   gboolean reverse, guint start_index, guint max_count)
+{
+	GvStationListIter *iter;
+	GvStation *station;
+	GList *list = NULL;
+
+	/* Build a GList */
+	iter = gv_station_list_iter_new(station_list);
+
+	while (gv_station_list_iter_loop(iter, &station))
+		list = g_list_append(list, station);
+
+	gv_station_list_iter_free(iter);
+
+	/* Order alphabetically if needed */
+	if (alphabetical)
+		list = g_list_sort(list, (GCompareFunc) compare_alphabetically);
+
+	/* Reverse order if needed */
+	if (reverse)
+		list = g_list_reverse(list);
+
+	/* Handle start index */
+	while (start_index > 0) {
+		if (list == NULL)
+			break;
+
+		list = g_list_delete_link(list, list);
+		start_index--;
+	}
+
+	/* Handle max count */
+	GList *tmp = list;
+
+	while (max_count > 0) {
+		if (tmp == NULL)
+			break;
+
+		tmp = tmp->next;
+		max_count--;
+	}
+
+	if (tmp != NULL) {
+		if (tmp == list) {
+			g_list_free(list);
+			list = NULL;
+		} else {
+			tmp->prev->next = NULL;
+			tmp->prev = NULL;
+			g_list_free(tmp);
+		}
+	}
+
+	return list;
+}
+
+/*
+ * GVariant helpers for MPRIS2 types
+ */
+
 static GVariant *
-g_variant_new_metadata(GvStation *station, GvMetadata *metadata)
+g_variant_new_playlist(GvStation *station)
+{
+	gchar *playlist_id;
+
+	playlist_id = make_playlist_id(station);
+
+	GVariant *tuples[] = {
+		g_variant_new_object_path(playlist_id),
+		g_variant_new_string(station ? gv_station_get_name_or_uri(station) : ""),
+		g_variant_new_string("")
+	};
+
+	g_free(playlist_id);
+
+	return g_variant_new_tuple(tuples, 3);
+}
+
+static GVariant *
+g_variant_new_maybe_playlist(GvStation *station)
+{
+	GVariant *tuples[] = {
+		g_variant_new_boolean(station ? TRUE : FALSE),
+		g_variant_new_playlist(station)
+	};
+
+	return g_variant_new_tuple(tuples, 2);
+}
+
+static GVariant *
+g_variant_new_metadata_map(GvStation *station, GvMetadata *metadata)
 {
 	GVariantBuilder b;
 	gchar *track_id;
@@ -447,7 +604,7 @@ method_get_tracks_metadata(GvDbusServer  *dbus_server G_GNUC_UNUSED,
 			/* Ignore silently */
 			continue;
 
-		g_variant_builder_add_value(&b, g_variant_new_metadata(station, NULL));
+		g_variant_builder_add_value(&b, g_variant_new_metadata_map(station, NULL));
 	}
 
 	return g_variant_builder_end(&b);
@@ -461,11 +618,11 @@ method_add_track(GvDbusServer  *dbus_server G_GNUC_UNUSED,
 	GvPlayer *player = gv_core_player;
 	GvStationList *station_list = gv_core_station_list;
 	const gchar *uri;
-	const gchar *after_track;
+	const gchar *after_track_id;
 	gboolean set_as_current;
 	GvStation *station, *after_station;
 
-	g_variant_get(params, "(&s&ob)", &uri, &after_track, &set_as_current);
+	g_variant_get(params, "(&s&ob)", &uri, &after_track_id, &set_as_current);
 
 	/* Ensure URI is valid */
 	if (!is_uri_scheme_supported(uri)) {
@@ -475,7 +632,7 @@ method_add_track(GvDbusServer  *dbus_server G_GNUC_UNUSED,
 	}
 
 	/* Handle after track */
-	if (!parse_track_id(after_track, station_list, &after_station)) {
+	if (!parse_track_id(after_track_id, station_list, &after_station)) {
 		g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_FAILED,
 		            "Invalid param 'AfterTrack'.");
 		return NULL;
@@ -558,6 +715,79 @@ static GvDbusMethod tracklist_methods[] = {
 	{ "RemoveTrack",       method_remove_track        },
 	{ "GoTo",              method_go_to               },
 	{ NULL,                NULL                       }
+};
+
+static GVariant *
+method_activate_playlist(GvDbusServer  *dbus_server G_GNUC_UNUSED,
+                         GVariant      *params,
+                         GError       **error)
+{
+	GvPlayer *player = gv_core_player;
+	GvStationList *station_list = gv_core_station_list;
+	const gchar *playlist_id;
+	GvStation *station;
+
+	g_variant_get(params, "(&o)", &playlist_id);
+
+	if (!parse_playlist_id(playlist_id, station_list, &station)) {
+		g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_FAILED,
+		            "Invalid param 'PlaylistId'.");
+		return NULL;
+	}
+
+	if (station == NULL)
+		return NULL;
+
+	gv_player_set_station(player, station);
+	gv_player_play(player);
+
+	return NULL;
+}
+
+static GVariant *
+method_get_playlists(GvDbusServer  *dbus_server G_GNUC_UNUSED,
+                     GVariant      *params,
+                     GError       **error G_GNUC_UNUSED)
+{
+	GvStationList *station_list = gv_core_station_list;
+	GVariantBuilder b;
+	GList *list, *item;
+	guint32 start_index, max_count;
+	const gchar *order;
+	gboolean reverse_order;
+	gboolean alphabetical;
+
+	g_variant_get(params, "(uu&sb)", &start_index, &max_count, &order, &reverse_order);
+
+	/* We only support 'Alphabetical' */
+	if (!g_strcmp0(order, "Alphabetical"))
+		alphabetical = TRUE;
+	else
+		alphabetical = FALSE;
+
+	/* Make a list */
+	list = build_station_list(station_list, alphabetical, reverse_order,
+	                          start_index, max_count);
+
+	/* Make a GVariant */
+	g_variant_builder_init(&b, G_VARIANT_TYPE("a(oss)"));
+
+	for (item = list; item; item = item->next) {
+		GvStation *station = item->data;
+		g_variant_builder_add_value(&b, g_variant_new_playlist(station));
+	}
+
+	/* Cleanup */
+	g_list_free(list);
+
+	/* Return */
+	return g_variant_builder_end(&b);
+}
+
+static GvDbusMethod playlists_methods[] = {
+	{ "ActivatePlaylist",  method_activate_playlist },
+	{ "GetPlaylists",      method_get_playlists     },
+	{ NULL,                NULL                     }
 };
 
 /*
@@ -737,22 +967,22 @@ prop_get_metadata(GvDbusServer *dbus_server G_GNUC_UNUSED)
 	station = gv_player_get_station(player);
 	metadata = gv_player_get_metadata(player);
 
-	return g_variant_new_metadata(station, metadata);
+	return g_variant_new_metadata_map(station, metadata);
 }
 
 static GVariant *
-prop_has_current(GvDbusServer *dbus_server G_GNUC_UNUSED)
+prop_get_can_play(GvDbusServer *dbus_server G_GNUC_UNUSED)
 {
-	GvPlayer *player = gv_core_player;
-	gboolean has_current;
+	GvStationList *station_list = gv_core_station_list;
+	guint n_stations;
 
-	has_current = gv_player_get_station(player) ? TRUE : FALSE;
+	n_stations = gv_station_list_get_length(station_list);
 
-	return g_variant_new_boolean(has_current);
+	return g_variant_new_boolean(n_stations > 0 ? TRUE : FALSE);
 }
 
 static GVariant *
-prop_has_prev(GvDbusServer *dbus_server G_GNUC_UNUSED)
+prop_get_can_go_prev(GvDbusServer *dbus_server G_GNUC_UNUSED)
 {
 	GvPlayer *player = gv_core_player;
 	gboolean has_prev;
@@ -763,7 +993,7 @@ prop_has_prev(GvDbusServer *dbus_server G_GNUC_UNUSED)
 }
 
 static GVariant *
-prop_has_next(GvDbusServer *dbus_server G_GNUC_UNUSED)
+prop_get_can_go_next(GvDbusServer *dbus_server G_GNUC_UNUSED)
 {
 	GvPlayer *player = gv_core_player;
 	gboolean has_next;
@@ -782,10 +1012,10 @@ static GvDbusProperty player_properties[] = {
 	{ "MinimumRate",    prop_get_rate,            NULL },
 	{ "MaximumRate",    prop_get_rate,            NULL },
 	{ "Metadata",       prop_get_metadata,        NULL },
-	{ "CanPlay",        prop_has_current,         NULL },
-	{ "CanPause",       prop_has_current,         NULL },
-	{ "CanGoNext",      prop_has_next,            NULL },
-	{ "CanGoPrevious",  prop_has_prev,            NULL },
+	{ "CanPlay",        prop_get_can_play,        NULL },
+	{ "CanPause",       prop_get_can_play,        NULL },
+	{ "CanGoNext",      prop_get_can_go_next,     NULL },
+	{ "CanGoPrevious",  prop_get_can_go_prev,     NULL },
 	{ "CanSeek",        prop_get_false,           NULL },
 	{ "CanControl",     prop_get_true,            NULL },
 	{ NULL,             NULL,                     NULL }
@@ -799,7 +1029,7 @@ prop_get_tracks(GvDbusServer *dbus_server G_GNUC_UNUSED)
 	GvStation *station;
 	GVariantBuilder b;
 
-	g_variant_builder_init(&b, G_VARIANT_TYPE ("ao"));
+	g_variant_builder_init(&b, G_VARIANT_TYPE("ao"));
 	iter = gv_station_list_iter_new(station_list);
 
 	while (gv_station_list_iter_loop(iter, &station)) {
@@ -819,6 +1049,41 @@ static GvDbusProperty tracklist_properties[] = {
 	{ NULL,            NULL,            NULL }
 };
 
+static GVariant *
+prop_get_playlist_count(GvDbusServer *dbus_server G_GNUC_UNUSED)
+{
+	GvStationList *station_list = gv_core_station_list;
+	guint n_stations = gv_station_list_get_length(station_list);
+
+	return g_variant_new_uint32(n_stations);
+}
+
+static GVariant *
+prop_get_orderings(GvDbusServer *dbus_server G_GNUC_UNUSED)
+{
+	static const gchar *supported_orderings[] = {
+		"Alphabetical", "UserDefined", NULL
+	};
+
+	return g_variant_new_strv(supported_orderings, -1);
+}
+
+static GVariant *
+prop_get_active_playlist(GvDbusServer *dbus_server G_GNUC_UNUSED)
+{
+	GvPlayer *player = gv_core_player;
+	GvStation *station = gv_player_get_station(player);
+
+	return g_variant_new_maybe_playlist(station);
+}
+
+static GvDbusProperty playlists_properties[] = {
+	{ "PlaylistCount",  prop_get_playlist_count,  NULL },
+	{ "Orderings",      prop_get_orderings,       NULL },
+	{ "ActivePlaylist", prop_get_active_playlist, NULL },
+	{ NULL,             NULL,                     NULL }
+};
+
 /*
  * Dbus interfaces
  */
@@ -827,6 +1092,7 @@ static GvDbusInterface dbus_interfaces[] = {
 	{ DBUS_IFACE_ROOT,      root_methods,      root_properties      },
 	{ DBUS_IFACE_PLAYER,    player_methods,    player_properties    },
 	{ DBUS_IFACE_TRACKLIST, tracklist_methods, tracklist_properties },
+	{ DBUS_IFACE_PLAYLISTS, playlists_methods, playlists_properties },
 	{ NULL,                 NULL,              NULL                 }
 };
 
@@ -841,49 +1107,56 @@ on_player_notify(GvPlayer           *player,
 {
 	GvDbusServer *dbus_server = GV_DBUS_SERVER(self);
 	const gchar *property_name = g_param_spec_get_name(pspec);
-	const gchar *prop_name;
-	GVariant *value;
 
 	if (!g_strcmp0(property_name, "state")) {
-		GvPlayerState state;
+		GvPlayerState state = gv_player_get_state(player);
 
-		state = gv_player_get_state(player);
-
-		switch (state) {
-		case GV_PLAYER_STATE_PLAYING:
-		case GV_PLAYER_STATE_STOPPED:
-			prop_name = "PlaybackStatus";
-			value = g_variant_new_playback_status(player);
-			break;
-		default:
-			/* Ignore other states */
+		if (state != GV_PLAYER_STATE_PLAYING &&
+		    state != GV_PLAYER_STATE_STOPPED)
 			return;
-		}
+
+		gv_dbus_server_emit_signal_property_changed
+		(dbus_server, DBUS_IFACE_PLAYER, "PlaybackStatus",
+		 g_variant_new_playback_status(player));
+
 	} else if (!g_strcmp0(property_name, "repeat")) {
-		prop_name = "LoopStatus";
-		value = g_variant_new_loop_status(player);
+		gv_dbus_server_emit_signal_property_changed
+		(dbus_server, DBUS_IFACE_PLAYER, "LoopStatus",
+		 g_variant_new_loop_status(player));
+
 	} else if (!g_strcmp0(property_name, "shuffle")) {
-		prop_name = "Shuffle";
-		value = g_variant_new_shuffle(player);
+		gv_dbus_server_emit_signal_property_changed
+		(dbus_server, DBUS_IFACE_PLAYER, "Shuffle",
+		 g_variant_new_shuffle(player));
+
 	} else if (!g_strcmp0(property_name, "volume")) {
-		prop_name = "Volume";
-		value = g_variant_new_volume(player);
-	} else if (!g_strcmp0(property_name, "station") ||
-	           !g_strcmp0(property_name, "metadata")) {
-		GvStation *station;
-		GvMetadata *metadata;
+		gv_dbus_server_emit_signal_property_changed
+		(dbus_server, DBUS_IFACE_PLAYER, "Volume",
+		 g_variant_new_volume(player));
 
-		station = gv_player_get_station(player);
-		metadata = gv_player_get_metadata(player);
+	} else if (!g_strcmp0(property_name, "station")) {
+		GvStation *station = gv_player_get_station(player);
+		GvMetadata *metadata = gv_player_get_metadata(player);
 
-		prop_name = "Metadata";
-		value = g_variant_new_metadata(station, metadata);
-	} else {
-		return;
+		gv_dbus_server_emit_signal_property_changed
+		(dbus_server, DBUS_IFACE_PLAYER, "Metadata",
+		 g_variant_new_metadata_map(station, metadata));
+
+		/* This signal should be send only if the station's name
+		 * or the station's icon was changed.
+		 */
+		gv_dbus_server_emit_signal_property_changed
+		(dbus_server, DBUS_IFACE_PLAYLISTS, "PlaylistChanged",
+		 g_variant_new_playlist(station));
+
+	} else if (!g_strcmp0(property_name, "metadata")) {
+		GvStation *station = gv_player_get_station(player);
+		GvMetadata *metadata = gv_player_get_metadata(player);
+
+		gv_dbus_server_emit_signal_property_changed
+		(dbus_server, DBUS_IFACE_PLAYER, "Metadata",
+		 g_variant_new_metadata_map(station, metadata));
 	}
-
-	gv_dbus_server_emit_signal_property_changed
-	(dbus_server, DBUS_IFACE_PLAYER, prop_name, value);
 }
 
 static void
@@ -900,7 +1173,7 @@ on_station_list_station_added(GvStationList      *station_list,
 	after_track_id = make_track_id(after_station);
 
 	g_variant_builder_init(&b, G_VARIANT_TYPE("(a{sv}o)"));
-	g_variant_builder_add_value(&b, g_variant_new_metadata(station, NULL));
+	g_variant_builder_add_value(&b, g_variant_new_metadata_map(station, NULL));
 	g_variant_builder_add(&b, "o", after_track_id);
 
 	gv_dbus_server_emit_signal(dbus_server, DBUS_IFACE_TRACKLIST, "TrackAdded",
@@ -942,7 +1215,7 @@ on_station_list_station_modified(GvStationList      *station_list G_GNUC_UNUSED,
 
 	g_variant_builder_init(&b, G_VARIANT_TYPE("(oa{sv})"));
 	g_variant_builder_add(&b, "o", track_id);
-	g_variant_builder_add_value(&b, g_variant_new_metadata(station, NULL));
+	g_variant_builder_add_value(&b, g_variant_new_metadata_map(station, NULL));
 
 	gv_dbus_server_emit_signal(dbus_server, DBUS_IFACE_TRACKLIST, "TrackMetadataChanged",
 	                           g_variant_builder_end(&b));
