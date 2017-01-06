@@ -305,28 +305,19 @@ build_station_list(GvStationList *station_list, gboolean alphabetical,
 static GVariant *
 g_variant_new_playlist(GvStation *station)
 {
-	GVariantBuilder b;
 	gchar *playlist_id;
 
-	g_variant_builder_init(&b, G_VARIANT_TYPE("(b(oss))"));
-
-	if (station)
-		g_variant_builder_add(&b, "b", TRUE);
-	else
-		g_variant_builder_add(&b, "b", FALSE);
-
 	playlist_id = make_playlist_id(station);
-	g_variant_builder_add(&b, "o", playlist_id);
+
+	GVariant *tuples[] = {
+		g_variant_new_object_path(playlist_id),
+		g_variant_new_string(station ? gv_station_get_name_or_uri(station) : ""),
+		g_variant_new_string("")
+	};
+
 	g_free(playlist_id);
 
-	if (station) {
-		g_variant_builder_add(&b, "s", gv_station_get_name_or_uri(station));
-		g_variant_builder_add(&b, "s", NULL);
-	} else {
-		g_variant_builder_add(&b, "ss", NULL, NULL);
-	}
-
-	return g_variant_builder_end(&b);
+	return g_variant_new_tuple(tuples, 3);
 }
 
 static GVariant *
@@ -1068,7 +1059,12 @@ prop_get_active_playlist(GvDbusServer *dbus_server G_GNUC_UNUSED)
 	GvPlayer *player = gv_core_player;
 	GvStation *station = gv_player_get_station(player);
 
-	return g_variant_new_playlist(station);
+	GVariant *tuples[] = {
+		g_variant_new_boolean(station ? TRUE : FALSE),
+		g_variant_new_playlist(station)
+	};
+
+	return g_variant_new_tuple(tuples, 2);
 }
 
 static GvDbusProperty playlists_properties[] = {
