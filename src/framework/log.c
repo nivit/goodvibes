@@ -52,7 +52,7 @@ struct _log_strings {
 	const gchar *dfl;
 	/* Colors codes */
 	const gchar *reset;
-	const gchar *grey;
+	const gchar *dim;
 };
 
 typedef struct _log_strings LogStrings;
@@ -69,7 +69,7 @@ static LogStrings log_strings_colorless = {
 	.dfl      = "LOG ",
 	/* Colors codes */
 	.reset    = "",
-	.grey     = ""
+	.dim      = ""
 };
 
 static LogStrings log_strings_colorful = {
@@ -79,12 +79,12 @@ static LogStrings log_strings_colorful = {
 	.warning  = VT_YELLOW("WARN"),
 	.message  = VT_GREEN ("MSG "),
 	.info     = VT_GREEN ("INFO"),
-	.debug    = VT_GREY  ("DBG "),
-	.trace    = VT_GREY  (" -> "),
+	.debug    = VT_DIM   ("DBG "),
+	.trace    = VT_DIM   (" -> "),
 	.dfl      =           "LOG ",
 	/* Color codes */
 	.reset    = VT_CODE_ESC VT_CODE_RESET,
-	.grey     = VT_CODE_ESC VT_CODE_GREY
+	.dim      = VT_CODE_ESC VT_CODE_DIM
 };
 
 /* Global variables that control the behavior of logs */
@@ -203,7 +203,7 @@ log_default_handler(const gchar   *domain,
 	fputs(prefix, log_stream);
 	fputs(" ", log_stream);
 
-	fputs(VT_CODE_ESC VT_CODE_GREY, log_stream);
+	fputs(VT_CODE_ESC VT_CODE_DIM, log_stream);
 	fputs(now_str, log_stream);
 	fputs(VT_CODE_ESC VT_CODE_RESET, log_stream);
 	fputs(" ", log_stream);
@@ -255,7 +255,7 @@ log_trace_property_access(const gchar *file, const gchar *func, GObject *object,
 	}
 
 	g_log(G_LOG_DOMAIN, LOG_LEVEL_TRACE, "%s%s: %s%s(%p, %d, %s, '%s')",
-	      log_strings->grey, file, func, log_strings->reset,
+	      log_strings->dim, file, func, log_strings->reset,
 	      object, property_id, value_string, pspec->name);
 
 	g_free(value_string);
@@ -271,7 +271,7 @@ log_trace(const gchar *file, const gchar *func, const gchar *fmt, ...)
 		return;
 
 	snprintf(fmt2, sizeof fmt2, "%s%s: %s()%s: (%s)",
-	         log_strings->grey, file, func, log_strings->reset, fmt);
+	         log_strings->dim, file, func, log_strings->reset, fmt);
 
 	va_start(ap, fmt);
 	g_logv(G_LOG_DOMAIN, LOG_LEVEL_TRACE, fmt2, ap);
@@ -288,7 +288,7 @@ log_msg(GLogLevelFlags level, const gchar *file, const gchar *func, const gchar 
 		return;
 
 	snprintf(fmt2, sizeof fmt2, "%s%s: %s()%s: %s",
-	         log_strings->grey, file, func, log_strings->reset, fmt);
+	         log_strings->dim, file, func, log_strings->reset, fmt);
 
 	va_start(ap, fmt);
 	g_logv(G_LOG_DOMAIN, level, fmt2, ap);
