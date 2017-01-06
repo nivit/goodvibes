@@ -302,6 +302,10 @@ build_station_list(GvStationList *station_list, gboolean alphabetical,
 	return list;
 }
 
+/*
+ * GVariant helpers for MPRIS2 types
+ */
+
 static GVariant *
 g_variant_new_playlist(GvStation *station)
 {
@@ -321,7 +325,18 @@ g_variant_new_playlist(GvStation *station)
 }
 
 static GVariant *
-g_variant_new_metadata(GvStation *station, GvMetadata *metadata)
+g_variant_new_maybe_playlist(GvStation *station)
+{
+	GVariant *tuples[] = {
+		g_variant_new_boolean(station ? TRUE : FALSE),
+		g_variant_new_playlist(station)
+	};
+
+	return g_variant_new_tuple(tuples, 2);
+}
+
+static GVariant *
+g_variant_new_metadata_map(GvStation *station, GvMetadata *metadata)
 {
 	GVariantBuilder b;
 	gchar *track_id;
@@ -589,7 +604,7 @@ method_get_tracks_metadata(GvDbusServer  *dbus_server G_GNUC_UNUSED,
 			/* Ignore silently */
 			continue;
 
-		g_variant_builder_add_value(&b, g_variant_new_metadata(station, NULL));
+		g_variant_builder_add_value(&b, g_variant_new_metadata_map(station, NULL));
 	}
 
 	return g_variant_builder_end(&b);
@@ -952,7 +967,7 @@ prop_get_metadata(GvDbusServer *dbus_server G_GNUC_UNUSED)
 	station = gv_player_get_station(player);
 	metadata = gv_player_get_metadata(player);
 
-	return g_variant_new_metadata(station, metadata);
+	return g_variant_new_metadata_map(station, metadata);
 }
 
 static GVariant *
@@ -1059,12 +1074,7 @@ prop_get_active_playlist(GvDbusServer *dbus_server G_GNUC_UNUSED)
 	GvPlayer *player = gv_core_player;
 	GvStation *station = gv_player_get_station(player);
 
-	GVariant *tuples[] = {
-		g_variant_new_boolean(station ? TRUE : FALSE),
-		g_variant_new_playlist(station)
-	};
-
-	return g_variant_new_tuple(tuples, 2);
+	return g_variant_new_maybe_playlist(station);
 }
 
 static GvDbusProperty playlists_properties[] = {
@@ -1130,7 +1140,7 @@ on_player_notify(GvPlayer           *player,
 
 		gv_dbus_server_emit_signal_property_changed
 		(dbus_server, DBUS_IFACE_PLAYER, "Metadata",
-		 g_variant_new_metadata(station, metadata));
+		 g_variant_new_metadata_map(station, metadata));
 
 		/* This signal should be send only if the station's name
 		 * or the station's icon was changed.
@@ -1145,7 +1155,7 @@ on_player_notify(GvPlayer           *player,
 
 		gv_dbus_server_emit_signal_property_changed
 		(dbus_server, DBUS_IFACE_PLAYER, "Metadata",
-		 g_variant_new_metadata(station, metadata));
+		 g_variant_new_metadata_map(station, metadata));
 	}
 }
 
@@ -1163,7 +1173,7 @@ on_station_list_station_added(GvStationList      *station_list,
 	after_track_id = make_track_id(after_station);
 
 	g_variant_builder_init(&b, G_VARIANT_TYPE("(a{sv}o)"));
-	g_variant_builder_add_value(&b, g_variant_new_metadata(station, NULL));
+	g_variant_builder_add_value(&b, g_variant_new_metadata_map(station, NULL));
 	g_variant_builder_add(&b, "o", after_track_id);
 
 	gv_dbus_server_emit_signal(dbus_server, DBUS_IFACE_TRACKLIST, "TrackAdded",
@@ -1205,7 +1215,7 @@ on_station_list_station_modified(GvStationList      *station_list G_GNUC_UNUSED,
 
 	g_variant_builder_init(&b, G_VARIANT_TYPE("(oa{sv})"));
 	g_variant_builder_add(&b, "o", track_id);
-	g_variant_builder_add_value(&b, g_variant_new_metadata(station, NULL));
+	g_variant_builder_add_value(&b, g_variant_new_metadata_map(station, NULL));
 
 	gv_dbus_server_emit_signal(dbus_server, DBUS_IFACE_TRACKLIST, "TrackMetadataChanged",
 	                           g_variant_builder_end(&b));
