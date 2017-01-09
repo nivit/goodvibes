@@ -21,6 +21,7 @@
 #define __GOODVIBES_UI_GV_TRAY_H__
 
 #include <glib-object.h>
+#include <gtk/gtk.h>
 
 /* GObject declarations */
 
@@ -44,15 +45,15 @@ typedef enum {
 
 /* Methods */
 
-GvTray *gv_tray_new(void);
+GvTray *gv_tray_new(GtkWindow *main_window);
 
 /* Property accessors */
 
 GvTrayMiddleClickAction gv_tray_get_middle_click_action(GvTray *self);
-void                     gv_tray_set_middle_click_action(GvTray *self,
-                                                         GvTrayMiddleClickAction action);
+void                    gv_tray_set_middle_click_action(GvTray *self,
+                                                        GvTrayMiddleClickAction action);
 GvTrayScrollAction      gv_tray_get_scroll_action      (GvTray *self);
-void                     gv_tray_set_scroll_action      (GvTray *self,
-                                                         GvTrayScrollAction action);
+void                    gv_tray_set_scroll_action      (GvTray *self,
+                                                        GvTrayScrollAction action);
 
 #endif /* __GOODVIBES_UI_GV_TRAY_H__ */

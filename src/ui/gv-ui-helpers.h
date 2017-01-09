@@ -17,16 +17,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GOODVIBES_UI_GLOBAL_H__
-#define __GOODVIBES_UI_GLOBAL_H__
+#ifndef __GOODVIBES_UI_GV_UI_HELPERS_H__
+#define __GOODVIBES_UI_GV_UI_HELPERS_H__
 
 #include <gtk/gtk.h>
 
-#include "ui/gv-tray.h"
-#include "ui/gv-main-window.h"
+/*
+ * Gtk builder helpers
+ */
+
+void gv_builder_load(const char *filename, GtkBuilder **builder, gchar **uifile);
 
 /*
- * Visual layout, according to
+ * Visual layout, according to:
  * https://developer.gnome.org/hig/stable/visual-layout.html
  */
 
@@ -35,11 +38,4 @@
 #define GV_UI_ELEM_SPACING  6
 #define GV_UI_LABEL_SPACING 12
 
-/*
- * Global variables
- */
-
-extern GvTray   *gv_ui_tray;
-extern GtkWidget *gv_ui_main_window;
-
-#endif /* __GOODVIBES_UI_GLOBAL_H__ */
+#endif /* __GOODVIBES_UI_GV_UI_HELPERS_H__ */

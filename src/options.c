@@ -53,6 +53,10 @@ static GOptionEntry entries[] = {
 		"without-ui", 0, 0, G_OPTION_ARG_NONE, &options.without_ui,
 		"Disable graphical user interface", NULL
 	},
+	{
+		"status-icon", 0, 0, G_OPTION_ARG_NONE, &options.status_icon,
+		"Launch as a status icon (deprecated on modern desktops)", NULL
+	},
 #endif
 	{
 		"version", 'v', 0, G_OPTION_ARG_NONE, &options.print_version,

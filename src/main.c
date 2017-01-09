@@ -191,9 +191,7 @@ main(int argc, char *argv[])
 	g_unix_signal_add(SIGINT, sigint_handler, app);
 
 	/* Run */
-	DEBUG(">>>> Running the application <<<<");
 	ret = g_application_run(app, argc, argv);
-	DEBUG(">>>> Application terminated <<<<");
 
 	/* Cleanup */
 	log_cleanup();

@@ -10,6 +10,9 @@
 #include "core/gv-core.h"
 #include "ui/gv-ui.h"
 
+#include "ui/gv-ui-helpers.h"
+
+
 #include "gv-graphical-application.h"
 #include "options.h"
 
@@ -87,10 +90,6 @@ stringify_list(const gchar *prefix, GList *list)
 }
 
 /*
- * Signal handlers & callbacks
- */
-
-/*
  * Property accessors
  */
 
@@ -150,12 +149,58 @@ gv_graphical_application_new(void)
 }
 
 /*
+ * GApplication actions
+ */
+
+static void
+preferences_action_cb(GSimpleAction *action G_GNUC_UNUSED,
+                      GVariant      *parameters G_GNUC_UNUSED,
+                      gpointer       user_data G_GNUC_UNUSED)
+{
+	gv_ui_present_preferences();
+}
+
+static void
+help_action_cb(GSimpleAction *action G_GNUC_UNUSED,
+               GVariant      *parameters G_GNUC_UNUSED,
+               gpointer       user_data G_GNUC_UNUSED)
+{
+	g_app_info_launch_default_for_uri(PACKAGE_WEBSITE, NULL, NULL);
+}
+
+static void
+about_action_cb(GSimpleAction *action G_GNUC_UNUSED,
+                GVariant      *parameters G_GNUC_UNUSED,
+                gpointer       user_data G_GNUC_UNUSED)
+{
+	gv_ui_present_about();
+}
+
+static void
+quit_action_cb(GSimpleAction *action G_GNUC_UNUSED,
+               GVariant      *parameters G_GNUC_UNUSED,
+               gpointer       user_data G_GNUC_UNUSED)
+{
+	gv_ui_quit();
+}
+
+static const GActionEntry gv_graphical_application_actions[] = {
+	{ "preferences", preferences_action_cb, NULL, NULL, NULL, {0} },
+	{ "help",        help_action_cb,        NULL, NULL, NULL, {0} },
+	{ "about",       about_action_cb,       NULL, NULL, NULL, {0} },
+	{ "quit",        quit_action_cb,        NULL, NULL, NULL, {0} },
+	{ NULL,          NULL,                  NULL, NULL, NULL, {0} }
+};
+
+/*
  * GApplication methods
  */
 
 static void
 gv_graphical_application_shutdown(GApplication *app)
 {
+	DEBUG(">>>> Shutting down application <<<<");
+
 	/* Cool down */
 	DEBUG("---- Cooling down ui ----");
 	gv_ui_cool_down();
@@ -180,10 +225,55 @@ gv_graphical_application_shutdown(GApplication *app)
 static void
 gv_graphical_application_startup(GApplication *app)
 {
+	gboolean prefers_app_menu;
+
+	DEBUG(">>>> Starting application <<<<");
+
 	/* Mandatory chain-up, see:
 	 * https://developer.gnome.org/gtk3/stable/GtkApplication.html#gtk-application-new
 	 */
 	G_APPLICATION_CLASS(gv_graphical_application_parent_class)->startup(app);
+
+	/* Add actions to the application */
+	g_action_map_add_action_entries(G_ACTION_MAP(app),
+	                                gv_graphical_application_actions,
+	                                -1,
+	                                NULL);
+
+	/* Check how the application prefers to display it's main menu */
+	prefers_app_menu = gtk_application_prefers_app_menu(GTK_APPLICATION(app));
+	DEBUG("Application prefers... %s", prefers_app_menu ? "app-menu" : "menubar");
+
+	/* Gnome-based desktop environments prefer an application menu.
+	 * Legacy mode also needs this app menu, although it won't be displayed,
+	 * but instead it will be brought up with a right-click.
+	 */
+	if (prefers_app_menu || options.status_icon == TRUE) {
+		GtkBuilder *builder;
+		GMenuModel *model;
+		gchar *uifile;
+
+		gv_builder_load("ui/app-menu.glade", &builder, &uifile);
+		model = G_MENU_MODEL(gtk_builder_get_object(builder, "app-menu"));
+		gtk_application_set_app_menu(GTK_APPLICATION(app), model);
+		DEBUG("App menu set from ui file '%s'", uifile);
+		g_free(uifile);
+		g_object_unref(builder);
+	}
+
+	/* Unity-based and traditional desktop environments prefer a menu bar */
+	if (!prefers_app_menu && options.status_icon == FALSE) {
+		GtkBuilder *builder;
+		GMenuModel *model;
+		gchar *uifile;
+
+		gv_builder_load("ui/menubar.glade", &builder, &uifile);
+		model = G_MENU_MODEL(gtk_builder_get_object(builder, "menubar"));
+		gtk_application_set_menubar(GTK_APPLICATION(app), model);
+		DEBUG("Menubar set from ui file '%s'", uifile);
+		g_free(uifile);
+		g_object_unref(builder);
+	}
 
 	/* Initialization */
 	DEBUG("---- Initializing framework ----");
@@ -193,7 +283,7 @@ gv_graphical_application_startup(GApplication *app)
 	gv_core_init();
 
 	DEBUG("---- Initializing ui ----");
-	gv_ui_init();
+	gv_ui_init(app, options.status_icon);
 
 	/* Debug messages */
 	DEBUG("---- Peeping into lists ----");
@@ -207,19 +297,6 @@ gv_graphical_application_startup(GApplication *app)
 
 	DEBUG("---- Warming up ui ----");
 	gv_ui_warm_up();
-
-#if 0
-	GActionEntry app_actions[] = {
-		{ "preferences", preferences_action_cb },
-		{ "about", about_action_cb },
-		{ "quit", quit_action_cb },
-	};
-
-	g_action_map_add_action_entries(G_ACTION_MAP(application),
-	                                app_actions,
-	                                G_N_ELEMENTS(app_actions),
-	                                application);
-#endif
 
 	/* Hold application */
 	// TODO: move that somewhere else

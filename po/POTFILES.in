@@ -2,7 +2,9 @@
 data/desktop/goodvibes.desktop.in
 
 # Glade ui files
+data/ui/app-menu.glade
 data/ui/main-window.glade
+data/ui/menubar.glade
 data/ui/prefs-window.glade
 data/ui/station-dialog.glade
 

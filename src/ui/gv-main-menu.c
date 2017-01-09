@@ -28,8 +28,6 @@
 #include "framework/gv-framework.h"
 
 #include "ui/global.h"
-#include "ui/gv-about-dialog.h"
-#include "ui/gv-prefs-window.h"
 #include "ui/gv-main-menu.h"
 
 #define PREFS_LABEL _("Preferences")
@@ -45,8 +43,6 @@ struct _GvMainMenuPrivate {
 	GtkWidget *prefs_menu_item;
 	GtkWidget *about_menu_item;
 	GtkWidget *quit_menu_item;
-	/* Currently opened preferences window */
-	GtkWidget *prefs_window;
 };
 
 typedef struct _GvMainMenuPrivate GvMainMenuPrivate;
@@ -61,19 +57,6 @@ struct _GvMainMenu {
 G_DEFINE_TYPE_WITH_PRIVATE(GvMainMenu, gv_main_menu, GTK_TYPE_MENU)
 
 /*
- * Signal handlers
- */
-
-static void
-on_prefs_window_destroy(GtkWidget *window, GvMainMenu *self)
-{
-	GvMainMenuPrivate *priv = self->priv;
-
-	g_assert(window == priv->prefs_window);
-	priv->prefs_window = NULL;
-}
-
-/*
  * Gtk signal handlers
  */
 
@@ -84,23 +67,13 @@ on_menu_item_activate(GtkMenuItem *item, GvMainMenu *self)
 	GtkWidget *widget = GTK_WIDGET(item);
 
 	if (widget == priv->prefs_menu_item) {
-		GtkWidget *window;
-
-		window = priv->prefs_window;
-		if (window == NULL) {
-			window = gv_prefs_window_new();
-			g_signal_connect(window, "destroy",
-			                 G_CALLBACK(on_prefs_window_destroy), self);
-			priv->prefs_window = window;
-		}
-
-		gtk_window_present(GTK_WINDOW(window));
+		gv_ui_private_present_preferences();
 
 	} else if (widget == priv->about_menu_item) {
-		gv_show_about_dialog(GTK_WINDOW(gv_ui_main_window));
+		gv_ui_private_present_about();
 
 	} else if (widget == priv->quit_menu_item) {
-		gv_framework_quit_loop();
+		gv_ui_private_quit();
 
 	} else {
 		CRITICAL("Unhandled menu item %p", item);
@@ -163,21 +136,7 @@ gv_main_menu_new(void)
 static void
 gv_main_menu_finalize(GObject *object)
 {
-	GvMainMenu *self = GV_MAIN_MENU(object);
-	GvMainMenuPrivate *priv = self->priv;
-
 	TRACE("%p", object);
-
-	/* Free resources */
-	if (priv->prefs_window) {
-		/* gtk_window_close() seems to be async, and using it here has no effect.
-		 * So we use gtk_widget_destroy() instead, which is the right thing to do
-		 * according to the documentation:
-		 *
-		 * https://developer.gnome.org/gtk3/stable/GtkWindow.html#gtk-window-new
-		 */
-		gtk_widget_destroy(GTK_WIDGET(priv->prefs_window));
-	}
 
 	/* Chain up */
 	G_OBJECT_CHAINUP_FINALIZE(gv_main_menu, object);

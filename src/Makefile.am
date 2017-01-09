@@ -187,10 +187,7 @@ endif
 
 if UI_ENABLED
 gv_ui_sources =								\
-					ui/global.h			\
 	ui/gv-about-dialog.c		ui/gv-about-dialog.h		\
-	ui/gv-builder-helpers.c		ui/gv-builder-helpers.h		\
-	ui/gv-main-menu.c		ui/gv-main-menu.h		\
 	ui/gv-main-window.c		ui/gv-main-window.h		\
 	ui/gv-prefs-window.c		ui/gv-prefs-window.h		\
 	ui/gv-station-context-menu.c	ui/gv-station-context-menu.h	\
@@ -198,7 +195,8 @@ gv_ui_sources =								\
 	ui/gv-stations-tree-view.c	ui/gv-stations-tree-view.h	\
 	ui/gv-stock-icons.c		ui/gv-stock-icons.h		\
 	ui/gv-tray.c			ui/gv-tray.h			\
-	ui/gv-ui.c			ui/gv-ui.h
+	ui/gv-ui.c			ui/gv-ui.h			\
+	ui/gv-ui-helpers.c		ui/gv-ui-helpers.h
 
 # Enum Types
 

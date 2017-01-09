@@ -29,8 +29,8 @@
 
 #include "core/gv-core.h"
 
-#include "ui/gv-builder-helpers.h"
-#include "ui/global.h"
+#include "ui/gv-ui.h"
+#include "ui/gv-ui-helpers.h"
 #include "ui/gv-ui-enum-types.h"
 #include "ui/gv-tray.h"
 #include "ui/gv-prefs-window.h"

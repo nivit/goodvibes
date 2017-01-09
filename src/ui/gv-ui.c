@@ -24,6 +24,8 @@
 #include "framework/gv-framework.h"
 
 #include "ui/gv-main-window.h"
+#include "ui/gv-about-dialog.h"
+#include "ui/gv-prefs-window.h"
 #include "ui/gv-stock-icons.h"
 #include "ui/gv-tray.h"
 
@@ -34,10 +36,53 @@
 #include "ui/feat/gv-notifications.h"
 #endif
 
-GvTray   *gv_ui_tray;
+GvTray    *gv_ui_tray;
 GtkWidget *gv_ui_main_window;
+GtkWidget *gv_ui_prefs_window;
 
 static GvFeature *features[8];
+
+void
+gv_ui_quit(void)
+{
+	GtkWindow *main_window = GTK_WINDOW(gv_ui_main_window);
+	GtkApplication *app = gtk_window_get_application(main_window);
+
+	// TODO: should we idle add ?
+
+	g_application_quit(G_APPLICATION(app));
+}
+
+void
+gv_ui_present_about(void)
+{
+	gv_show_about_dialog(GTK_WINDOW(gv_ui_main_window));
+}
+
+// TODO: should we use weak ref ?
+static void
+on_prefs_window_destroy(GtkWidget *window, gpointer user_data G_GNUC_UNUSED)
+{
+	g_assert(window == gv_ui_prefs_window);
+	gv_ui_prefs_window = NULL;
+}
+
+void
+gv_ui_present_preferences(void)
+{
+	GtkWidget *window;
+
+	window = gv_ui_prefs_window;
+
+	if (window == NULL) {
+		window = gv_prefs_window_new();
+		g_signal_connect(window, "destroy",
+		                 G_CALLBACK(on_prefs_window_destroy), NULL);
+		gv_ui_prefs_window = window;
+	}
+
+	gtk_window_present(GTK_WINDOW(window));
+}
 
 void
 gv_ui_cool_down(void)
@@ -70,11 +115,23 @@ gv_ui_cleanup(void)
 
 	/* Ui objects */
 
-	GtkWidget      *main_window   = gv_ui_main_window;
-	GvTray         *tray          = gv_ui_tray;
+	/* Windows must be destroyed with gtk_widget_destroy().
+	 * Forget about gtk_window_close() here, which seems to be asynchronous.
+	 * Read the doc:
+	 * https://developer.gnome.org/gtk3/stable/GtkWindow.html#gtk-window-new
+	 */
 
-	gv_framework_configurables_remove(tray);
-	g_object_unref(tray);
+	GtkWidget *prefs_window = gv_ui_prefs_window;
+	GtkWidget *main_window  = gv_ui_main_window;
+	GvTray    *tray         = gv_ui_tray;
+
+	if (tray) {
+		gv_framework_configurables_remove(tray);
+		g_object_unref(tray);
+	}
+
+	if (prefs_window)
+		gtk_widget_destroy(main_window);
 
 	gv_framework_configurables_remove(main_window);
 	gtk_widget_destroy(main_window);
@@ -85,7 +142,7 @@ gv_ui_cleanup(void)
 }
 
 void
-gv_ui_init(void)
+gv_ui_init(GApplication *app, gboolean status_icon_mode)
 {
 	/* Stock icons */
 	gv_stock_icons_init();
@@ -96,16 +153,29 @@ gv_ui_init(void)
 	 * Ui objects                                      *
 	 * ----------------------------------------------- */
 
-	GtkWidget       *main_window;
-	GvTray         *tray;
+	GtkWidget *main_window;
+	GvTray    *tray;
 
-	main_window = gv_main_window_new();
+	main_window = gv_main_window_new(app);
 	gv_framework_configurables_append(main_window);
 
-	tray = gv_tray_new();
-	gv_framework_configurables_append(tray);
+	if (status_icon_mode) {
+		/* Configure window for popup mode */
+		gv_main_window_configure_for_popup(GV_MAIN_WINDOW(main_window));
 
+		/* Create a tray icon, and we're done */
+		tray = gv_tray_new(GTK_WINDOW(main_window));
+		gv_framework_configurables_append(tray);
+	} else {
+		/* Configure window for standalone mode */
+		gv_main_window_configure_for_standalone(GV_MAIN_WINDOW(main_window));
 
+		/* Present the window immediately */
+		gtk_window_present(GTK_WINDOW(main_window));
+
+		/* No tray icon */
+		tray = NULL;
+	}
 
 	/* ----------------------------------------------- *
 	 * Features                                        *

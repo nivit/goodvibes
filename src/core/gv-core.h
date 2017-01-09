@@ -31,6 +31,8 @@ extern GvConf        *gv_core_conf;
 extern GvPlayer      *gv_core_player;
 extern GvStationList *gv_core_station_list;
 
+/* Functions */
+
 void gv_core_init      (void);
 void gv_core_cleanup   (void);
 void gv_core_warm_up   (const gchar *uri_to_play);

@@ -1,5 +1,7 @@
 ui_files = 			\
+	app-menu.glade		\
 	main-window.glade	\
+	menubar.glade		\
 	prefs-window.glade	\
 	station-dialog.glade
 

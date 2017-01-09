@@ -32,9 +32,8 @@
 
 #include "core/gv-core.h"
 
-#include "ui/global.h"
+#include "ui/gv-ui-helpers.h"
 #include "ui/gv-ui-enum-types.h"
-#include "ui/gv-main-menu.h"
 #include "ui/gv-main-window.h"
 #include "ui/gv-tray.h"
 
@@ -51,6 +50,7 @@ enum {
 	/* Reserved */
 	PROP_0,
 	/* Properties */
+	PROP_MAIN_WINDOW,
 	PROP_MIDDLE_CLICK_ACTION,
 	PROP_SCROLL_ACTION,
 	/* Number of properties */
@@ -65,10 +65,11 @@ static GParamSpec *properties[PROP_N];
 
 struct _GvTrayPrivate {
 	/* Properties */
-	GvTrayMiddleClickAction middle_click_action;
-	GvTrayScrollAction      scroll_action;
+	GtkWindow               *main_window;
+	GvTrayMiddleClickAction  middle_click_action;
+	GvTrayScrollAction       scroll_action;
 	/* Right-click menu */
-	GtkWidget        *main_menu;
+	GtkWidget        *popup_menu;
 	/* Status icon */
 	GtkStatusIcon    *status_icon;
 	guint             status_icon_size;
@@ -195,7 +196,8 @@ static void
 on_activate(GtkStatusIcon *status_icon G_GNUC_UNUSED,
             GvTray       *self G_GNUC_UNUSED)
 {
-	GtkWindow *window = GTK_WINDOW(gv_ui_main_window);
+	GvTrayPrivate *priv = self->priv;
+	GtkWindow *window = priv->main_window;
 
 	if (gtk_window_is_active(window))
 		gtk_window_close(window);
@@ -210,15 +212,7 @@ on_popup_menu(GtkStatusIcon *status_icon,
               GvTray       *self)
 {
 	GvTrayPrivate *priv = self->priv;
-	GtkMenu *menu;
-
-	/* First time, we need to create the menu */
-	if (priv->main_menu == NULL) {
-		priv->main_menu = gv_main_menu_new();
-		g_object_ref_sink(priv->main_menu);
-	}
-
-	menu = GTK_MENU(priv->main_menu);
+	GtkMenu *menu = GTK_MENU(priv->popup_menu);
 
 #if GTK_CHECK_VERSION(3,22,0)
 	(void) status_icon;
@@ -344,6 +338,16 @@ on_player_notify(GvPlayer  *player,
  * Property accessors
  */
 
+static void
+gv_tray_set_main_window(GvTray *self, GtkWindow *main_window)
+{
+	GvTrayPrivate *priv = self->priv;
+
+	/* Construct-only property */
+	g_assert(priv->main_window == NULL);
+	priv->main_window = g_object_ref(main_window);
+}
+
 GvTrayMiddleClickAction
 gv_tray_get_middle_click_action(GvTray *self)
 {
@@ -414,6 +418,9 @@ gv_tray_set_property(GObject      *object,
 	TRACE_SET_PROPERTY(object, property_id, value, pspec);
 
 	switch (property_id) {
+	case PROP_MAIN_WINDOW:
+		gv_tray_set_main_window(self, g_value_get_object(value));
+		break;
 	case PROP_MIDDLE_CLICK_ACTION:
 		gv_tray_set_middle_click_action(self, g_value_get_enum(value));
 		break;
@@ -431,9 +438,11 @@ gv_tray_set_property(GObject      *object,
  */
 
 GvTray *
-gv_tray_new(void)
+gv_tray_new(GtkWindow *main_window)
 {
-	return g_object_new(GV_TYPE_TRAY, NULL);
+	return g_object_new(GV_TYPE_TRAY,
+	                    "main-window", main_window,
+	                    NULL);
 }
 
 /*
@@ -493,18 +502,38 @@ gv_tray_finalize(GObject *object)
 
 	TRACE("%p", object);
 
-	/* Destroy menu */
-	if (priv->main_menu)
-		g_object_unref(priv->main_menu);
-
 	/* Disconnect signal handlers */
 	g_signal_handlers_disconnect_by_data(player, self);
+
+	/* Release main window */
+	g_object_unref(priv->main_window);
+
+	/* Destroy popup menu */
+	g_object_unref(priv->popup_menu);
 
 	/* Unref the status icon */
 	g_object_unref(priv->status_icon);
 
 	/* Chain up */
 	G_OBJECT_CHAINUP_FINALIZE(gv_tray, object);
+}
+
+static GtkWidget *
+popup_menu_build(GtkWindow *window)
+{
+	GtkApplication *app;
+	GMenuModel *menu_model;
+
+	/* Popup menu is created from the app menu of the application */
+	app = gtk_window_get_application(window);
+	if (app == NULL)
+		return NULL;
+
+	menu_model = gtk_application_get_app_menu(app);
+	if (menu_model == NULL)
+		return NULL;
+
+	return gtk_menu_new_from_model(menu_model);
 }
 
 static void
@@ -514,9 +543,20 @@ gv_tray_constructed(GObject *object)
 	GvTrayPrivate *priv = self->priv;
 	GvPlayer *player = gv_core_player;
 	GtkStatusIcon *status_icon;
+	GtkWidget *menu;
+
+	/* Ensure construct-only properties have been set */
+	g_assert(priv->main_window != NULL);
 
 	/* Create the tray icon */
 	status_icon = gtk_status_icon_new();
+
+	/* Create the popup menu */
+	menu = popup_menu_build(priv->main_window);
+	g_assert(menu != NULL);
+
+	/* Attach the popup menu to the main window */
+	gtk_menu_attach_to_widget(GTK_MENU(menu), GTK_WIDGET(priv->main_window), NULL);
 
 	/* Connect signal handlers */
 	g_signal_connect(status_icon, "activate",             /* Left click */
@@ -531,6 +571,7 @@ gv_tray_constructed(GObject *object)
 	                 G_CALLBACK(on_size_changed), self);
 
 	/* Save to private data */
+	priv->popup_menu = g_object_ref_sink(menu);
 	priv->status_icon = status_icon;
 	priv->status_icon_size = ICON_MIN_SIZE;
 
@@ -564,6 +605,12 @@ gv_tray_class_init(GvTrayClass *class)
 	/* Properties */
 	object_class->get_property = gv_tray_get_property;
 	object_class->set_property = gv_tray_set_property;
+
+	properties[PROP_MAIN_WINDOW] =
+	        g_param_spec_object("main-window", "Main Window", NULL,
+	                            GTK_TYPE_WINDOW,
+	                            GV_PARAM_DEFAULT_FLAGS | G_PARAM_READWRITE |
+	                            G_PARAM_CONSTRUCT_ONLY);
 
 	properties[PROP_MIDDLE_CLICK_ACTION] =
 	        g_param_spec_enum("middle-click-action", "Middle Click Action", NULL,
