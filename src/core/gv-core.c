@@ -209,12 +209,6 @@ gv_core_init(void)
 	gv_core_player = player;
 }
 
-void
-gv_core_early_init(int *argc G_GNUC_UNUSED, char **argv[] G_GNUC_UNUSED)
-{
-	/* Actually there's nothing to do here */
-}
-
 /*
  * Underlying audio backend
  */

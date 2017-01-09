@@ -141,21 +141,6 @@ gv_ui_init(void)
 	gv_ui_main_window = main_window;
 }
 
-void
-gv_ui_early_init(int *argc, char **argv[])
-{
-	/* According to the doc, there should be no need for gtk_init() if we
-	 * use gtk_get_option_group() along with g_option_context_parse().
-	 * However experienced proved it wrong:
-	 *
-	 *     https://bugzilla.gnome.org/show_bug.cgi?id=776807
-	 *
-	 * So, let's play safe and initialize gtk early right now.
-	 */
-
-	gtk_init(argc, argv);
-}
-
 /*
  * Underlying toolkit
  */
@@ -166,6 +151,8 @@ gv_ui_toolkit_init_get_option_group(void)
 	/* Very not sure about the argument to pass here. From my experience:
 	 * - if we don't use gtk_init(), we should pass TRUE.
 	 * - if we use gtk_init(), passing FALSE is ok.
+	 * Since we use GtkApplication which calls gtk_init() internally,
+	 * let's pass FALSE and pray that it works.
 	 */
 
 	return gtk_get_option_group(FALSE);

@@ -42,7 +42,7 @@ static GOptionEntry entries[] = {
 	},
 	{
 		"log-level", 'l', 0, G_OPTION_ARG_STRING, &options.log_level,
-		"Log level (default is 'message')", "level"
+		"Log levels: trace/debug/info/warning/critical/error", "warning"
 	},
 	{
 		"output-file", 'o', 0, G_OPTION_ARG_STRING, &options.output_file,
@@ -61,9 +61,6 @@ static GOptionEntry entries[] = {
 	{ .long_name = NULL }
 };
 
-static gchar *description = "Log levels, from the most chatty to the most quiet:\n"
-                            "trace/debug/info/warning/critical/error";
-
 static void
 print_help(GOptionContext *context)
 {
@@ -72,8 +69,6 @@ print_help(GOptionContext *context)
 	help = g_option_context_get_help(context, TRUE, NULL);
 	g_print("%s", help);
 	g_free(help);
-
-	exit(EXIT_FAILURE);
 }
 
 void
@@ -95,13 +90,11 @@ options_parse(int *argc, char **argv[])
 	g_option_context_add_group(context, gv_ui_toolkit_init_get_option_group());
 #endif
 
-	/* Add description */
-	g_option_context_set_description(context, description);
-
 	/* Parse the command-line arguments */
 	if (!g_option_context_parse(context, argc, argv, &error)) {
 		g_print("Failed to parse options: %s\n", error->message);
 		g_error_free(error);
+		g_option_context_free(context);
 		exit(EXIT_FAILURE);
 	}
 
@@ -115,6 +108,7 @@ options_parse(int *argc, char **argv[])
 		break;
 	default:
 		print_help(context);
+		g_option_context_free(context);
 		exit(EXIT_FAILURE);
 		break;
 	}

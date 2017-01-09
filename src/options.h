@@ -27,7 +27,9 @@ struct options {
 	const gchar *log_level;
 	const gchar *output_file;
 	gboolean     print_version;
+#ifdef UI_ENABLED
 	gboolean     without_ui;
+#endif
 	/* Arguments */
 	const gchar *uri_to_play;
 };

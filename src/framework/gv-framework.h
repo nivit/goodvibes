@@ -32,8 +32,6 @@
 
 void gv_framework_init     (void);
 void gv_framework_cleanup  (void);
-void gv_framework_quit_loop(void);
-void gv_framework_run_loop (void);
 
 /*
  * List accessors
