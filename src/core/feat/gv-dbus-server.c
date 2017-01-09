@@ -73,7 +73,7 @@ typedef struct _GvDbusServerPrivate GvDbusServerPrivate;
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(GvDbusServer, gv_dbus_server, GV_TYPE_FEATURE)
 
 /*
- * Helpers
+ * Debug helpers
  */
 
 #ifdef DEBUG_INTERFACES
@@ -393,33 +393,26 @@ GDBusInterfaceVTable interface_vtable = {
 };
 
 /*
- * GDBus signal handlers
+ * Private methods
  */
 
 static void
-on_bus_acquired(GDBusConnection *connection,
-                const gchar     *name,
-                gpointer         user_data)
+gv_dbus_server_register_objects(GvDbusServer *self)
 {
-	GvDbusServer         *self = GV_DBUS_SERVER(user_data);
-	GvDbusServerPrivate  *priv = gv_dbus_server_get_instance_private(self);
-	GDBusInterfaceInfo   **interfaces = priv->introspection_data->interfaces;
-	GDBusInterfaceInfo    *interface;
-	guint                  i;
-	const gchar           *bus_name = connection ?
-	                                  g_dbus_connection_get_unique_name(connection) :
-	                                  "(null)";
+	GvDbusServerPrivate *priv = gv_dbus_server_get_instance_private(self);
+	GDBusInterfaceInfo **interfaces = priv->introspection_data->interfaces;
+	GDBusInterfaceInfo *interface;
+	guint i;
 
-	TRACE("%s, %s, %p", bus_name, name, user_data);
+	// TODO: checks
 
-	/* Register objects */
 	i = 0;
 	while (interfaces && (interface = *interfaces++)) {
 		guint id;
 
 		g_assert(i < MAX_INTERFACES);
 
-		id = g_dbus_connection_register_object(connection,
+		id = g_dbus_connection_register_object(priv->bus_connection,
 		                                       priv->path,
 		                                       interface,
 		                                       &interface_vtable,
@@ -432,9 +425,43 @@ on_bus_acquired(GDBusConnection *connection,
 
 		INFO("Interface '%s' registered", interface->name);
 	}
+}
+
+static void
+gv_dbus_server_unregister_objects(GvDbusServer *self)
+{
+	GvDbusServerPrivate *priv = gv_dbus_server_get_instance_private(self);
+	guint i;
+
+	for (i = 0; priv->registration_ids[i] > 0; i++) {
+		g_dbus_connection_unregister_object(priv->bus_connection,
+		                                    priv->registration_ids[i]);
+		priv->registration_ids[i] = 0;
+	}
+}
+
+/*
+ * GDBus signal handlers
+ */
+
+static void
+on_bus_acquired(GDBusConnection *connection,
+                const gchar     *name,
+                gpointer         user_data)
+{
+	GvDbusServer         *self = GV_DBUS_SERVER(user_data);
+	GvDbusServerPrivate  *priv = gv_dbus_server_get_instance_private(self);
+	const gchar           *bus_name = connection ?
+	                                  g_dbus_connection_get_unique_name(connection) :
+	                                  "(null)";
+
+	TRACE("%s, %s, %p", bus_name, name, user_data);
 
 	/* Save DBus connection */
 	priv->bus_connection = g_object_ref(connection);
+
+	/* Register objects */
+	gv_dbus_server_register_objects(self);
 }
 
 static void
@@ -611,13 +638,7 @@ gv_dbus_server_disable(GvFeature *feature)
 
 	/* Unref DBus connection & objects registered */
 	if (priv->bus_connection != NULL) {
-		guint i;
-
-		for (i = 0; priv->registration_ids[i] > 0; i++) {
-			g_dbus_connection_unregister_object(priv->bus_connection,
-			                                    priv->registration_ids[i]);
-			priv->registration_ids[i] = 0;
-		}
+		gv_dbus_server_unregister_objects(self);
 
 		g_object_unref(priv->bus_connection);
 		priv->bus_connection = NULL;
@@ -642,16 +663,36 @@ gv_dbus_server_enable(GvFeature *feature)
 	/* Chain up */
 	GV_FEATURE_CHAINUP_ENABLE(gv_dbus_server, feature);
 
-	/* Acquire a name on the bus */
-	priv->bus_owner_id = g_bus_own_name(G_BUS_TYPE_SESSION,
-	                                    priv->name,
-	                                    G_BUS_NAME_OWNER_FLAGS_NONE,
-	                                    on_bus_acquired,
-	                                    on_name_acquired,
-	                                    on_name_lost,
-	                                    self,
-	                                    NULL);
-	g_assert(priv->bus_owner_id > 0);
+	/* We might want to acquire a name or not */
+	if (priv->name) {
+		/* Acquire a name on the bus (objects will be registered in the callback) */
+		priv->bus_owner_id = g_bus_own_name(G_BUS_TYPE_SESSION,
+		                                    priv->name,
+		                                    G_BUS_NAME_OWNER_FLAGS_NONE,
+		                                    on_bus_acquired,
+		                                    on_name_acquired,
+		                                    on_name_lost,
+		                                    self,
+		                                    NULL);
+		g_assert(priv->bus_owner_id > 0);
+
+	} else {
+		GDBusConnection *connection;
+		GError *err = NULL;
+
+		/* Get connection to the bus */
+		connection = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &err);
+		if (err) {
+			CRITICAL("Failed to get bus: %s", err->message);
+			g_error_free(err);
+			return;
+		}
+
+		priv->bus_connection = g_object_ref(connection);
+
+		/* Register objects */
+		gv_dbus_server_register_objects(self);
+	}
 }
 
 /*
@@ -682,8 +723,9 @@ gv_dbus_server_constructed(GObject *object)
 
 	TRACE("%p", object);
 
-	/* Child must have set every property. Let's verify that. */
-	g_assert(priv->name);
+	/* The 'name' property might be left to NULL if we don't want to
+	 * own a bus name. Other properties, though, must have been set.
+	 */
 	g_assert(priv->path);
 	g_assert(priv->introspection);
 	g_assert(priv->interface_table);

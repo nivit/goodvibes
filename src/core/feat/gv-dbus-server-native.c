@@ -33,7 +33,6 @@
 #include "core/feat/gv-dbus-server.h"
 #include "core/feat/gv-dbus-server-native.h"
 
-#define DBUS_NAME           "org."  PACKAGE_CAMEL_NAME
 #define DBUS_PATH           "/org/" PACKAGE_CAMEL_NAME
 #define DBUS_IFACE_ROOT     "org."  PACKAGE_CAMEL_NAME
 #define DBUS_IFACE_PLAYER   DBUS_IFACE_ROOT ".Player"
@@ -587,8 +586,7 @@ gv_dbus_server_native_constructed(GObject *object)
 {
 	GvDbusServer *dbus_server = GV_DBUS_SERVER(object);
 
-	/* Set dbus server properties */
-	gv_dbus_server_set_dbus_name(dbus_server, DBUS_NAME);
+	/* Set dbus server properties - we don't set a name as we don't want to acquire any */
 	gv_dbus_server_set_dbus_path(dbus_server, DBUS_PATH);
 	gv_dbus_server_set_dbus_introspection(dbus_server, DBUS_INTROSPECTION);
 	gv_dbus_server_set_dbus_interface_table(dbus_server, dbus_interfaces);
