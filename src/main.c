@@ -25,21 +25,23 @@
 #include <locale.h>
 
 #include <glib.h>
-#include <gio/gio.h>
+#include <glib/gi18n.h>
 #include <glib-unix.h>
+#include <glib-object.h>
+#include <gio/gio.h>
 
 #include "additions/glib.h"
 
 #include "framework/log.h"
-
-#include "framework/gv-framework.h"
 #include "core/gv-core.h"
-#ifdef UI_ENABLED
-#include <gtk/gtk.h>
 #include "ui/gv-ui.h"
-#endif
-
 #include "options.h"
+
+#ifdef UI_ENABLED
+#include "gv-graphical-application.h"
+#else
+#include "gv-console-application.h"
+#endif
 
 /*
  * Print informations about program.
@@ -107,110 +109,9 @@ string_runtime_libraries(void)
 	return text;
 }
 
-static const gchar *
-stringify_list(const gchar *prefix, GList *list)
-{
-	GList *item;
-	GString *str;
-	static gchar *text;
-
-	str = g_string_new(prefix);
-	g_string_append(str, "[");
-
-	for (item = list; item; item = item->next) {
-		GObject *object;
-		const gchar *object_name;
-
-		object = item->data;
-		object_name = G_OBJECT_TYPE_NAME(object);
-
-		g_string_append_printf(str, "%s, ", object_name);
-	}
-
-	if (list != NULL)
-		g_string_set_size(str, str->len - 2);
-
-	g_string_append(str, "]");
-
-	g_free(text);
-	text = g_string_free(str, FALSE);
-
-	return text;
-}
-
 /*
  * Main - this is where everything starts...
  */
-
-static void
-on_shutdown(GApplication *application G_GNUC_UNUSED,
-            gpointer      user_data G_GNUC_UNUSED)
-{
-#ifdef UI_ENABLED
-	if (!options.without_ui) {
-		DEBUG("---- Cooling down ui ----");
-		gv_ui_cool_down();
-	}
-#endif
-
-	DEBUG("---- Cooling down core ----");
-	gv_core_cool_down();
-
-#ifdef UI_ENABLED
-	if (!options.without_ui) {
-		DEBUG("---- Cleaning up ui ----");
-		gv_ui_cleanup();
-	}
-#endif
-
-	DEBUG("---- Cleaning up core ----");
-	gv_core_cleanup();
-
-	DEBUG("---- Cleaning up framework ----");
-	gv_framework_cleanup();
-}
-
-static void
-on_startup(GApplication *application G_GNUC_UNUSED,
-           gpointer      user_data G_GNUC_UNUSED)
-{
-	DEBUG("---- Initializing framework ----");
-	gv_framework_init();
-
-	DEBUG("---- Initializing core ----");
-	gv_core_init();
-
-#ifdef UI_ENABLED
-	if (!options.without_ui) {
-		DEBUG("---- Initializing ui ----");
-		gv_ui_init();
-	}
-#endif
-
-	DEBUG("---- Peeping into lists ----");
-	DEBUG("%s", stringify_list("Feature list     : ", gv_framework_feature_list));
-	DEBUG("%s", stringify_list("Configurable list: ", gv_framework_configurable_list));
-	DEBUG("%s", stringify_list("Errorable list   : ", gv_framework_errorable_list));
-
-	DEBUG("---- Warming up core ----");
-	gv_core_warm_up(options.uri_to_play);
-
-#ifdef UI_ENABLED
-	if (!options.without_ui) {
-		DEBUG("---- Warming up ui ----");
-		gv_ui_warm_up();
-	}
-#endif
-
-	g_application_hold(application);
-}
-
-void
-on_activate(GApplication *application G_GNUC_UNUSED,
-            gpointer      user_data G_GNUC_UNUSED)
-{
-	INFO("Activated !");
-}
 
 static gboolean
 sigint_handler(gpointer user_data)
@@ -281,17 +182,12 @@ main(int argc, char *argv[])
 
 	/* Create the application */
 #ifdef UI_ENABLED
-	// TODO: avoid direct gtk call here
-	app = G_APPLICATION(gtk_application_new("org." PACKAGE_CAMEL_NAME, G_APPLICATION_FLAGS_NONE));
+	app = gv_graphical_application_new();
 #else
-	app = g_application_new("org." PACKAGE_CAMEL_NAME, G_APPLICATION_FLAGS_NONE);
+	app = gv_console_application_new();
 #endif
 
-	g_signal_connect(app, "startup",  G_CALLBACK(on_startup),  NULL);
-	g_signal_connect(app, "shutdown", G_CALLBACK(on_shutdown), NULL);
-	g_signal_connect(app, "activate", G_CALLBACK(on_activate),  NULL);
-
-	/* Hold now, release on SIGINT */
+	/* Quit on SIGINT */
 	g_unix_signal_add(SIGINT, sigint_handler, app);
 
 	/* Run */

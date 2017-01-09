@@ -238,8 +238,6 @@ endif # UI_ENABLED
 #               Goodvibes Radio Player                  #
 # ----------------------------------------------------- #
 
-bin_PROGRAMS = goodvibes
-
 # We use sort() to remove duplicates in CFLAGS and LDADD.
 # I know, it's not recommended to use sort() in Automake,
 # but it works and does a wonderful job, so let it be.
@@ -249,9 +247,9 @@ bin_PROGRAMS = goodvibes
 # here's a bit of reading I recommend:
 # http://eli.thegreenplace.net/2013/07/09/library-order-in-static-linking
 
+bin_PROGRAMS = goodvibes
+
 goodvibes_SOURCES =			\
-	main.c				\
-	options.c	options.h	\
 	$(gv_additions_sources)		\
 	$(gv_framework_sources)		\
 	$(gv_framework_built_sources)	\
@@ -259,6 +257,16 @@ goodvibes_SOURCES =			\
 	$(gv_core_built_sources)	\
 	$(gv_ui_sources)		\
 	$(gv_ui_built_sources)
+
+if UI_ENABLED
+goodvibes_SOURCES += gv-graphical-application.c gv-graphical-application.h
+else
+goodvibes_SOURCES += gv-console-application.c gv-console-application.h
+endif
+
+goodvibes_SOURCES += 			\
+	main.c				\
+	options.c	options.h
 
 goodvibes_CFLAGS  =			\
 	-DLOCALE_DIR=\"$(localedir)\"
