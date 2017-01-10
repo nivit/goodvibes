@@ -29,3 +29,9 @@ git_has_changes()
 
     ! git diff-files --quiet "$file"
 }
+
+git_list_staged()
+{
+    git diff --cached --name-only --diff-filter=d | \
+	    tr '\n' ' '
+}
