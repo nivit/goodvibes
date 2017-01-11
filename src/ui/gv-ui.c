@@ -59,14 +59,6 @@ gv_ui_present_about(void)
 	gv_show_about_dialog(GTK_WINDOW(gv_ui_main_window));
 }
 
-// TODO: should we use weak ref ?
-static void
-on_prefs_window_destroy(GtkWidget *window, gpointer user_data G_GNUC_UNUSED)
-{
-	g_assert(window == gv_ui_prefs_window);
-	gv_ui_prefs_window = NULL;
-}
-
 void
 gv_ui_present_preferences(void)
 {
@@ -74,9 +66,7 @@ gv_ui_present_preferences(void)
 
 	if (window == NULL) {
 		window = gv_prefs_window_new();
-		g_signal_connect(window, "destroy",
-		                 G_CALLBACK(on_prefs_window_destroy), NULL);
-		gv_ui_prefs_window = window;
+		g_object_add_weak_pointer(G_OBJECT(window), (gpointer *) &gv_ui_prefs_window);
 	}
 
 	gtk_window_present(GTK_WINDOW(window));
