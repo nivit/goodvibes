@@ -1,10 +1,10 @@
-bin_PROGRAMS = goodvibesctl
+bin_PROGRAMS = goodvibes-client
 
-goodvibesctl_SOURCES =	\
+goodvibes_client_SOURCES =	\
 	main.c
 
-goodvibesctl_CPPFLAGS =	\
+goodvibes_client_CPPFLAGS =	\
 	$(GLIB_CFLAGS)
 
-goodvibesctl_LDADD =	\
+goodvibes_client_LDADD =	\
 	$(GLIB_LIBS)

@@ -31,10 +31,14 @@
 #include "framework/uri-schemes.h"
 #include "framework/gv-framework.h"
 
+#ifdef UI_ENABLED
+#include "ui/gv-ui.h"
+#endif
+
 #include "core/gv-core.h"
 
-#include "core/feat/gv-dbus-server.h"
-#include "core/feat/gv-dbus-server-mpris2.h"
+#include "feat/gv-dbus-server.h"
+#include "feat/gv-dbus-server-mpris2.h"
 
 #define TRACKID_PATH         "/org/" PACKAGE_CAMEL_NAME "/StationList"
 #define PLAYLISTID_PATH      "/org/" PACKAGE_CAMEL_NAME "/Playlist"
@@ -455,6 +459,9 @@ method_raise(GvDbusServer  *dbus_server G_GNUC_UNUSED,
              GVariant       *params G_GNUC_UNUSED,
              GError        **error G_GNUC_UNUSED)
 {
+#ifdef UI_ENABLED
+	gv_ui_present_main();
+#endif
 	return NULL;
 }
 
@@ -463,7 +470,7 @@ method_quit(GvDbusServer  *dbus_server G_GNUC_UNUSED,
             GVariant       *params G_GNUC_UNUSED,
             GError        **error G_GNUC_UNUSED)
 {
-	gv_framework_quit_loop();
+	gv_core_quit();
 
 	return NULL;
 }
@@ -820,6 +827,16 @@ prop_set_error(GvDbusServer  *dbus_server G_GNUC_UNUSED,
 }
 
 static GVariant *
+prop_get_can_raise(GvDbusServer *dbus_server G_GNUC_UNUSED)
+{
+#ifdef UI_ENABLED
+	return g_variant_new_boolean(TRUE);
+#else
+	return g_variant_new_boolean(FALSE);
+#endif
+}
+
+static GVariant *
 prop_get_identity(GvDbusServer *dbus_server G_GNUC_UNUSED)
 {
 	// TODO Add gettext stuff for translating, I saw that somewhere.
@@ -846,7 +863,7 @@ prop_get_supported_mime_types(GvDbusServer *dbus_server G_GNUC_UNUSED)
 }
 
 static GvDbusProperty root_properties[] = {
-	{ "CanRaise",            prop_get_false,                 NULL },
+	{ "CanRaise",            prop_get_can_raise,             NULL },
 	{ "CanQuit",             prop_get_true,                  NULL },
 	{ "Fullscreen",          prop_get_false,                 prop_set_error },
 	{ "CanSetFullscreen",    prop_get_false,                 NULL },

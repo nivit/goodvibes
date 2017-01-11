@@ -30,8 +30,8 @@
 
 #include "core/gv-core.h"
 
-#include "ui/gv-builder-helpers.h"
-#include "ui/global.h"
+#include "ui/gv-ui.h"
+#include "ui/gv-ui-helpers.h"
 #include "ui/gv-station-dialog.h"
 
 #define UI_FILE "ui/station-dialog.glade"

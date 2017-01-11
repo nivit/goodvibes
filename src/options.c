@@ -42,27 +42,28 @@ static GOptionEntry entries[] = {
 	},
 	{
 		"log-level", 'l', 0, G_OPTION_ARG_STRING, &options.log_level,
-		"Log level (default is 'message')", "level"
+		"Log levels: trace/debug/info/warning/critical/error", "warning"
 	},
 	{
 		"output-file", 'o', 0, G_OPTION_ARG_STRING, &options.output_file,
 		"Redirect output to a file", "file"
+	},
+	{
+		"version", 'v', 0, G_OPTION_ARG_NONE, &options.print_version,
+		"Print the version and exit", NULL
 	},
 #ifdef UI_ENABLED
 	{
 		"without-ui", 0, 0, G_OPTION_ARG_NONE, &options.without_ui,
 		"Disable graphical user interface", NULL
 	},
-#endif
 	{
-		"version", 'v', 0, G_OPTION_ARG_NONE, &options.print_version,
-		"Print the version and exit", NULL
+		"status-icon", 0, 0, G_OPTION_ARG_NONE, &options.status_icon,
+		"Launch as a status icon (deprecated on modern desktops)", NULL
 	},
+#endif
 	{ .long_name = NULL }
 };
-
-static gchar *description = "Log levels, from the most chatty to the most quiet:\n"
-                            "trace/debug/info/warning/critical/error";
 
 static void
 print_help(GOptionContext *context)
@@ -72,8 +73,6 @@ print_help(GOptionContext *context)
 	help = g_option_context_get_help(context, TRUE, NULL);
 	g_print("%s", help);
 	g_free(help);
-
-	exit(EXIT_FAILURE);
 }
 
 void
@@ -86,7 +85,7 @@ options_parse(int *argc, char **argv[])
 	memset(&options, 0, sizeof(struct options));
 
 	/* Create context & entries */
-	context = g_option_context_new("- A radio player providing good vibrations");
+	context = g_option_context_new("- Positive Vibration, Yeah !");
 	g_option_context_add_main_entries(context, entries, NULL);
 
 	/* Add option groups and perform some init code at the same time */
@@ -95,13 +94,11 @@ options_parse(int *argc, char **argv[])
 	g_option_context_add_group(context, gv_ui_toolkit_init_get_option_group());
 #endif
 
-	/* Add description */
-	g_option_context_set_description(context, description);
-
 	/* Parse the command-line arguments */
 	if (!g_option_context_parse(context, argc, argv, &error)) {
 		g_print("Failed to parse options: %s\n", error->message);
 		g_error_free(error);
+		g_option_context_free(context);
 		exit(EXIT_FAILURE);
 	}
 
@@ -115,6 +112,7 @@ options_parse(int *argc, char **argv[])
 		break;
 	default:
 		print_help(context);
+		g_option_context_free(context);
 		exit(EXIT_FAILURE);
 		break;
 	}

@@ -2,7 +2,9 @@
 data/desktop/goodvibes.desktop.in
 
 # Glade ui files
+data/ui/app-menu.glade
 data/ui/main-window.glade
+data/ui/menubar.glade
 data/ui/prefs-window.glade
 data/ui/station-dialog.glade
 
@@ -15,5 +17,5 @@ src/ui/gv-prefs-window.c
 src/ui/gv-station-context-menu.c
 src/ui/gv-station-dialog.c
 src/ui/gv-tray.c
-src/ui/feat/gv-hotkeys.c
+src/feat/gv-hotkeys.c
 

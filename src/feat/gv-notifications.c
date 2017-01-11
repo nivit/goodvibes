@@ -30,7 +30,7 @@
 
 #include "core/gv-core.h"
 
-#include "ui/feat/gv-notifications.h"
+#include "feat/gv-notifications.h"
 
 //#define ICON "audio-x-generic"
 #define ICON PACKAGE_NAME

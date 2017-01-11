@@ -17,11 +17,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GOODVIBES_UI_GV_BUILDER_HELPERS_H__
-#define __GOODVIBES_UI_GV_BUILDER_HELPERS_H__
+#ifndef __GOODVIBES_FEAT_GV_NOTIFICATIONS_H__
+#define __GOODVIBES_FEAT_GV_NOTIFICATIONS_H__
 
-#include <gtk/gtk.h>
+#include <glib-object.h>
 
-void gv_builder_load(const char *filename, GtkBuilder **builder_out, gchar **uifile_out);
+#include "framework/gv-feature.h"
 
-#endif /* __GOODVIBES_UI_GV_BUILDER_HELPERS_H__ */
+/* GObject declarations */
+
+#define GV_TYPE_NOTIFICATIONS gv_notifications_get_type()
+
+G_DECLARE_FINAL_TYPE(GvNotifications, gv_notifications, GV, NOTIFICATIONS, GvFeature)
+
+#endif /* __GOODVIBES_FEAT_GV_NOTIFICATIONS_H__ */

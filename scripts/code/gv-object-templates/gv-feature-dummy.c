@@ -6,7 +6,7 @@
 
 #include "core/gv-core.h"
 
-#include "core/feat/gv-dummy.h"
+#include "feat/gv-dummy.h"
 
 /*
  * GObject definitions

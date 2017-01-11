@@ -18,6 +18,7 @@
  */
 
 #include <glib.h>
+#include <gio/gio.h>
 
 #include "framework/log.h"
 #include "framework/gv-framework.h"
@@ -28,16 +29,16 @@
 #include "core/gv-station-list.h"
 
 #ifdef CONSOLE_OUTPUT_ENABLED
-#include "core/feat/gv-console-output.h"
+#include "feat/gv-console-output.h"
 #endif
 #ifdef DBUS_SERVER_NATIVE_ENABLED
-#include "core/feat/gv-dbus-server-native.h"
+#include "feat/gv-dbus-server-native.h"
 #endif
 #ifdef DBUS_SERVER_MPRIS2_ENABLED
-#include "core/feat/gv-dbus-server-mpris2.h"
+#include "feat/gv-dbus-server-mpris2.h"
 #endif
 #ifdef INHIBITOR_ENABLED
-#include "core/feat/gv-inhibitor.h"
+#include "feat/gv-inhibitor.h"
 #endif
 
 GvConf        *gv_core_conf;
@@ -47,14 +48,12 @@ GvPlayer      *gv_core_player;
 static GvEngine  *gv_core_engine;
 static GvFeature *features[8];
 
-static gboolean
-when_idle_finish_init(gpointer user_data)
+static GApplication *gv_application;
+
+void
+gv_core_quit(void)
 {
-	const gchar *string_to_play = user_data;
-
-	gv_player_go(gv_core_player, string_to_play);
-
-	return G_SOURCE_REMOVE;
+	g_application_quit(gv_application);
 }
 
 void
@@ -67,7 +66,7 @@ gv_core_cool_down(void)
 }
 
 void
-gv_core_warm_up(const gchar *string_to_play)
+gv_core_warm_up(void)
 {
 	GvConf        *conf         = gv_core_conf;
 	GvStationList *station_list = gv_core_station_list;
@@ -81,18 +80,6 @@ gv_core_warm_up(const gchar *string_to_play)
 
 	/* Watch for changes in objects */
 	gv_conf_watch(conf);
-
-	/* Schedule a callback to play some music.
-	 * DO NOT start playing now ! It's too early !
-	 * There's some init code pending, that will be run only after the main
-	 * loop is started, and might even do some async call (dbus connection).
-	 * As much as possible, we wish that we start playing music after
-	 * everything is setup. Therefore, we schedule with a low priority.
-	 * This will give maximum chances to the init code to finish before
-	 * music starts playing.
-	 */
-	g_idle_add_full(G_PRIORITY_LOW, when_idle_finish_init,
-	                (void *) string_to_play, NULL);
 }
 
 void
@@ -132,8 +119,14 @@ gv_core_cleanup(void)
 }
 
 void
-gv_core_init(void)
+gv_core_init(GApplication *application)
 {
+	/* Application: just keep a pointer toward it */
+
+	gv_application = application;
+
+
+
 	/* ----------------------------------------------- *
 	 * Core objects                                    *
 	 * ----------------------------------------------- */
@@ -207,12 +200,6 @@ gv_core_init(void)
 	gv_core_engine = engine;
 	gv_core_station_list = station_list;
 	gv_core_player = player;
-}
-
-void
-gv_core_early_init(int *argc G_GNUC_UNUSED, char **argv[] G_GNUC_UNUSED)
-{
-	/* Actually there's nothing to do here */
 }
 
 /*

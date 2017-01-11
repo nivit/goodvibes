@@ -17,29 +17,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GOODVIBES_UI_GLOBAL_H__
-#define __GOODVIBES_UI_GLOBAL_H__
+#ifndef __GOODVIBES_FEAT_GV_HOTKEYS_H__
+#define __GOODVIBES_FEAT_GV_HOTKEYS_H__
 
-#include <gtk/gtk.h>
+#include <glib-object.h>
 
-#include "ui/gv-tray.h"
-#include "ui/gv-main-window.h"
+#include "framework/gv-feature.h"
 
-/*
- * Visual layout, according to
- * https://developer.gnome.org/hig/stable/visual-layout.html
- */
+/* GObject declarations */
 
-#define GV_UI_WINDOW_BORDER 18
-#define GV_UI_GROUP_SPACING 18
-#define GV_UI_ELEM_SPACING  6
-#define GV_UI_LABEL_SPACING 12
+#define GV_TYPE_HOTKEYS gv_hotkeys_get_type()
 
-/*
- * Global variables
- */
+G_DECLARE_FINAL_TYPE(GvHotkeys, gv_hotkeys, GV, HOTKEYS, GvFeature)
 
-extern GvTray   *gv_ui_tray;
-extern GtkWidget *gv_ui_main_window;
-
-#endif /* __GOODVIBES_UI_GLOBAL_H__ */
+#endif /* __GOODVIBES_FEAT_GV_HOTKEYS_H__ */

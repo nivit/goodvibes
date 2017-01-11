@@ -24,20 +24,71 @@
 #include "framework/gv-framework.h"
 
 #include "ui/gv-main-window.h"
+#include "ui/gv-about-dialog.h"
+#include "ui/gv-prefs-window.h"
 #include "ui/gv-stock-icons.h"
 #include "ui/gv-tray.h"
 
 #ifdef HOTKEYS_ENABLED
-#include "ui/feat/gv-hotkeys.h"
+#include "feat/gv-hotkeys.h"
 #endif
 #ifdef NOTIFICATIONS_ENABLED
-#include "ui/feat/gv-notifications.h"
+#include "feat/gv-notifications.h"
 #endif
 
-GvTray   *gv_ui_tray;
+GvTray    *gv_ui_tray;
 GtkWidget *gv_ui_main_window;
+GtkWidget *gv_ui_prefs_window;
 
 static GvFeature *features[8];
+
+void
+gv_ui_hide(void)
+{
+	GtkWidget *prefs_window = gv_ui_prefs_window;
+	GtkWidget *main_window  = gv_ui_main_window;
+
+	/* In status icon mode, do nothing */
+	if (gv_ui_tray)
+		return;
+
+	if (prefs_window)
+		gtk_widget_destroy(prefs_window);
+
+	gtk_widget_hide(main_window);
+}
+
+void
+gv_ui_present_about(void)
+{
+	gv_show_about_dialog(GTK_WINDOW(gv_ui_main_window));
+}
+
+void
+gv_ui_present_preferences(void)
+{
+	GtkWidget *prefs_window = gv_ui_prefs_window;
+
+	if (prefs_window == NULL) {
+		prefs_window = gv_prefs_window_new();
+		g_object_add_weak_pointer(G_OBJECT(prefs_window),
+		                          (gpointer *) &gv_ui_prefs_window);
+	}
+
+	gtk_window_present(GTK_WINDOW(prefs_window));
+}
+
+void
+gv_ui_present_main(void)
+{
+	GtkWidget *main_window = gv_ui_main_window;
+
+	/* In status icon mode, do nothing */
+	if (gv_ui_tray)
+		return;
+
+	gtk_window_present(GTK_WINDOW(main_window));
+}
 
 void
 gv_ui_cool_down(void)
@@ -70,11 +121,23 @@ gv_ui_cleanup(void)
 
 	/* Ui objects */
 
-	GtkWidget      *main_window   = gv_ui_main_window;
-	GvTray         *tray          = gv_ui_tray;
+	/* Windows must be destroyed with gtk_widget_destroy().
+	 * Forget about gtk_window_close() here, which seems to be asynchronous.
+	 * Read the doc:
+	 * https://developer.gnome.org/gtk3/stable/GtkWindow.html#gtk-window-new
+	 */
 
-	gv_framework_configurables_remove(tray);
-	g_object_unref(tray);
+	GtkWidget *prefs_window = gv_ui_prefs_window;
+	GtkWidget *main_window  = gv_ui_main_window;
+	GvTray    *tray         = gv_ui_tray;
+
+	if (tray) {
+		gv_framework_configurables_remove(tray);
+		g_object_unref(tray);
+	}
+
+	if (prefs_window)
+		gtk_widget_destroy(prefs_window);
 
 	gv_framework_configurables_remove(main_window);
 	gtk_widget_destroy(main_window);
@@ -85,7 +148,7 @@ gv_ui_cleanup(void)
 }
 
 void
-gv_ui_init(void)
+gv_ui_init(GApplication *app, gboolean status_icon_mode)
 {
 	/* Stock icons */
 	gv_stock_icons_init();
@@ -96,16 +159,26 @@ gv_ui_init(void)
 	 * Ui objects                                      *
 	 * ----------------------------------------------- */
 
-	GtkWidget       *main_window;
-	GvTray         *tray;
+	GtkWidget *main_window;
+	GvTray    *tray;
 
-	main_window = gv_main_window_new();
+	main_window = gv_main_window_new(app);
 	gv_framework_configurables_append(main_window);
 
-	tray = gv_tray_new();
-	gv_framework_configurables_append(tray);
+	if (status_icon_mode) {
+		/* Configure window for popup mode */
+		gv_main_window_configure_for_popup(GV_MAIN_WINDOW(main_window));
 
+		/* Create a tray icon, and we're done */
+		tray = gv_tray_new(GTK_WINDOW(main_window));
+		gv_framework_configurables_append(tray);
+	} else {
+		/* Configure window for standalone mode */
+		gv_main_window_configure_for_standalone(GV_MAIN_WINDOW(main_window));
 
+		/* No tray icon */
+		tray = NULL;
+	}
 
 	/* ----------------------------------------------- *
 	 * Features                                        *
@@ -141,21 +214,6 @@ gv_ui_init(void)
 	gv_ui_main_window = main_window;
 }
 
-void
-gv_ui_early_init(int *argc, char **argv[])
-{
-	/* According to the doc, there should be no need for gtk_init() if we
-	 * use gtk_get_option_group() along with g_option_context_parse().
-	 * However experienced proved it wrong:
-	 *
-	 *     https://bugzilla.gnome.org/show_bug.cgi?id=776807
-	 *
-	 * So, let's play safe and initialize gtk early right now.
-	 */
-
-	gtk_init(argc, argv);
-}
-
 /*
  * Underlying toolkit
  */
@@ -166,6 +224,8 @@ gv_ui_toolkit_init_get_option_group(void)
 	/* Very not sure about the argument to pass here. From my experience:
 	 * - if we don't use gtk_init(), we should pass TRUE.
 	 * - if we use gtk_init(), passing FALSE is ok.
+	 * Since we use GtkApplication which calls gtk_init() internally,
+	 * let's pass FALSE and pray that it works.
 	 */
 
 	return gtk_get_option_group(FALSE);

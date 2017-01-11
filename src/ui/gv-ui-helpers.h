@@ -17,17 +17,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GOODVIBES_UI_FEAT_GV_HOTKEYS_H__
-#define __GOODVIBES_UI_FEAT_GV_HOTKEYS_H__
+#ifndef __GOODVIBES_UI_GV_UI_HELPERS_H__
+#define __GOODVIBES_UI_GV_UI_HELPERS_H__
 
-#include <glib-object.h>
+#include <gtk/gtk.h>
 
-#include "framework/gv-feature.h"
+/*
+ * Gtk builder helpers
+ */
 
-/* GObject declarations */
+void gv_builder_load(const char *filename, GtkBuilder **builder, gchar **uifile);
 
-#define GV_TYPE_HOTKEYS gv_hotkeys_get_type()
+/*
+ * Visual layout, according to:
+ * https://developer.gnome.org/hig/stable/visual-layout.html
+ */
 
-G_DECLARE_FINAL_TYPE(GvHotkeys, gv_hotkeys, GV, HOTKEYS, GvFeature)
+#define GV_UI_WINDOW_BORDER 18
+#define GV_UI_GROUP_SPACING 18
+#define GV_UI_ELEM_SPACING  6
+#define GV_UI_LABEL_SPACING 12
 
-#endif /* __GOODVIBES_UI_FEAT_GV_HOTKEYS_H__ */
+#endif /* __GOODVIBES_UI_GV_UI_HELPERS_H__ */

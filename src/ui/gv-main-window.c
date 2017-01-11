@@ -31,15 +31,12 @@
 
 #include "core/gv-core.h"
 
-#include "ui/global.h"
-#include "ui/gv-builder-helpers.h"
+#include "ui/gv-ui.h"
+#include "ui/gv-ui-helpers.h"
 #include "ui/gv-main-window.h"
 #include "ui/gv-stations-tree-view.h"
 
 #define UI_FILE "ui/main-window.glade"
-
-/* For debugging */
-#define CLOSE_ON_FOCUS_OUT TRUE
 
 /*
  * GObject definitions
@@ -76,12 +73,12 @@ typedef struct _GvMainWindowPrivate GvMainWindowPrivate;
 
 struct _GvMainWindow {
 	/* Parent instance structure */
-	GtkWindow             parent_instance;
+	GtkApplicationWindow  parent_instance;
 	/* Private data */
-	GvMainWindowPrivate *priv;
+	GvMainWindowPrivate  *priv;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE(GvMainWindow, gv_main_window, GTK_TYPE_WINDOW)
+G_DEFINE_TYPE_WITH_PRIVATE(GvMainWindow, gv_main_window, GTK_TYPE_APPLICATION_WINDOW)
 
 /*
  * Core Player signal handlers
@@ -241,13 +238,42 @@ on_button_clicked(GtkButton *button, GvMainWindow *self)
 }
 
 /*
- * Window signal handlers
+ * Popup window signal handlers
  */
 
+#define POPUP_WINDOW_CLOSE_ON_FOCUS_OUT TRUE
+
 static gboolean
-on_window_key_press_event(GtkWindow     *window,
-                          GdkEventKey   *event,
-                          gpointer data G_GNUC_UNUSED)
+on_popup_window_focus_change(GtkWindow     *window,
+                             GdkEventFocus *focus_event,
+                             gpointer       data G_GNUC_UNUSED)
+{
+	GvMainWindow *self = GV_MAIN_WINDOW(window);
+	GvMainWindowPrivate *priv = self->priv;
+	GvStationsTreeView *stations_tree_view = GV_STATIONS_TREE_VIEW(priv->stations_tree_view);
+
+	g_assert(focus_event->type == GDK_FOCUS_CHANGE);
+
+	//DEBUG("Main window %s focus", focus_event->in ? "gained" : "lost");
+
+	if (focus_event->in)
+		return FALSE;
+
+	if (!POPUP_WINDOW_CLOSE_ON_FOCUS_OUT)
+		return FALSE;
+
+	if (gv_stations_tree_view_has_context_menu(stations_tree_view))
+		return FALSE;
+
+	gtk_window_close(window);
+
+	return FALSE;
+}
+
+static gboolean
+on_popup_window_key_press_event(GtkWindow   *window G_GNUC_UNUSED,
+                                GdkEventKey *event,
+                                gpointer     data G_GNUC_UNUSED)
 {
 	GvPlayer *player = gv_core_player;
 
@@ -271,29 +297,51 @@ on_window_key_press_event(GtkWindow     *window,
 	return FALSE;
 }
 
+
+/*
+ * Standalone window signal handlers
+ */
+
 static gboolean
-on_window_focus_change(GtkWindow     *window,
-                       GdkEventFocus *focus_event,
-                       gpointer       data G_GNUC_UNUSED)
+on_standalone_window_delete_event(GtkWindow *window,
+                                  GdkEvent  *event G_GNUC_UNUSED,
+                                  gpointer   data G_GNUC_UNUSED)
 {
-	GvMainWindow *self = GV_MAIN_WINDOW(window);
-	GvMainWindowPrivate *priv = self->priv;
-	GvStationsTreeView *stations_tree_view = GV_STATIONS_TREE_VIEW(priv->stations_tree_view);
+	/* Hide the window immediately */
+	gtk_widget_hide(GTK_WIDGET(window));
 
-	g_assert(focus_event->type == GDK_FOCUS_CHANGE);
+	/* Now we're about to quit the application */
+	gv_core_quit();
 
-	//DEBUG("Main window %s focus", focus_event->in ? "gained" : "lost");
+	/* We must return TRUE here to prevent the window from being destroyed.
+	 * The window will be destroyed later on during the cleanup process.
+	 */
+	return TRUE;
+}
 
-	if (focus_event->in)
-		return FALSE;
+static gboolean
+on_standalone_window_key_press_event(GtkWindow   *window G_GNUC_UNUSED,
+                                     GdkEventKey *event,
+                                     gpointer     data G_GNUC_UNUSED)
+{
+	GvPlayer *player = gv_core_player;
 
-	if (!CLOSE_ON_FOCUS_OUT)
-		return FALSE;
+	g_assert(event->type == GDK_KEY_PRESS);
 
-	if (gv_stations_tree_view_has_context_menu(stations_tree_view))
-		return FALSE;
+	switch (event->keyval) {
+	case GDK_KEY_Escape:
+		/* Iconify window if 'Esc' key is pressed */
+		gtk_window_iconify(window);
+		break;
 
-	gtk_window_close(window);
+	case GDK_KEY_blank:
+		/* Play/Stop when space is pressed */
+		gv_player_toggle(player);
+		break;
+
+	default:
+		break;
+	}
 
 	return FALSE;
 }
@@ -350,10 +398,73 @@ gv_main_window_populate_stations(GvMainWindow *self)
 	gv_stations_tree_view_populate(tree_view);
 }
 
-GtkWidget *
-gv_main_window_new(void)
+void
+gv_main_window_configure_for_popup(GvMainWindow *self)
 {
-	return g_object_new(GV_TYPE_MAIN_WINDOW, NULL);
+	GtkApplicationWindow *application_window = GTK_APPLICATION_WINDOW(self);
+	GtkWindow *window = GTK_WINDOW(self);
+
+	/* Basically, we want the window to appear
+	 * and behave as a popup window.
+	 */
+
+	/* Hide the menu bar in the main window */
+	gtk_application_window_set_show_menubar(application_window, FALSE);
+
+	/* Window appearance */
+	gtk_window_set_decorated(window, FALSE);
+	gtk_window_set_position(window, GTK_WIN_POS_MOUSE);
+
+	/* We don't want the window to appear in pager or taskbar.
+	 * This has an undesired effect though: the window may not
+	 * have the focus when it's shown by the window manager.
+	 * But read on...
+	 */
+	gtk_window_set_skip_pager_hint(window, TRUE);
+	gtk_window_set_skip_taskbar_hint(window, TRUE);
+
+	/* Setting the window modal seems to ensure that the window
+	 * receives focus when shown by the window manager.
+	 */
+	gtk_window_set_modal(window, TRUE);
+
+	/* We want the window to be hidden instead of destroyed when closed */
+	g_signal_connect(window, "delete-event",
+	                 G_CALLBACK(gtk_widget_hide_on_delete), NULL);
+
+	/* Handle some keys */
+	g_signal_connect(window, "key-press-event",
+	                 G_CALLBACK(on_popup_window_key_press_event), NULL);
+
+	/* Handle keyboard focus changes, so that we can hide the
+	 * window on 'focus-out-event'.
+	 */
+	g_signal_connect(window, "focus-in-event",
+	                 G_CALLBACK(on_popup_window_focus_change), NULL);
+	g_signal_connect(window, "focus-out-event",
+	                 G_CALLBACK(on_popup_window_focus_change), NULL);
+}
+
+void
+gv_main_window_configure_for_standalone(GvMainWindow *self)
+{
+	GtkWindow *window = GTK_WINDOW(self);
+
+	/* We want to quit the application when the window is closed */
+	g_signal_connect(window, "delete-event",
+	                 G_CALLBACK(on_standalone_window_delete_event), NULL);
+
+	/* Handle some keys */
+	g_signal_connect(window, "key-press-event",
+	                 G_CALLBACK(on_standalone_window_key_press_event), NULL);
+}
+
+GtkWidget *
+gv_main_window_new(GApplication *application)
+{
+	return g_object_new(GV_TYPE_MAIN_WINDOW,
+	                    "application", application,
+	                    NULL);
 }
 
 /*
@@ -455,51 +566,6 @@ gv_main_window_setup_layout(GvMainWindow *self)
 	             NULL);
 }
 
-static void
-gv_main_window_configure(GvMainWindow *self)
-{
-	GtkWindow *window = GTK_WINDOW(self);
-
-	/*
-	 * Configure window
-	 * Basically, we want the window to appear
-	 * and behave as a popup window.
-	 */
-
-	/* Window appearance */
-	gtk_window_set_decorated(window, FALSE);
-	gtk_window_set_position(window, GTK_WIN_POS_MOUSE);
-
-	/* We don't want the window to appear in pager or taskbar.
-	 * This has an undesired effect though: the window may not
-	 * have the focus when it's shown by the window manager.
-	 * But read on...
-	 */
-	gtk_window_set_skip_pager_hint(window, TRUE);
-	gtk_window_set_skip_taskbar_hint(window, TRUE);
-
-	/* Setting the window modal seems to ensure that the window
-	 * receives focus when shown by the window manager.
-	 */
-	gtk_window_set_modal(window, TRUE);
-
-	/* We want the window to be hidden instead of destroyed when closed */
-	g_signal_connect(window, "delete-event",
-	                 G_CALLBACK(gtk_widget_hide_on_delete), NULL);
-
-	/* Handle keyboard focus changes, so that we can hide the
-	 * window on 'focus-out-event'.
-	 */
-	g_signal_connect(window, "focus-in-event",
-	                 G_CALLBACK(on_window_focus_change), NULL);
-	g_signal_connect(window, "focus-out-event",
-	                 G_CALLBACK(on_window_focus_change), NULL);
-
-	/* Handle some keys */
-	g_signal_connect(window, "key-press-event",
-	                 G_CALLBACK(on_window_key_press_event), NULL);
-}
-
 /*
  * GObject methods
  */
@@ -529,9 +595,6 @@ gv_main_window_constructed(GObject *object)
 	gv_main_window_populate_widgets(self);
 	gv_main_window_setup_widgets(self);
 	gv_main_window_setup_layout(self);
-
-	/* Configure window */
-	gv_main_window_configure(self);
 
 	/* Connect core signal handlers */
 	g_signal_connect(player, "notify",

@@ -1,7 +1,7 @@
 /*
  * Goodvibes Radio Player
  *
- * Copyright (C) 2015-2016 Arnaud Rebillout
+ * Copyright (C) 2017 Arnaud Rebillout
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,29 +17,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtk/gtk.h>
+#ifndef __GOODVIBES_GV_CONSOLE_APPLICATION_H__
+#define __GOODVIBES_GV_CONSOLE_APPLICATION_H__
 
-#include "framework/gv-file-helpers.h"
+#include <glib-object.h>
+#include <gio/gio.h>
 
-void
-gv_builder_load(const char *filename, GtkBuilder **builder_out, gchar **uifile_out)
-{
-	GtkBuilder *builder;
-	gchar *uifile;
+/* GObject declarations */
 
-	g_return_if_fail(builder_out != NULL);
-	g_return_if_fail(uifile_out != NULL);
+#define GV_TYPE_CONSOLE_APPLICATION gv_console_application_get_type()
 
-	/* Find the location of the ui file */
-	uifile = gv_get_first_existing_path(GV_DIR_CURRENT_DATA | GV_DIR_SYSTEM_DATA,
-	                                    filename);
-	g_assert(uifile);
+G_DECLARE_FINAL_TYPE(GvConsoleApplication, gv_console_application,
+                     GV, CONSOLE_APPLICATION, GApplication)
 
-	/* Build ui from file */
-	builder = gtk_builder_new_from_file(uifile);
+/* Methods */
 
-	/* Fill output parameters */
-	*builder_out = builder;
-	*uifile_out = uifile;
-}
+GApplication *gv_console_application_new(void);
 
+#endif /* __GOODVIBES_GV_CONSOLE_APPLICATION_H__ */

@@ -31,7 +31,7 @@
 
 #include "core/gv-core.h"
 
-#include "core/feat/gv-console-output.h"
+#include "feat/gv-console-output.h"
 
 /*
  * GObject definitions

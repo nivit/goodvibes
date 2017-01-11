@@ -20,17 +20,29 @@
 #ifndef __GOODVIBES_UI_GV_UI_H__
 #define __GOODVIBES_UI_GV_UI_H__
 
-#include <glib.h>
+#include <gtk/gtk.h>
 
-void gv_ui_early_init(int *argc, char **argv[]);
-void gv_ui_init      (void);
-void gv_ui_cleanup   (void);
-void gv_ui_warm_up   (void);
-void gv_ui_cool_down (void);
+#include "ui/gv-tray.h"
 
-/*
- * Underlying toolkit
- */
+/* Global variables */
+
+extern GvTray    *gv_ui_tray;
+extern GtkWidget *gv_ui_main_window;
+extern GtkWidget *gv_ui_prefs_window;
+
+/* Functions */
+
+void gv_ui_init     (GApplication *app, gboolean status_icon_mode);
+void gv_ui_cleanup  (void);
+void gv_ui_warm_up  (void);
+void gv_ui_cool_down(void);
+
+void gv_ui_present_main       (void);
+void gv_ui_present_preferences(void);
+void gv_ui_present_about      (void);
+void gv_ui_hide               (void);
+
+/* Underlying toolkit */
 
 GOptionGroup *gv_ui_toolkit_init_get_option_group (void);
 const gchar  *gv_ui_toolkit_runtime_version_string(void);

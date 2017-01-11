@@ -17,20 +17,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GOODVIBES_CORE_FEAT_GV_DBUS_SERVER_MPRIS2_H__
-#define __GOODVIBES_CORE_FEAT_GV_DBUS_SERVER_MPRIS2_H__
+#include <gtk/gtk.h>
 
-#include <glib-object.h>
+#include "framework/gv-file-helpers.h"
 
-#include "framework/gv-feature.h"
+void
+gv_builder_load(const char *filename, GtkBuilder **builder_out, gchar **uifile_out)
+{
+	GtkBuilder *builder;
+	gchar *uifile;
 
-#include "core/feat/gv-dbus-server.h"
+	g_return_if_fail(builder_out != NULL);
 
-/* GObject declarations */
+	/* Find the location of the ui file */
+	uifile = gv_get_first_existing_path(GV_DIR_CURRENT_DATA | GV_DIR_SYSTEM_DATA,
+	                                    filename);
+	g_assert(uifile);
 
-#define GV_TYPE_DBUS_SERVER_MPRIS2 gv_dbus_server_mpris2_get_type()
+	/* Build ui from file */
+	builder = gtk_builder_new_from_file(uifile);
 
-G_DECLARE_FINAL_TYPE(GvDbusServerMpris2, gv_dbus_server_mpris2,       \
-                     GV, DBUS_SERVER_MPRIS2, GvDbusServer)
-
-#endif /* __GOODVIBES_CORE_FEAT_GV_DBUS_SERVER_MPRIS2_H__ */
+	/* Fill output parameters */
+	*builder_out = builder;
+	if (uifile_out)
+		*uifile_out = uifile;
+}

@@ -18,22 +18,31 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#include <locale.h>
 
 #include <glib.h>
+#include <glib-unix.h>
+#include <glib-object.h>
+#include <glib/gi18n.h>
+#include <gio/gio.h>
 
 #include "additions/glib.h"
 
 #include "framework/log.h"
-
-#include "framework/gv-framework.h"
 #include "core/gv-core.h"
 #ifdef UI_ENABLED
 #include "ui/gv-ui.h"
 #endif
 
+#ifdef UI_ENABLED
+#include "gv-graphical-application.h"
+#else
+#include "gv-console-application.h"
+#endif
 #include "options.h"
 
 /*
@@ -102,60 +111,46 @@ string_runtime_libraries(void)
 	return text;
 }
 
-static const gchar *
-stringify_list(const gchar *prefix, GList *list)
-{
-	GList *item;
-	GString *str;
-	static gchar *text;
-
-	str = g_string_new(prefix);
-	g_string_append(str, "[");
-
-	for (item = list; item; item = item->next) {
-		GObject *object;
-		const gchar *object_name;
-
-		object = item->data;
-		object_name = G_OBJECT_TYPE_NAME(object);
-
-		g_string_append_printf(str, "%s, ", object_name);
-	}
-
-	if (list != NULL)
-		g_string_set_size(str, str->len - 2);
-
-	g_string_append(str, "]");
-
-	g_free(text);
-	text = g_string_free(str, FALSE);
-
-	return text;
-}
-
 /*
  * Main - this is where everything starts...
  */
 
+static gboolean
+sigint_handler(gpointer user_data)
+{
+	GApplication *application = G_APPLICATION(user_data);
+
+	/* There's probably a '^C' written on the console line by now.
+	 * Let's start a new line to keep logs clean.
+	 */
+	putchar('\n');
+
+	/* Stop application */
+	g_application_quit(application);
+
+	return FALSE;
+}
+
 int
 main(int argc, char *argv[])
 {
-	/* ----------------------------------------------- *
-	 * Everything that needs to be done first          *
-	 * ----------------------------------------------- */
+	GApplication *app;
+	int ret;
 
-	gv_core_early_init(&argc, &argv);
+	/* Initialize i18n */
+	setlocale(LC_ALL, NULL);
+	bindtextdomain(PACKAGE_NAME, LOCALE_DIR);
+	bind_textdomain_codeset(PACKAGE_NAME, "UTF-8");
+	textdomain(PACKAGE_NAME);
+
+	/* Set application name */
+	g_set_prgname(PACKAGE_NAME);
+	g_set_application_name(PACKAGE_LONG_NAME);
 
 #ifdef UI_ENABLED
-	if (!options.without_ui)
-		gv_ui_early_init(&argc, &argv);
+	/* Set application icon */
+	gtk_window_set_default_icon_name(PACKAGE_NAME);
 #endif
-
-
-
-	/* ----------------------------------------------- *
-	 * Command-line options & log handling             *
-	 * ----------------------------------------------- */
 
 	/* Parse command-line, and run some init code at the same time */
 	options_parse(&argc, &argv);
@@ -192,97 +187,22 @@ main(int argc, char *argv[])
 	INFO("Compiled against: %s", string_compile_libraries());
 	INFO("Running along   : %s", string_runtime_libraries());
 
-
-
-	/* ----------------------------------------------- *
-	 * Initialize each subsystem                       *
-	 * ----------------------------------------------- */
-
-	/* Initialize the framework */
-	DEBUG("---- Initializing framework ----");
-	gv_framework_init();
-
-	/* Initialize the core */
-	DEBUG("---- Initializing core ----");
-	gv_core_init();
-
+	/* Create the application */
 #ifdef UI_ENABLED
-	/* Initialize the user interface */
-	if (!options.without_ui) {
-		DEBUG("---- Initializing ui ----");
-		gv_ui_init();
-	}
+	app = gv_graphical_application_new();
+#else
+	app = gv_console_application_new();
 #endif
 
+	/* Quit on SIGINT */
+	g_unix_signal_add(SIGINT, sigint_handler, app);
 
+	/* Run the application */
+	ret = g_application_run(app, 0, NULL);
 
-	/* ----------------------------------------------- *
-	 * Display object lists for debug                  *
-	 * ----------------------------------------------- */
-
-	DEBUG("---- Peeping into lists ----");
-
-	DEBUG("%s", stringify_list("Feature list     : ", gv_framework_feature_list));
-	DEBUG("%s", stringify_list("Configurable list: ", gv_framework_configurable_list));
-	DEBUG("%s", stringify_list("Errorable list   : ", gv_framework_errorable_list));
-
-
-
-	/* ----------------------------------------------- *
-	 * Make everything ready                           *
-	 * ----------------------------------------------- */
-
-	DEBUG("---- Warming up core ----");
-	gv_core_warm_up(options.uri_to_play);
-
-#ifdef UI_ENABLED
-	if (!options.without_ui) {
-		DEBUG("---- Warming up ui ----");
-		gv_ui_warm_up();
-	}
-#endif
-
-
-
-	/* ----------------------------------------------- *
-	 * Run the main loop                               *
-	 * ----------------------------------------------- */
-
-	DEBUG(">>>> Running the main loop <<<<");
-	gv_framework_run_loop();
-	DEBUG(">>>> Main loop terminated <<<<");
-
-
-
-	/* ----------------------------------------------- *
-	 * Cleanup                                         *
-	 * ----------------------------------------------- */
-
-#ifdef UI_ENABLED
-	if (!options.without_ui) {
-		DEBUG("---- Cooling down ui ----");
-		gv_ui_cool_down();
-	}
-#endif
-
-	DEBUG("---- Cooling down core ----");
-	gv_core_cool_down();
-
-#ifdef UI_ENABLED
-	if (!options.without_ui) {
-		DEBUG("---- Cleaning up ui ----");
-		gv_ui_cleanup();
-	}
-#endif
-
-	DEBUG("---- Cleaning up core ----");
-	gv_core_cleanup();
-
-	DEBUG("---- Cleaning up framework ----");
-	gv_framework_cleanup();
-
+	/* Cleanup */
 	log_cleanup();
 	options_cleanup();
 
-	return EXIT_SUCCESS;
+	return ret;
 }

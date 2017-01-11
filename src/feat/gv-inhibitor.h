@@ -17,20 +17,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GOODVIBES_UI_GV_MAIN_MENU_H__
-#define __GOODVIBES_UI_GV_MAIN_MENU_H__
+#ifndef __GOODVIBES_FEAT_GV_INHIBITOR_H__
+#define __GOODVIBES_FEAT_GV_INHIBITOR_H__
 
 #include <glib-object.h>
-#include <gtk/gtk.h>
+
+#include "framework/gv-feature.h"
 
 /* GObject declarations */
 
-#define GV_TYPE_MAIN_MENU gv_main_menu_get_type()
+#define GV_TYPE_INHIBITOR gv_inhibitor_get_type()
 
-G_DECLARE_FINAL_TYPE(GvMainMenu, gv_main_menu, GV, MAIN_MENU, GtkMenu)
+G_DECLARE_FINAL_TYPE(GvInhibitor, gv_inhibitor, GV, INHIBITOR, GvFeature)
 
-/* Methods */
-
-GtkWidget *gv_main_menu_new(void);
-
-#endif /* __GOODVIBES_UI_GV_MAIN_MENU_H__ */
+#endif /* __GOODVIBES_FEAT_GV_INHIBITOR_H__ */
