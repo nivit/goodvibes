@@ -43,17 +43,6 @@ GtkWidget *gv_ui_prefs_window;
 static GvFeature *features[8];
 
 void
-gv_ui_quit(void)
-{
-	GtkWindow *main_window = GTK_WINDOW(gv_ui_main_window);
-	GtkApplication *app = gtk_window_get_application(main_window);
-
-	// TODO: should we idle add ?
-
-	g_application_quit(G_APPLICATION(app));
-}
-
-void
 gv_ui_present_about(void)
 {
 	gv_show_about_dialog(GTK_WINDOW(gv_ui_main_window));

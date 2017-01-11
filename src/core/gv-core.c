@@ -18,6 +18,7 @@
  */
 
 #include <glib.h>
+#include <gio/gio.h>
 
 #include "framework/log.h"
 #include "framework/gv-framework.h"
@@ -47,6 +48,8 @@ GvPlayer      *gv_core_player;
 static GvEngine  *gv_core_engine;
 static GvFeature *features[8];
 
+static GApplication *gv_application;
+
 static gboolean
 when_idle_finish_init(gpointer user_data)
 {
@@ -55,6 +58,12 @@ when_idle_finish_init(gpointer user_data)
 	gv_player_go(gv_core_player, string_to_play);
 
 	return G_SOURCE_REMOVE;
+}
+
+void
+gv_core_quit(void)
+{
+	g_application_quit(gv_application);
 }
 
 void
@@ -132,8 +141,14 @@ gv_core_cleanup(void)
 }
 
 void
-gv_core_init(void)
+gv_core_init(GApplication *application)
 {
+	/* Application: just keep a pointer toward it */
+
+	gv_application = application;
+
+
+
 	/* ----------------------------------------------- *
 	 * Core objects                                    *
 	 * ----------------------------------------------- */

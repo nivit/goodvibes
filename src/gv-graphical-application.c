@@ -181,7 +181,7 @@ quit_action_cb(GSimpleAction *action G_GNUC_UNUSED,
                GVariant      *parameters G_GNUC_UNUSED,
                gpointer       user_data G_GNUC_UNUSED)
 {
-	gv_ui_quit();
+	gv_core_quit();
 }
 
 static const GActionEntry gv_graphical_application_actions[] = {
@@ -280,7 +280,7 @@ gv_graphical_application_startup(GApplication *app)
 	gv_framework_init();
 
 	DEBUG("---- Initializing core ----");
-	gv_core_init();
+	gv_core_init(app);
 
 	DEBUG("---- Initializing ui ----");
 	gv_ui_init(app, options.status_icon);

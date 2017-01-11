@@ -463,7 +463,7 @@ method_quit(GvDbusServer  *dbus_server G_GNUC_UNUSED,
             GVariant       *params G_GNUC_UNUSED,
             GError        **error G_GNUC_UNUSED)
 {
-	gv_framework_quit_loop();
+	gv_core_quit();
 
 	return NULL;
 }

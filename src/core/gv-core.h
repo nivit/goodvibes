@@ -20,6 +20,9 @@
 #ifndef __GOODVIBES_CORE_GV_CORE_H__
 #define __GOODVIBES_CORE_GV_CORE_H__
 
+#include <glib.h>
+#include <gio/gio.h>
+
 #include "core/gv-conf.h"
 #include "core/gv-player.h"
 #include "core/gv-station.h"
@@ -33,10 +36,12 @@ extern GvStationList *gv_core_station_list;
 
 /* Functions */
 
-void gv_core_init      (void);
+void gv_core_init      (GApplication *app);
 void gv_core_cleanup   (void);
 void gv_core_warm_up   (const gchar *uri_to_play);
 void gv_core_cool_down (void);
+
+void gv_core_quit      (void);
 
 /*
  * Underlying audio backend

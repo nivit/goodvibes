@@ -311,7 +311,7 @@ on_standalone_window_delete_event(GtkWindow *window,
 	gtk_widget_hide(GTK_WIDGET(window));
 
 	/* Now we're about to quit the application */
-	gv_ui_quit();
+	gv_core_quit();
 
 	/* We must return TRUE here to prevent the window from being destroyed.
 	 * The window will be destroyed later on during the cleanup process.

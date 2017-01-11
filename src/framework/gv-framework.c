@@ -40,12 +40,6 @@ value_transform_bool_string_lowercase(const GValue *src_value, GValue *dest_valu
 }
 
 void
-gv_framework_quit_loop(void)
-{
-	// TODO: remove me
-}
-
-void
 gv_framework_cleanup(void)
 {
 	/* Lists should be empty by now */
