@@ -1,58 +1,45 @@
+/*
+ * Goodvibes Radio Player
+ *
+ * Copyright (C) 2017 Arnaud Rebillout
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <glib.h>
 #include <glib-object.h>
 #include <gtk/gtk.h>
 
-#include "additions/glib-object.h"
-
 #include "framework/log.h"
-
 #include "framework/gv-framework.h"
 #include "core/gv-core.h"
 #include "ui/gv-ui.h"
-
 #include "ui/gv-ui-helpers.h"
-
 
 #include "gv-graphical-application.h"
 #include "options.h"
 
 /*
- * Properties
- */
-
-enum {
-	/* Reserved */
-	PROP_0,
-	/* Properties */
-	// TODO fill with your properties
-	/* Number of properties */
-	PROP_N
-};
-
-static GParamSpec *properties[PROP_N];
-
-/*
- * Signals
- */
-
-/*
  * GObject definitions
  */
-
-struct _GvGraphicalApplicationPrivate {
-	// TODO fill with your data
-};
-
-typedef struct _GvGraphicalApplicationPrivate GvGraphicalApplicationPrivate;
 
 struct _GvGraphicalApplication {
 	/* Parent instance structure */
 	GtkApplication parent_instance;
-	/* Private data */
-	GvGraphicalApplicationPrivate *priv;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE(GvGraphicalApplication, gv_graphical_application, GTK_TYPE_APPLICATION)
+G_DEFINE_TYPE(GvGraphicalApplication, gv_graphical_application, GTK_TYPE_APPLICATION)
 
 /*
  * Helpers
@@ -87,52 +74,6 @@ stringify_list(const gchar *prefix, GList *list)
 	text = g_string_free(str, FALSE);
 
 	return text;
-}
-
-/*
- * Property accessors
- */
-
-static void
-gv_graphical_application_get_property(GObject    *object,
-                                      guint       property_id,
-                                      GValue     *value,
-                                      GParamSpec *pspec)
-{
-	GvGraphicalApplication *self = GV_GRAPHICAL_APPLICATION(object);
-
-	TRACE_GET_PROPERTY(object, property_id, value, pspec);
-
-	// TODO handle properties
-	(void) self;
-	(void) value;
-
-	switch (property_id) {
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
-		break;
-	}
-}
-
-static void
-gv_graphical_application_set_property(GObject      *object,
-                                      guint         property_id,
-                                      const GValue *value,
-                                      GParamSpec   *pspec)
-{
-	GvGraphicalApplication *self = GV_GRAPHICAL_APPLICATION(object);
-
-	TRACE_SET_PROPERTY(object, property_id, value, pspec);
-
-	// TODO handle properties
-	(void) self;
-	(void) value;
-
-	switch (property_id) {
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
-		break;
-	}
 }
 
 /*
@@ -323,14 +264,11 @@ gv_graphical_application_activate(GApplication *app G_GNUC_UNUSED)
 	/* Present the main window */
 	gv_ui_present_main();
 
-	/* First invocation, schedule a callbck to play music.
+	/* First invocation, schedule a callback to play music.
 	 * DO NOT start playing now ! It's too early !
-	 * There's some init code pending, that will be run only after the main
-	 * loop is started, and might even do some async call (dbus connection).
-	 * As much as possible, we wish that we start playing music after
-	 * everything is setup. Therefore, we schedule with a low priority.
-	 * This will give maximum chances to the init code to finish before
-	 * music starts playing.
+	 * There's still some init code pending, and we want to ensure
+	 * (as much as possible) that this code is run before we start
+	 * the playback. Therefore we schedule with a low priority.
 	 */
 	if (first_invocation) {
 		g_idle_add_full(G_PRIORITY_LOW, when_idle_go_player,
@@ -343,68 +281,20 @@ gv_graphical_application_activate(GApplication *app G_GNUC_UNUSED)
  */
 
 static void
-gv_graphical_application_finalize(GObject *object)
-{
-	GvGraphicalApplication *self = GV_GRAPHICAL_APPLICATION(object);
-	GvGraphicalApplicationPrivate *priv = self->priv;
-
-	TRACE("%p", object);
-
-	// TODO job to be done
-	(void) priv;
-
-	/* Chain up */
-	G_OBJECT_CHAINUP_FINALIZE(gv_graphical_application, object);
-}
-
-static void
-gv_graphical_application_constructed(GObject *object)
-{
-	GvGraphicalApplication *self = GV_GRAPHICAL_APPLICATION(object);
-	GvGraphicalApplicationPrivate *priv = self->priv;
-
-	TRACE("%p", object);
-
-	/* Initialize properties */
-	// TODO
-	(void) priv;
-
-	/* Chain up */
-	G_OBJECT_CHAINUP_CONSTRUCTED(gv_graphical_application, object);
-}
-
-static void
 gv_graphical_application_init(GvGraphicalApplication *self)
 {
 	TRACE("%p", self);
-
-	/* Initialize private pointer */
-	self->priv = gv_graphical_application_get_instance_private(self);
 }
 
 static void
 gv_graphical_application_class_init(GvGraphicalApplicationClass *class)
 {
-	GObjectClass *object_class = G_OBJECT_CLASS(class);
 	GApplicationClass *application_class = G_APPLICATION_CLASS(class);
 
 	TRACE("%p", class);
-
-	/* Override GObject methods */
-	object_class->finalize = gv_graphical_application_finalize;
-	object_class->constructed = gv_graphical_application_constructed;
 
 	/* Override GApplication methods */
 	application_class->startup  = gv_graphical_application_startup;
 	application_class->shutdown = gv_graphical_application_shutdown;
 	application_class->activate = gv_graphical_application_activate;
-
-	/* Properties */
-	object_class->get_property = gv_graphical_application_get_property;
-	object_class->set_property = gv_graphical_application_set_property;
-
-	// TODO define your properties here
-	//      use GV_PARAM_DEFAULT_FLAGS
-
-	g_object_class_install_properties(object_class, PROP_N, properties);
 }

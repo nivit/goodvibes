@@ -25,23 +25,25 @@
 #include <locale.h>
 
 #include <glib.h>
-#include <glib/gi18n.h>
 #include <glib-unix.h>
 #include <glib-object.h>
+#include <glib/gi18n.h>
 #include <gio/gio.h>
 
 #include "additions/glib.h"
 
 #include "framework/log.h"
 #include "core/gv-core.h"
+#ifdef UI_ENABLED
 #include "ui/gv-ui.h"
-#include "options.h"
+#endif
 
 #ifdef UI_ENABLED
 #include "gv-graphical-application.h"
 #else
 #include "gv-console-application.h"
 #endif
+#include "options.h"
 
 /*
  * Print informations about program.

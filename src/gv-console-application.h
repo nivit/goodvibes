@@ -17,22 +17,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GOODVIBES_GV_GRAPHICAL_APPLICATION_H__
-#define __GOODVIBES_GV_GRAPHICAL_APPLICATION_H__
+#ifndef __GOODVIBES_GV_CONSOLE_APPLICATION_H__
+#define __GOODVIBES_GV_CONSOLE_APPLICATION_H__
 
 #include <glib-object.h>
 #include <gio/gio.h>
-#include <gtk/gtk.h>
 
 /* GObject declarations */
 
-#define GV_TYPE_GRAPHICAL_APPLICATION gv_graphical_application_get_type()
+#define GV_TYPE_CONSOLE_APPLICATION gv_console_application_get_type()
 
-G_DECLARE_FINAL_TYPE(GvGraphicalApplication, gv_graphical_application,
-                     GV, GRAPHICAL_APPLICATION, GtkApplication)
+G_DECLARE_FINAL_TYPE(GvConsoleApplication, gv_console_application,
+                     GV, CONSOLE_APPLICATION, GApplication)
 
 /* Methods */
 
-GApplication *gv_graphical_application_new(void);
+GApplication *gv_console_application_new(void);
 
-#endif /* __GOODVIBES_GV_GRAPHICAL_APPLICATION_H__ */
+#endif /* __GOODVIBES_GV_CONSOLE_APPLICATION_H__ */
