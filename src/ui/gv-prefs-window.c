@@ -65,14 +65,14 @@ struct _GvPrefsWindowPrivate {
 	GtkWidget *notebook;
 	/* Controls */
 	GtkWidget *controls_vbox;
+	GtkWidget *keyboard_grid;
+	GtkWidget *hotkeys_label;
+	GtkWidget *hotkeys_switch;
 	GtkWidget *mouse_grid;
 	GtkWidget *middle_click_action_label;
 	GtkWidget *middle_click_action_combo;
 	GtkWidget *scroll_action_label;
 	GtkWidget *scroll_action_combo;
-	GtkWidget *keyboard_grid;
-	GtkWidget *hotkeys_label;
-	GtkWidget *hotkeys_switch;
 	GtkWidget *dbus_grid;
 	GtkWidget *dbus_native_label;
 	GtkWidget *dbus_native_switch;
@@ -269,14 +269,14 @@ gv_prefs_window_populate_widgets(GvPrefsWindow *self)
 
 	/* Controls */
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, controls_vbox);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, keyboard_grid);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, hotkeys_label);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, hotkeys_switch);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, mouse_grid);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, middle_click_action_label);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, middle_click_action_combo);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, scroll_action_label);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, scroll_action_combo);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, keyboard_grid);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, hotkeys_label);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, hotkeys_switch);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, dbus_grid);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, dbus_native_label);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, dbus_native_switch);
@@ -344,6 +344,11 @@ gv_prefs_window_setup_widgets(GvPrefsWindow *self)
 	 */
 
 	/* Controls */
+	setup_feature(_("Bind mutimedia keys (play/pause/stop/previous/next)."),
+	              priv->hotkeys_label,
+	              priv->hotkeys_switch,
+	              priv->hotkeys_feat);
+
 	setup_setting(_("Action triggered by a middle click on the tray icon."),
 	              priv->middle_click_action_label,
 	              priv->middle_click_action_combo, "active-id",
@@ -355,11 +360,6 @@ gv_prefs_window_setup_widgets(GvPrefsWindow *self)
 	              priv->scroll_action_combo, "active-id",
 	              tray_obj, "scroll-action",
 	              NULL, NULL);
-
-	setup_feature(_("Bind mutimedia keys (play/pause/stop/previous/next)."),
-	              priv->hotkeys_label,
-	              priv->hotkeys_switch,
-	              priv->hotkeys_feat);
 
 	setup_feature(_("Enable the native D-Bus server "
 	                "(needed for the command-line interface)."),
@@ -424,12 +424,12 @@ gv_prefs_window_setup_layout(GvPrefsWindow *self)
 	             "margin", GV_UI_WINDOW_BORDER,
 	             "spacing", GV_UI_GROUP_SPACING,
 	             NULL);
-	g_object_set(priv->mouse_grid,
+	g_object_set(priv->keyboard_grid,
 	             "row-spacing", GV_UI_ELEM_SPACING,
 	             "column-spacing", GV_UI_LABEL_SPACING,
 	             "halign", GTK_ALIGN_END,
 	             NULL);
-	g_object_set(priv->keyboard_grid,
+	g_object_set(priv->mouse_grid,
 	             "row-spacing", GV_UI_ELEM_SPACING,
 	             "column-spacing", GV_UI_LABEL_SPACING,
 	             "halign", GTK_ALIGN_END,
