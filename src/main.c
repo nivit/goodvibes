@@ -145,6 +145,11 @@ main(int argc, char *argv[])
 	g_set_prgname(PACKAGE_NAME);
 	g_set_application_name(PACKAGE_LONG_NAME);
 
+#ifdef UI_ENABLED
+	/* Set application icon */
+	gtk_window_set_default_icon_name(PACKAGE_NAME);
+#endif
+
 	/* Parse command-line, and run some init code at the same time */
 	options_parse(&argc, &argv);
 
