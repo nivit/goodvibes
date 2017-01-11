@@ -70,9 +70,7 @@ on_prefs_window_destroy(GtkWidget *window, gpointer user_data G_GNUC_UNUSED)
 void
 gv_ui_present_preferences(void)
 {
-	GtkWidget *window;
-
-	window = gv_ui_prefs_window;
+	GtkWidget *window = gv_ui_prefs_window;
 
 	if (window == NULL) {
 		window = gv_prefs_window_new();
@@ -80,6 +78,18 @@ gv_ui_present_preferences(void)
 		                 G_CALLBACK(on_prefs_window_destroy), NULL);
 		gv_ui_prefs_window = window;
 	}
+
+	gtk_window_present(GTK_WINDOW(window));
+}
+
+void
+gv_ui_present_main(void)
+{
+	GtkWidget *window = gv_ui_main_window;
+
+	/* In status icon mode, do nothing */
+	if (gv_ui_tray)
+		return;
 
 	gtk_window_present(GTK_WINDOW(window));
 }

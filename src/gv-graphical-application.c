@@ -306,7 +306,9 @@ gv_graphical_application_startup(GApplication *app)
 static void
 gv_graphical_application_activate(GApplication *app G_GNUC_UNUSED)
 {
-	INFO("Activated !");
+	DEBUG("Activated !");
+
+	gv_ui_present_main();
 }
 
 /*
