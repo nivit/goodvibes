@@ -11,6 +11,10 @@
       </section>
       <section>
         <item>
+	  <attribute name="label" translatable="yes">Close UI</attribute>
+	  <attribute name="action">app.close-ui</attribute>
+        </item>
+        <item>
 	  <attribute name="label" translatable="yes">Quit</attribute>
 	  <attribute name="action">app.quit</attribute>
         </item>

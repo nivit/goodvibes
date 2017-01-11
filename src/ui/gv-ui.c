@@ -43,6 +43,22 @@ GtkWidget *gv_ui_prefs_window;
 static GvFeature *features[8];
 
 void
+gv_ui_hide(void)
+{
+	GtkWidget *prefs_window = gv_ui_prefs_window;
+	GtkWidget *main_window  = gv_ui_main_window;
+
+	/* In status icon mode, do nothing */
+	if (gv_ui_tray)
+		return;
+
+	if (prefs_window)
+		gtk_widget_destroy(prefs_window);
+
+	gtk_widget_hide(main_window);
+}
+
+void
 gv_ui_present_about(void)
 {
 	gv_show_about_dialog(GTK_WINDOW(gv_ui_main_window));
@@ -51,26 +67,27 @@ gv_ui_present_about(void)
 void
 gv_ui_present_preferences(void)
 {
-	GtkWidget *window = gv_ui_prefs_window;
+	GtkWidget *prefs_window = gv_ui_prefs_window;
 
-	if (window == NULL) {
-		window = gv_prefs_window_new();
-		g_object_add_weak_pointer(G_OBJECT(window), (gpointer *) &gv_ui_prefs_window);
+	if (prefs_window == NULL) {
+		prefs_window = gv_prefs_window_new();
+		g_object_add_weak_pointer(G_OBJECT(prefs_window),
+		                          (gpointer *) &gv_ui_prefs_window);
 	}
 
-	gtk_window_present(GTK_WINDOW(window));
+	gtk_window_present(GTK_WINDOW(prefs_window));
 }
 
 void
 gv_ui_present_main(void)
 {
-	GtkWidget *window = gv_ui_main_window;
+	GtkWidget *main_window = gv_ui_main_window;
 
 	/* In status icon mode, do nothing */
 	if (gv_ui_tray)
 		return;
 
-	gtk_window_present(GTK_WINDOW(window));
+	gtk_window_present(GTK_WINDOW(main_window));
 }
 
 void
@@ -120,7 +137,7 @@ gv_ui_cleanup(void)
 	}
 
 	if (prefs_window)
-		gtk_widget_destroy(main_window);
+		gtk_widget_destroy(prefs_window);
 
 	gv_framework_configurables_remove(main_window);
 	gtk_widget_destroy(main_window);

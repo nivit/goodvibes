@@ -40,6 +40,7 @@ void gv_ui_cool_down(void);
 void gv_ui_present_main       (void);
 void gv_ui_present_preferences(void);
 void gv_ui_present_about      (void);
+void gv_ui_hide               (void);
 
 /* Underlying toolkit */
 

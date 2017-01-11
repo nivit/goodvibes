@@ -118,6 +118,14 @@ about_action_cb(GSimpleAction *action G_GNUC_UNUSED,
 }
 
 static void
+close_ui_action_cb(GSimpleAction *action G_GNUC_UNUSED,
+                   GVariant      *parameters G_GNUC_UNUSED,
+                   gpointer       user_data G_GNUC_UNUSED)
+{
+	gv_ui_hide();
+}
+
+static void
 quit_action_cb(GSimpleAction *action G_GNUC_UNUSED,
                GVariant      *parameters G_GNUC_UNUSED,
                gpointer       user_data G_GNUC_UNUSED)
@@ -129,6 +137,7 @@ static const GActionEntry gv_graphical_application_actions[] = {
 	{ "preferences", preferences_action_cb, NULL, NULL, NULL, {0} },
 	{ "help",        help_action_cb,        NULL, NULL, NULL, {0} },
 	{ "about",       about_action_cb,       NULL, NULL, NULL, {0} },
+	{ "close-ui",    close_ui_action_cb,    NULL, NULL, NULL, {0} },
 	{ "quit",        quit_action_cb,        NULL, NULL, NULL, {0} },
 	{ NULL,          NULL,                  NULL, NULL, NULL, {0} }
 };
@@ -180,6 +189,10 @@ gv_graphical_application_startup(GApplication *app)
 	                                gv_graphical_application_actions,
 	                                -1,
 	                                NULL);
+
+	/* The 'close-ui' action makes no sense in the status icon mode */
+	if (options.status_icon)
+		g_action_map_remove_action(G_ACTION_MAP(app), "close-ui");
 
 	/* Check how the application prefers to display it's main menu */
 	prefers_app_menu = gtk_application_prefers_app_menu(GTK_APPLICATION(app));
@@ -262,7 +275,8 @@ gv_graphical_application_activate(GApplication *app G_GNUC_UNUSED)
 	DEBUG("Activated !");
 
 	/* Present the main window */
-	gv_ui_present_main();
+	if (!options.without_ui)
+		gv_ui_present_main();
 
 	/* First invocation, schedule a callback to play music.
 	 * DO NOT start playing now ! It's too early !
@@ -271,6 +285,8 @@ gv_graphical_application_activate(GApplication *app G_GNUC_UNUSED)
 	 * the playback. Therefore we schedule with a low priority.
 	 */
 	if (first_invocation) {
+		first_invocation = FALSE;
+
 		g_idle_add_full(G_PRIORITY_LOW, when_idle_go_player,
 		                (void *) options.uri_to_play, NULL);
 	}

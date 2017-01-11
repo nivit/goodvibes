@@ -523,6 +523,7 @@ popup_menu_build(GtkWindow *window)
 {
 	GtkApplication *app;
 	GMenuModel *menu_model;
+	GtkWidget *menu;
 
 	/* Popup menu is created from the app menu of the application */
 	app = gtk_window_get_application(window);
@@ -533,7 +534,34 @@ popup_menu_build(GtkWindow *window)
 	if (menu_model == NULL)
 		return NULL;
 
-	return gtk_menu_new_from_model(menu_model);
+	/* Create the GtkMenu */
+	menu = gtk_menu_new_from_model(menu_model);
+
+	/* Now, we're a bit smart and remove the item 'close-ui', which makes
+	 * no sense at all when the application is run in status icon mode.
+	 */
+	GList *list, *item;
+
+	list = gtk_container_get_children(GTK_CONTAINER(menu));
+
+	for (item = list; item; item = item->next) {
+		GtkWidget *menu_item = item->data;
+		const gchar *label;
+
+		if (GTK_IS_SEPARATOR_MENU_ITEM(menu_item))
+			continue;
+
+		label = gtk_menu_item_get_label(GTK_MENU_ITEM(menu_item));
+
+		if (!g_strcmp0(label, _("Close UI"))) {
+			gtk_container_remove(GTK_CONTAINER(menu), menu_item);
+			break;
+		}
+	}
+
+	g_list_free(list);
+
+	return menu;
 }
 
 static void
