@@ -159,9 +159,6 @@ gv_ui_init(GApplication *app, gboolean status_icon_mode)
 		/* Configure window for standalone mode */
 		gv_main_window_configure_for_standalone(GV_MAIN_WINDOW(main_window));
 
-		/* Present the window immediately */
-		gtk_window_present(GTK_WINDOW(main_window));
-
 		/* No tray icon */
 		tray = NULL;
 	}

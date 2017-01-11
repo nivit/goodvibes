@@ -38,7 +38,7 @@ extern GvStationList *gv_core_station_list;
 
 void gv_core_init      (GApplication *app);
 void gv_core_cleanup   (void);
-void gv_core_warm_up   (const gchar *uri_to_play);
+void gv_core_warm_up   (void);
 void gv_core_cool_down (void);
 
 void gv_core_quit      (void);

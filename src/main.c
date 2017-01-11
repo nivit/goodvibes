@@ -190,8 +190,8 @@ main(int argc, char *argv[])
 	/* Quit on SIGINT */
 	g_unix_signal_add(SIGINT, sigint_handler, app);
 
-	/* Run */
-	ret = g_application_run(app, argc, argv);
+	/* Run the application */
+	ret = g_application_run(app, 0, NULL);
 
 	/* Cleanup */
 	log_cleanup();

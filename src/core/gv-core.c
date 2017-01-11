@@ -50,16 +50,6 @@ static GvFeature *features[8];
 
 static GApplication *gv_application;
 
-static gboolean
-when_idle_finish_init(gpointer user_data)
-{
-	const gchar *string_to_play = user_data;
-
-	gv_player_go(gv_core_player, string_to_play);
-
-	return G_SOURCE_REMOVE;
-}
-
 void
 gv_core_quit(void)
 {
@@ -76,7 +66,7 @@ gv_core_cool_down(void)
 }
 
 void
-gv_core_warm_up(const gchar *string_to_play)
+gv_core_warm_up(void)
 {
 	GvConf        *conf         = gv_core_conf;
 	GvStationList *station_list = gv_core_station_list;
@@ -90,18 +80,6 @@ gv_core_warm_up(const gchar *string_to_play)
 
 	/* Watch for changes in objects */
 	gv_conf_watch(conf);
-
-	/* Schedule a callback to play some music.
-	 * DO NOT start playing now ! It's too early !
-	 * There's some init code pending, that will be run only after the main
-	 * loop is started, and might even do some async call (dbus connection).
-	 * As much as possible, we wish that we start playing music after
-	 * everything is setup. Therefore, we schedule with a low priority.
-	 * This will give maximum chances to the init code to finish before
-	 * music starts playing.
-	 */
-	g_idle_add_full(G_PRIORITY_LOW, when_idle_finish_init,
-	                (void *) string_to_play, NULL);
 }
 
 void

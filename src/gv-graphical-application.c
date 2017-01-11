@@ -293,7 +293,7 @@ gv_graphical_application_startup(GApplication *app)
 
 	/* Warm-up */
 	DEBUG("---- Warming up core ----");
-	gv_core_warm_up(options.uri_to_play);
+	gv_core_warm_up();
 
 	DEBUG("---- Warming up ui ----");
 	gv_ui_warm_up();
@@ -303,12 +303,39 @@ gv_graphical_application_startup(GApplication *app)
 	g_application_hold(app);
 }
 
+static gboolean
+when_idle_go_player(gpointer user_data)
+{
+	const gchar *uri_to_play = user_data;
+
+	gv_player_go(gv_core_player, uri_to_play);
+
+	return G_SOURCE_REMOVE;
+}
+
 static void
 gv_graphical_application_activate(GApplication *app G_GNUC_UNUSED)
 {
+	static gboolean first_invocation = TRUE;
+
 	DEBUG("Activated !");
 
+	/* Present the main window */
 	gv_ui_present_main();
+
+	/* First invocation, schedule a callbck to play music.
+	 * DO NOT start playing now ! It's too early !
+	 * There's some init code pending, that will be run only after the main
+	 * loop is started, and might even do some async call (dbus connection).
+	 * As much as possible, we wish that we start playing music after
+	 * everything is setup. Therefore, we schedule with a low priority.
+	 * This will give maximum chances to the init code to finish before
+	 * music starts playing.
+	 */
+	if (first_invocation) {
+		g_idle_add_full(G_PRIORITY_LOW, when_idle_go_player,
+		                (void *) options.uri_to_play, NULL);
+	}
 }
 
 /*
@@ -368,7 +395,7 @@ gv_graphical_application_class_init(GvGraphicalApplicationClass *class)
 	object_class->constructed = gv_graphical_application_constructed;
 
 	/* Override GApplication methods */
-	application_class->startup =  gv_graphical_application_startup;
+	application_class->startup  = gv_graphical_application_startup;
 	application_class->shutdown = gv_graphical_application_shutdown;
 	application_class->activate = gv_graphical_application_activate;
 
