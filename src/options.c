@@ -48,6 +48,10 @@ static GOptionEntry entries[] = {
 		"output-file", 'o', 0, G_OPTION_ARG_STRING, &options.output_file,
 		"Redirect output to a file", "file"
 	},
+	{
+		"version", 'v', 0, G_OPTION_ARG_NONE, &options.print_version,
+		"Print the version and exit", NULL
+	},
 #ifdef UI_ENABLED
 	{
 		"without-ui", 0, 0, G_OPTION_ARG_NONE, &options.without_ui,
@@ -58,10 +62,6 @@ static GOptionEntry entries[] = {
 		"Launch as a status icon (deprecated on modern desktops)", NULL
 	},
 #endif
-	{
-		"version", 'v', 0, G_OPTION_ARG_NONE, &options.print_version,
-		"Print the version and exit", NULL
-	},
 	{ .long_name = NULL }
 };
 
@@ -85,7 +85,7 @@ options_parse(int *argc, char **argv[])
 	memset(&options, 0, sizeof(struct options));
 
 	/* Create context & entries */
-	context = g_option_context_new("- A radio player providing good vibrations");
+	context = g_option_context_new("- Positive Vibration, Yeah !");
 	g_option_context_add_main_entries(context, entries, NULL);
 
 	/* Add option groups and perform some init code at the same time */
