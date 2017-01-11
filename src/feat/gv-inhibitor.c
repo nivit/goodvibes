@@ -29,7 +29,7 @@
 
 #include "core/gv-core.h"
 
-#include "core/feat/gv-inhibitor.h"
+#include "feat/gv-inhibitor.h"
 
 /*
  * GObject definitions

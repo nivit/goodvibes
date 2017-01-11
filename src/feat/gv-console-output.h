@@ -17,20 +17,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GOODVIBES_CORE_FEAT_GV_DBUS_SERVER_NATIVE_H__
-#define __GOODVIBES_CORE_FEAT_GV_DBUS_SERVER_NATIVE_H__
+#ifndef __GOODVIBES_FEAT_GV_CONSOLE_OUTPUT_H__
+#define __GOODVIBES_FEAT_GV_CONSOLE_OUTPUT_H__
 
 #include <glib-object.h>
 
 #include "framework/gv-feature.h"
 
-#include "core/feat/gv-dbus-server.h"
-
 /* GObject declarations */
 
-#define GV_TYPE_DBUS_SERVER_NATIVE gv_dbus_server_native_get_type()
+#define GV_TYPE_CONSOLE_OUTPUT gv_console_output_get_type()
 
-G_DECLARE_FINAL_TYPE(GvDbusServerNative, gv_dbus_server_native, \
-                     GV, DBUS_SERVER_NATIVE, GvDbusServer)
+G_DECLARE_FINAL_TYPE(GvConsoleOutput, gv_console_output, GV, CONSOLE_OUTPUT, GvFeature)
 
-#endif /* __GOODVIBES_CORE_FEAT_GV_DBUS_SERVER_NATIVE_H__ */
+#endif /* __GOODVIBES_FEAT_GV_CONSOLE_OUTPUT_H__ */

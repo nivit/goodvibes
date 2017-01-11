@@ -30,8 +30,8 @@
 
 #include "core/gv-core.h"
 
-#include "core/feat/gv-dbus-server.h"
-#include "core/feat/gv-dbus-server-native.h"
+#include "feat/gv-dbus-server.h"
+#include "feat/gv-dbus-server-native.h"
 
 #define DBUS_PATH           "/org/" PACKAGE_CAMEL_NAME
 #define DBUS_IFACE_ROOT     "org."  PACKAGE_CAMEL_NAME

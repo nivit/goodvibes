@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GOODVIBES_UI_FEAT_GV_HOTKEYS_H__
-#define __GOODVIBES_UI_FEAT_GV_HOTKEYS_H__
+#ifndef __GOODVIBES_FEAT_GV_HOTKEYS_H__
+#define __GOODVIBES_FEAT_GV_HOTKEYS_H__
 
 #include <glib-object.h>
 
@@ -30,4 +30,4 @@
 
 G_DECLARE_FINAL_TYPE(GvHotkeys, gv_hotkeys, GV, HOTKEYS, GvFeature)
 
-#endif /* __GOODVIBES_UI_FEAT_GV_HOTKEYS_H__ */
+#endif /* __GOODVIBES_FEAT_GV_HOTKEYS_H__ */

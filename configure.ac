@@ -156,6 +156,8 @@ AM_CONDITIONAL([NOTIFICATIONS_ENABLED], [test "$enable_notifications" = "yes"])
 #              Output files             #
 # ------------------------------------- #
 
+AS_ECHO(["---- Output Files ----"])
+
 # Files to be created
 AC_CONFIG_FILES([
 AUTHORS

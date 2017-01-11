@@ -17,5 +17,5 @@ src/ui/gv-prefs-window.c
 src/ui/gv-station-context-menu.c
 src/ui/gv-station-dialog.c
 src/ui/gv-tray.c
-src/ui/feat/gv-hotkeys.c
+src/feat/gv-hotkeys.c
 

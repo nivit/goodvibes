@@ -52,7 +52,7 @@ do_check()
     #echo ">> $ns"
 
     if ! git_is_tracked $file; then
-	return 0
+        return 0
     fi
 
     if [ $(grep $ns "$file" -c) -eq 3 ]; then
@@ -89,7 +89,7 @@ do_fix()
 
 # File list
 if [ $# -eq 1 ]; then
-    files=$(find cli libgszn src -name \*.h)
+    files=$(find cli libgszn libcaphe src -name \*.h)
 else
     files="${@:2}"
 fi

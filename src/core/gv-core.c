@@ -29,16 +29,16 @@
 #include "core/gv-station-list.h"
 
 #ifdef CONSOLE_OUTPUT_ENABLED
-#include "core/feat/gv-console-output.h"
+#include "feat/gv-console-output.h"
 #endif
 #ifdef DBUS_SERVER_NATIVE_ENABLED
-#include "core/feat/gv-dbus-server-native.h"
+#include "feat/gv-dbus-server-native.h"
 #endif
 #ifdef DBUS_SERVER_MPRIS2_ENABLED
-#include "core/feat/gv-dbus-server-mpris2.h"
+#include "feat/gv-dbus-server-mpris2.h"
 #endif
 #ifdef INHIBITOR_ENABLED
-#include "core/feat/gv-inhibitor.h"
+#include "feat/gv-inhibitor.h"
 #endif
 
 GvConf        *gv_core_conf;

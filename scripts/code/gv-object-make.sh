@@ -12,7 +12,7 @@ print_usage()
     echo "that's to say a .c and a .h skeleton file."
     echo
     echo "Parameters:"
-    echo "<type>        might be 'core', 'framework', 'ui', 'feat-core' or 'feat-ui'."
+    echo "<type>        might be 'core', 'framework', 'ui', 'feat'."
     echo "<object-name> should contain only lowercase, digits and dashes, and start with 'gv-'."
     echo "<parent-name> should contain only lowercase, digits and dashes."
     echo
@@ -80,7 +80,7 @@ srcfile=""
 case "$type" in
     core|framework|ui)
 	srcfile=gv-dummy;;
-    feat-core|feat-ui)
+    feat)
 	srcfile=gv-feature-dummy;;
 esac
 [ -z "$srcfile" ] && \
@@ -95,10 +95,8 @@ case "$type" in
 	dstdir="src/framework";;
     ui)
 	dstdir="src/ui";;
-    feat-core)
-	dstdir="src/core/feat";;
-    feat-ui)
-	dstdir="src/ui/feat";;
+    feat)
+	dstdir="src/feat";;
 esac
 [ -z "$dstdir" ] && \
     { print_usage; exit 1; }
@@ -115,16 +113,15 @@ cp "$srcdir/$srcfile.h" "$dstdir/$dstfile.h"
 # String substitutions                                     #
 # -------------------------------------------------------- #
 
-# Special customization for both ui and feat-ui files
-if [ "$type" == "ui" -o "$type" == "feat-ui" ]; then
+# Customization for ui files
+if [ "$type" == "ui" ]; then
     # Replace 'core' by 'ui' in the include path
     sed -i						\
 	-e "s|core/gv-dummy|ui/gv-dummy|"		\
-	-e "s|core/feat/gv-dummy|ui/feat/gv-dummy|"	\
 	$dstdir/$dstfile.c
 fi
 
-# Special customization for framework files
+# Customization for framework files
 if [ "$type" == "framework" ]; then
     # Replace 'core' by 'framework' in the include path
     sed -i						\

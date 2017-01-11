@@ -17,17 +17,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GOODVIBES_CORE_FEAT_GV_INHIBITOR_H__
-#define __GOODVIBES_CORE_FEAT_GV_INHIBITOR_H__
+#ifndef __GOODVIBES_FEAT_GV_DBUS_SERVER_NATIVE_H__
+#define __GOODVIBES_FEAT_GV_DBUS_SERVER_NATIVE_H__
 
 #include <glib-object.h>
 
 #include "framework/gv-feature.h"
 
+#include "feat/gv-dbus-server.h"
+
 /* GObject declarations */
 
-#define GV_TYPE_INHIBITOR gv_inhibitor_get_type()
+#define GV_TYPE_DBUS_SERVER_NATIVE gv_dbus_server_native_get_type()
 
-G_DECLARE_FINAL_TYPE(GvInhibitor, gv_inhibitor, GV, INHIBITOR, GvFeature)
+G_DECLARE_FINAL_TYPE(GvDbusServerNative, gv_dbus_server_native, \
+                     GV, DBUS_SERVER_NATIVE, GvDbusServer)
 
-#endif /* __GOODVIBES_CORE_FEAT_GV_INHIBITOR_H__ */
+#endif /* __GOODVIBES_FEAT_GV_DBUS_SERVER_NATIVE_H__ */

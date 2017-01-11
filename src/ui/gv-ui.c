@@ -30,10 +30,10 @@
 #include "ui/gv-tray.h"
 
 #ifdef HOTKEYS_ENABLED
-#include "ui/feat/gv-hotkeys.h"
+#include "feat/gv-hotkeys.h"
 #endif
 #ifdef NOTIFICATIONS_ENABLED
-#include "ui/feat/gv-notifications.h"
+#include "feat/gv-notifications.h"
 #endif
 
 GvTray    *gv_ui_tray;

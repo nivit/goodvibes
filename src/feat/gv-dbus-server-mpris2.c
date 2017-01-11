@@ -37,8 +37,8 @@
 
 #include "core/gv-core.h"
 
-#include "core/feat/gv-dbus-server.h"
-#include "core/feat/gv-dbus-server-mpris2.h"
+#include "feat/gv-dbus-server.h"
+#include "feat/gv-dbus-server-mpris2.h"
 
 #define TRACKID_PATH         "/org/" PACKAGE_CAMEL_NAME "/StationList"
 #define PLAYLISTID_PATH      "/org/" PACKAGE_CAMEL_NAME "/Playlist"

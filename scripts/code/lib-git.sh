@@ -10,7 +10,7 @@ git_is_tracked()
 
     # Fill list of tracked files only once
     if [ $GIT_TRACKED_FILLED -eq 0 ]; then
-	GIT_TRACKED="$(git ls-tree -r master --name-only)"
+	GIT_TRACKED="$(git ls-files)"
 	GIT_TRACKED_FILLED=1
 	#echo "--------"
 	#echo "$GIT_TRACKED"

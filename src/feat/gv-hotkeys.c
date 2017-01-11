@@ -26,7 +26,7 @@
 
 #include "core/gv-core.h"
 
-#include "ui/feat/gv-hotkeys.h"
+#include "feat/gv-hotkeys.h"
 
 /*
  * GObject definitions

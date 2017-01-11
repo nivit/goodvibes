@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GOODVIBES_UI_FEAT_GV_NOTIFICATIONS_H__
-#define __GOODVIBES_UI_FEAT_GV_NOTIFICATIONS_H__
+#ifndef __GOODVIBES_FEAT_GV_INHIBITOR_H__
+#define __GOODVIBES_FEAT_GV_INHIBITOR_H__
 
 #include <glib-object.h>
 
@@ -26,8 +26,8 @@
 
 /* GObject declarations */
 
-#define GV_TYPE_NOTIFICATIONS gv_notifications_get_type()
+#define GV_TYPE_INHIBITOR gv_inhibitor_get_type()
 
-G_DECLARE_FINAL_TYPE(GvNotifications, gv_notifications, GV, NOTIFICATIONS, GvFeature)
+G_DECLARE_FINAL_TYPE(GvInhibitor, gv_inhibitor, GV, INHIBITOR, GvFeature)
 
-#endif /* __GOODVIBES_UI_FEAT_GV_NOTIFICATIONS_H__ */
+#endif /* __GOODVIBES_FEAT_GV_INHIBITOR_H__ */

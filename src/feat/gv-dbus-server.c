@@ -27,7 +27,7 @@
 #include "framework/gv-feature.h"
 #include "framework/gv-param-specs.h"
 
-#include "core/feat/gv-dbus-server.h"
+#include "feat/gv-dbus-server.h"
 
 #define MAX_INTERFACES 4
 

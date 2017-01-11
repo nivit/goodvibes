@@ -17,20 +17,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GOODVIBES_CORE_FEAT_GV_DBUS_SERVER_MPRIS2_H__
-#define __GOODVIBES_CORE_FEAT_GV_DBUS_SERVER_MPRIS2_H__
+#ifndef __GOODVIBES_FEAT_GV_NOTIFICATIONS_H__
+#define __GOODVIBES_FEAT_GV_NOTIFICATIONS_H__
 
 #include <glib-object.h>
 
 #include "framework/gv-feature.h"
 
-#include "core/feat/gv-dbus-server.h"
-
 /* GObject declarations */
 
-#define GV_TYPE_DBUS_SERVER_MPRIS2 gv_dbus_server_mpris2_get_type()
+#define GV_TYPE_NOTIFICATIONS gv_notifications_get_type()
 
-G_DECLARE_FINAL_TYPE(GvDbusServerMpris2, gv_dbus_server_mpris2,       \
-                     GV, DBUS_SERVER_MPRIS2, GvDbusServer)
+G_DECLARE_FINAL_TYPE(GvNotifications, gv_notifications, GV, NOTIFICATIONS, GvFeature)
 
-#endif /* __GOODVIBES_CORE_FEAT_GV_DBUS_SERVER_MPRIS2_H__ */
+#endif /* __GOODVIBES_FEAT_GV_NOTIFICATIONS_H__ */
