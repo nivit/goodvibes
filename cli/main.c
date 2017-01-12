@@ -49,14 +49,14 @@ void
 help_and_exit(int exit_code)
 {
 
-#define REVISION()         print("Goodvibesctl (version " PACKAGE_VERSION ")");
+#define REVISION(name)     print("%s (version " PACKAGE_VERSION ")", name);
 #define USAGE(name)        print("Usage: %s <command> [<args>]", name);
 #define TITLE(str)         print(BOLD(str ":"))
 #define COMMAND(cmd, desc) print(BOLD("  %-28s") "%s", cmd, desc)
 #define DESC(desc)         print("  %-28s%s", "", desc)
 #define NL()               print("");
 
-	REVISION();
+	REVISION(app_name);
 	USAGE(app_name);
 	NL();
 	TITLE  ("Base commands");
@@ -99,9 +99,9 @@ help_and_exit(int exit_code)
  * DBus
  */
 
-#define DBUS_NAME           "org."  PACKAGE_CAMEL_NAME
-#define DBUS_PATH           "/org/" PACKAGE_CAMEL_NAME
-#define DBUS_ROOT_IFACE     "org."  PACKAGE_CAMEL_NAME
+#define DBUS_NAME           PACKAGE_APPLICATION_ID
+#define DBUS_PATH           PACKAGE_APPLICATION_PATH
+#define DBUS_ROOT_IFACE     PACKAGE_APPLICATION_ID
 #define DBUS_PLAYER_IFACE   DBUS_ROOT_IFACE ".Player"
 #define DBUS_STATIONS_IFACE DBUS_ROOT_IFACE ".Stations"
 

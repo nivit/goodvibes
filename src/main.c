@@ -190,9 +190,9 @@ main(int argc, char *argv[])
 
 	/* Create the application */
 #ifdef UI_ENABLED
-	app = gv_graphical_application_new("org." PACKAGE_CAMEL_NAME);
+	app = gv_graphical_application_new(PACKAGE_APPLICATION_ID);
 #else
-	app = gv_console_application_new("org." PACKAGE_CAMEL_NAME);
+	app = gv_console_application_new(PACKAGE_APPLICATION_ID);
 #endif
 
 	/* Quit on SIGINT */

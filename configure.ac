@@ -3,7 +3,7 @@
 # Init autoconf
 # 2.60: obsoleting plenty of stuff
 AC_PREREQ([2.60])
-AC_INIT([goodvibes], [0.1-dev])
+AC_INIT([goodvibes], [0.1])
 : ${CPPFLAGS="-std=gnu99 -Wall -Wextra -Wshadow"}
 
 # Init automake
@@ -16,12 +16,14 @@ AM_SILENT_RULES([yes])
 AC_CONFIG_MACRO_DIRS([m4])
 
 # Additional package information
-GV_ADD_GLOBAL_VAR([PACKAGE_CAMEL_NAME],   ["Goodvibes"])
-GV_ADD_GLOBAL_VAR([PACKAGE_LONG_NAME],    ["Goodvibes Radio Player"])
-GV_ADD_GLOBAL_VAR([PACKAGE_AUTHOR_NAME],  ["Arnaud Rebillout"])
-GV_ADD_GLOBAL_VAR([PACKAGE_AUTHOR_EMAIL], ["<elboulangero@gmail.com>"])
-GV_ADD_GLOBAL_VAR([PACKAGE_COPYRIGHT],    ["Copyright (C) 2015-2017"])
-GV_ADD_GLOBAL_VAR([PACKAGE_WEBSITE],      ["https://github.com/elboulangero/goodvibes"])
+GV_ADD_GLOBAL_VAR([PACKAGE_CAMEL_NAME],       ["Goodvibes"])
+GV_ADD_GLOBAL_VAR([PACKAGE_LONG_NAME],        ["Goodvibes Radio Player"])
+GV_ADD_GLOBAL_VAR([PACKAGE_APPLICATION_ID],   ["com.elboulangero.Goodvibes"])
+GV_ADD_GLOBAL_VAR([PACKAGE_APPLICATION_PATH], ["/com/elboulangero/Goodvibes"])
+GV_ADD_GLOBAL_VAR([PACKAGE_AUTHOR_NAME],      ["Arnaud Rebillout"])
+GV_ADD_GLOBAL_VAR([PACKAGE_AUTHOR_EMAIL],     ["<elboulangero@gmail.com>"])
+GV_ADD_GLOBAL_VAR([PACKAGE_COPYRIGHT],        ["Copyright (C) 2015-2017"])
+GV_ADD_GLOBAL_VAR([PACKAGE_WEBSITE],          ["https://github.com/elboulangero/goodvibes"])
 
 # ------------------------------------- #
 #              Toolchain                #
@@ -164,9 +166,9 @@ cli/Makefile
 data/Makefile
 data/dbus-1/Makefile
 data/dbus-1/services/Makefile
-data/dbus-1/services/org.$PACKAGE_CAMEL_NAME.service
+data/dbus-1/services/$PACKAGE_APPLICATION_ID.service
 data/desktop/Makefile
-data/desktop/$PACKAGE_NAME.desktop.in
+data/desktop/$PACKAGE_APPLICATION_ID.desktop.in
 data/icons/Makefile
 data/icons/hicolor/Makefile
 data/icons/hicolor/16x16/Makefile

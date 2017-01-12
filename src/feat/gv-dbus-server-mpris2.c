@@ -38,8 +38,8 @@
 #include "feat/gv-dbus-server.h"
 #include "feat/gv-dbus-server-mpris2.h"
 
-#define TRACKID_PATH         "/org/" PACKAGE_CAMEL_NAME "/StationList"
-#define PLAYLISTID_PATH      "/org/" PACKAGE_CAMEL_NAME "/Playlist"
+#define TRACKID_PATH         PACKAGE_APPLICATION_PATH "/TrackList"
+#define PLAYLISTID_PATH      PACKAGE_APPLICATION_PATH "/Playlist"
 
 #define DBUS_NAME            "org.mpris.MediaPlayer2." PACKAGE_CAMEL_NAME
 #define DBUS_PATH            "/org/mpris/MediaPlayer2"

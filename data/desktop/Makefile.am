@@ -2,7 +2,7 @@
 	msgfmt --desktop -d $(top_srcdir)/po --template $< -o $@ 
 
 desktopdir = $(datadir)/applications
-desktop_in_in_files = @PACKAGE_NAME@.desktop.in.in
+desktop_in_in_files = @PACKAGE_APPLICATION_ID@.desktop.in.in
 desktop_in_files = $(desktop_in_in_files:.in=)
 desktop_DATA = $(desktop_in_files:.in=)
 

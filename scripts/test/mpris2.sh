@@ -17,8 +17,8 @@ print_usage()
     echo ""
     echo "Examples:"
     echo "  $0 call Player Play"
-    echo "  $0 call TrackList GoTo objpath:\"/org/Goodvibes/StationList/0x55be33e73a60\""
-    echo "  $0 call TrackList GetTracksMetadata array:objpath:\"/org/Goodvibes/StationList/0x56502c272620\",\"/org/Goodvibes/StationList/0x56502c272660\""
+    echo "  $0 call TrackList GoTo objpath:\"/com/elboulangero/Goodvibes/TrackList/0x55be33e73a60\""
+    echo "  $0 call TrackList GetTracksMetadata array:objpath:\"/com/elboulangero/Goodvibes/TrackList/0x56502c272620\",\"/com/elboulangero/Goodvibes/TrackList/0x56502c272660\""
 }
 
 iface_real()
