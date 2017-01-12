@@ -1,6 +1,6 @@
 # gv-add-global-var.m4
 #
-# Copyright (C) 2016 Arnaud Rebillout <elboulangero@gmail.com>
+# Copyright (C) 2015-2017 Arnaud Rebillout <elboulangero@gmail.com>
 # 
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,

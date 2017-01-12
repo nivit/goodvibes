@@ -20,7 +20,7 @@ GV_ADD_GLOBAL_VAR([PACKAGE_CAMEL_NAME],   ["Goodvibes"])
 GV_ADD_GLOBAL_VAR([PACKAGE_LONG_NAME],    ["Goodvibes Radio Player"])
 GV_ADD_GLOBAL_VAR([PACKAGE_AUTHOR_NAME],  ["Arnaud Rebillout"])
 GV_ADD_GLOBAL_VAR([PACKAGE_AUTHOR_EMAIL], ["<elboulangero@gmail.com>"])
-GV_ADD_GLOBAL_VAR([PACKAGE_COPYRIGHT],    ["Copyright (C) 2015-2016"])
+GV_ADD_GLOBAL_VAR([PACKAGE_COPYRIGHT],    ["Copyright (C) 2015-2017"])
 GV_ADD_GLOBAL_VAR([PACKAGE_WEBSITE],      ["https://github.com/elboulangero/goodvibes"])
 
 # ------------------------------------- #

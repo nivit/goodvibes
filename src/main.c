@@ -2,7 +2,7 @@
 /*
  * Goodvibes Radio Player
  *
- * Copyright (C) 2015-2016 Arnaud Rebillout
+ * Copyright (C) 2015-2017 Arnaud Rebillout
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
