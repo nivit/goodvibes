@@ -31,10 +31,9 @@ void log_trace_property_access(const gchar *file, const gchar *func, GObject *ob
                                guint property_id, const GValue *value, GParamSpec *pspec,
                                gboolean print_value);
 
-
 /*
  * Wrappers to GLib message logging functions.
- * Use that for logs intended for developpers.
+ * Use that for logs intended for developers.
  */
 
 #define ERROR(fmt, ...)    do { \

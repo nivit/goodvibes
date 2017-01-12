@@ -27,8 +27,6 @@
 #include "additions/glib.h"
 #include "additions/glib-object.h"
 
-#include "framework/log.h"
-#include "framework/uri-schemes.h"
 #include "framework/gv-framework.h"
 
 #ifdef UI_ENABLED

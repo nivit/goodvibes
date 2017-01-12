@@ -20,7 +20,6 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include "framework/log.h"
 #include "framework/gv-framework.h"
 
 #include "core/gv-conf.h"

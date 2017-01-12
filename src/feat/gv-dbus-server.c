@@ -23,9 +23,7 @@
 
 #include "additions/glib-object.h"
 
-#include "framework/log.h"
-#include "framework/gv-feature.h"
-#include "framework/gv-param-specs.h"
+#include "framework/gv-framework.h"
 
 #include "feat/gv-dbus-server.h"
 

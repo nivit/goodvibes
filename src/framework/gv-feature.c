@@ -27,9 +27,7 @@
 
 #include "framework/log.h"
 #include "framework/gv-feature.h"
-#include "framework/gv-framework.h"
 #include "framework/gv-framework-enum-types.h"
-#include "framework/gv-list.h"
 #include "framework/gv-param-specs.h"
 
 /*

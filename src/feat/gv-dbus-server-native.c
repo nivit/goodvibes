@@ -24,8 +24,6 @@
 #include "additions/glib.h"
 #include "additions/glib-object.h"
 
-#include "framework/log.h"
-#include "framework/uri-schemes.h"
 #include "framework/gv-framework.h"
 
 #include "core/gv-core.h"

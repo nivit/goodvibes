@@ -25,7 +25,6 @@
 
 #include "additions/glib.h"
 
-#include "framework/log.h"
 #include "framework/vt-codes.h"
 #include "framework/gv-framework.h"
 

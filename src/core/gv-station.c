@@ -24,8 +24,7 @@
 
 #include "libgszn/gszn.h"
 
-#include "framework/log.h"
-#include "framework/gv-param-specs.h"
+#include "framework/gv-framework.h"
 
 #include "core/gv-station.h"
 #include "core/gv-playlist.h"

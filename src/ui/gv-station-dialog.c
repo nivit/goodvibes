@@ -25,7 +25,6 @@
 #include "additions/gtk.h"
 #include "additions/glib-object.h"
 
-#include "framework/log.h"
 #include "framework/gv-framework.h"
 
 #include "core/gv-core.h"

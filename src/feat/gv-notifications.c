@@ -25,7 +25,6 @@
 
 #include "libgszn/gszn.h"
 
-#include "framework/log.h"
 #include "framework/gv-framework.h"
 
 #include "core/gv-core.h"

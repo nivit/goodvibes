@@ -32,7 +32,7 @@
 
 #include "additions/glib.h"
 
-#include "framework/log.h"
+#include "framework/gv-framework.h"
 #include "core/gv-core.h"
 #ifdef UI_ENABLED
 #include "ui/gv-ui.h"
