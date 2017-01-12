@@ -208,8 +208,8 @@ gv_player_set_engine(GvPlayer *self, GvEngine *engine)
 	GvPlayerPrivate *priv = self->priv;
 
 	/* This is a construct-only property */
-	g_assert(priv->engine == NULL);
-	g_assert(engine != NULL);
+	g_assert_null(priv->engine);
+	g_assert_nonnull(engine);
 	priv->engine = g_object_ref(engine);
 	g_signal_connect(priv->engine, "notify", G_CALLBACK(on_engine_notify), self);
 	g_signal_connect(priv->engine, "error", G_CALLBACK(on_engine_error), self);
@@ -221,8 +221,8 @@ gv_player_set_station_list(GvPlayer *self, GvStationList *station_list)
 	GvPlayerPrivate *priv = self->priv;
 
 	/* This is a construct-only property */
-	g_assert(priv->station_list == NULL);
-	g_assert(station_list != NULL);
+	g_assert_null(priv->station_list);
+	g_assert_nonnull(station_list);
 	priv->station_list = g_object_ref(station_list);
 }
 

@@ -406,7 +406,7 @@ gszn_deserializer_constructed(GObject *object)
 	GsznDeserializerPrivate *priv = self->priv;
 
 	/* Settings are mandatory */
-	g_assert(priv->settings != NULL);
+	g_assert_nonnull(priv->settings);
 
 	/* Create the deserialization backend */
 	priv->backend = gszn_backend_new(priv->settings->backend_type, priv->settings->title);

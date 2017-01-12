@@ -632,8 +632,8 @@ caphe_main_set_application_name(CapheMain *self, const gchar *application_name)
 	CapheMainPrivate *priv = self->priv;
 
 	/* Construct-only property */
-	g_assert(priv->application_name == NULL);
-	g_assert(application_name != NULL);
+	g_assert_null(priv->application_name);
+	g_assert_nonnull(application_name);
 
 	priv->application_name = g_strdup(application_name);
 }

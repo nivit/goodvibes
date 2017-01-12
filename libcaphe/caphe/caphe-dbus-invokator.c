@@ -74,8 +74,8 @@ caphe_dbus_invokator_set_proxy(CapheDbusInvokator *self, GDBusProxy *proxy)
 	CapheDbusInvokatorPrivate *priv = caphe_dbus_invokator_get_instance_private(self);
 
 	/* Construct-only property */
-	g_assert(priv->proxy == NULL);
-	g_assert(proxy != NULL);
+	g_assert_null(priv->proxy);
+	g_assert_nonnull(proxy);
 
 	priv->proxy = g_object_ref(proxy);
 }

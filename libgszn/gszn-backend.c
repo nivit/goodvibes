@@ -204,7 +204,7 @@ gszn_backend_set_title(GsznBackend *self, const gchar *title)
 	GsznBackendPrivate *priv = gszn_backend_get_instance_private(self);
 
 	/* Construct-only property */
-	g_assert(priv->title == NULL);
+	g_assert_null(priv->title);
 	priv->title = g_strdup(title);
 }
 

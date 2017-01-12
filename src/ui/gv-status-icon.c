@@ -343,7 +343,7 @@ gv_status_icon_set_main_window(GvStatusIcon *self, GtkWindow *main_window)
 	GvStatusIconPrivate *priv = self->priv;
 
 	/* Construct-only property */
-	g_assert(priv->main_window == NULL);
+	g_assert_null(priv->main_window);
 	priv->main_window = g_object_ref(main_window);
 }
 
@@ -573,14 +573,14 @@ gv_status_icon_constructed(GObject *object)
 	GtkWidget *menu;
 
 	/* Ensure construct-only properties have been set */
-	g_assert(priv->main_window != NULL);
+	g_assert_nonnull(priv->main_window);
 
 	/* Create the status icon */
 	status_icon = gtk_status_icon_new();
 
 	/* Create the popup menu */
 	menu = popup_menu_build(priv->main_window);
-	g_assert(menu != NULL);
+	g_assert_nonnull(menu);
 
 	/* Attach the popup menu to the main window */
 	gtk_menu_attach_to_widget(GTK_MENU(menu), GTK_WIDGET(priv->main_window), NULL);

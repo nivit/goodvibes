@@ -187,8 +187,8 @@ caphe_dbus_inhibitor_set_service_id(CapheDbusInhibitor *self, const gchar *servi
 	CapheDbusInhibitorPrivate *priv = self->priv;
 
 	/* Construct-only property */
-	g_assert(priv->service_id == NULL);
-	g_assert(service_id != NULL);
+	g_assert_null(priv->service_id);
+	g_assert_nonnull(service_id);
 
 	priv->service_id = g_strdup(service_id);
 }

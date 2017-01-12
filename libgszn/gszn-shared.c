@@ -28,7 +28,7 @@
 gboolean
 gszn_transform_string_to_value(const gchar *str, GValue *value, GError **err)
 {
-	g_assert(value != NULL);
+	g_return_val_if_fail(value != NULL, FALSE);
 
 	/* If there's an existing string to value transform function, let's use it */
 	if (g_value_type_transformable(G_TYPE_STRING, G_VALUE_TYPE(value))) {
@@ -142,7 +142,7 @@ gszn_transform_string_to_value(const gchar *str, GValue *value, GError **err)
 gboolean
 gszn_transform_value_to_string(const GValue *value, gchar **str, GError **err)
 {
-	g_assert(str != NULL);
+	g_return_val_if_fail(str != NULL, FALSE);
 	*str = NULL;
 
 	/* If there's an existing value to string transform function, let's use it,

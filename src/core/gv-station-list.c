@@ -270,7 +270,7 @@ gv_station_list_iter_new(GvStationList *self)
 void
 gv_station_list_iter_free(GvStationListIter *iter)
 {
-	g_assert(iter != NULL);
+	g_return_if_fail(iter != NULL);
 
 	g_list_free_full(iter->head, g_object_unref);
 	g_free(iter);
@@ -279,8 +279,8 @@ gv_station_list_iter_free(GvStationListIter *iter)
 gboolean
 gv_station_list_iter_loop(GvStationListIter *iter, GvStation **station)
 {
-	g_assert(iter != NULL);
-	g_assert(station != NULL);
+	g_return_val_if_fail(iter != NULL, FALSE);
+	g_return_val_if_fail(station != NULL, FALSE);
 
 	*station = NULL;
 
@@ -908,7 +908,7 @@ gv_station_list_load(GvStationList *self)
 	TRACE("%p", self);
 
 	/* This should be called only once at startup */
-	g_assert(priv->stations == NULL);
+	g_assert_null(priv->stations);
 
 	/* Create the deserializer */
 	deserializer = gszn_deserializer_new(priv->serialization_settings);

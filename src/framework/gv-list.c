@@ -107,7 +107,7 @@ gv_list_iter_new(GvList *self)
 void
 gv_list_iter_free(GvListIter *iter)
 {
-	g_assert(iter != NULL);
+	g_return_if_fail(iter != NULL);
 
 	g_list_free_full(iter->head, g_object_unref);
 	g_free(iter);
@@ -116,8 +116,8 @@ gv_list_iter_free(GvListIter *iter)
 gboolean
 gv_list_iter_loop(GvListIter *iter, GObject **object)
 {
-	g_assert(iter != NULL);
-	g_assert(object != NULL);
+	g_return_val_if_fail(iter != NULL, FALSE);
+	g_return_val_if_fail(object != NULL, FALSE);
 
 	*object = NULL;
 

@@ -36,7 +36,7 @@ gv_builder_load(const char *filename, GtkBuilder **builder_out, gchar **uifile_o
 	/* Find the location of the ui file */
 	file_found = gv_get_first_existing_path(GV_DIR_CURRENT_DATA | GV_DIR_SYSTEM_DATA,
 	                                        ui_filename);
-	g_assert(file_found);
+	g_assert_nonnull(file_found);
 	g_free(ui_filename);
 
 	/* Build ui from file */

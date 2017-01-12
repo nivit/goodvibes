@@ -500,7 +500,7 @@ gv_dbus_server_set_dbus_name(GvDbusServer *self, const gchar *value)
 {
 	GvDbusServerPrivate *priv = gv_dbus_server_get_instance_private(self);
 
-	g_assert(priv->name == NULL);
+	g_assert_null(priv->name);
 	priv->name = value;
 }
 
@@ -509,7 +509,7 @@ gv_dbus_server_set_dbus_path(GvDbusServer *self, const gchar *value)
 {
 	GvDbusServerPrivate *priv = gv_dbus_server_get_instance_private(self);
 
-	g_assert(priv->path == NULL);
+	g_assert_null(priv->path);
 	priv->path = value;
 }
 
@@ -518,7 +518,7 @@ gv_dbus_server_set_dbus_introspection(GvDbusServer *self, const gchar *value)
 {
 	GvDbusServerPrivate *priv = gv_dbus_server_get_instance_private(self);
 
-	g_assert(priv->introspection == NULL);
+	g_assert_null(priv->introspection);
 	priv->introspection = value;
 }
 
@@ -527,7 +527,7 @@ gv_dbus_server_set_dbus_interface_table(GvDbusServer *self, GvDbusInterface *val
 {
 	GvDbusServerPrivate *priv = gv_dbus_server_get_instance_private(self);
 
-	g_assert(priv->interface_table == NULL);
+	g_assert_null(priv->interface_table);
 	priv->interface_table = value;
 }
 
@@ -724,13 +724,13 @@ gv_dbus_server_constructed(GObject *object)
 	/* The 'name' property might be left to NULL if we don't want to
 	 * own a bus name. Other properties, though, must have been set.
 	 */
-	g_assert(priv->path);
-	g_assert(priv->introspection);
-	g_assert(priv->interface_table);
+	g_assert_nonnull(priv->path);
+	g_assert_nonnull(priv->introspection);
+	g_assert_nonnull(priv->interface_table);
 
 	/* Parse XML introspection data */
 	priv->introspection_data = g_dbus_node_info_new_for_xml(priv->introspection, NULL);
-	g_assert(priv->introspection_data != NULL);
+	g_assert_nonnull(priv->introspection_data);
 
 #ifdef DEBUG_INTERFACES
 	/* Ensure that the interface table matches the introspection data.

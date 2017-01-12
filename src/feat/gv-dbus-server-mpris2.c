@@ -187,7 +187,7 @@ parse_playlist_id(const gchar    *playlist_id,
 {
 	const gchar *station_uid;
 
-	g_assert(station != NULL);
+	g_assert_nonnull(station);
 	*station = NULL;
 
 	if (!g_strcmp0(playlist_id, "/"))
@@ -220,7 +220,7 @@ parse_track_id(const gchar     *track_id,
 {
 	const gchar *station_uid;
 
-	g_assert(station != NULL);
+	g_assert_nonnull(station);
 	*station = NULL;
 
 	if (!g_strcmp0(track_id, DBUS_PATH "/TrackList/NoTrack"))

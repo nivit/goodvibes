@@ -90,7 +90,7 @@ gv_main_menu_populate(GvMainMenu *self)
 	GtkWidget *widget;
 
 	/* This is supposed to be called once only */
-	g_assert(gtk_container_get_children(GTK_CONTAINER(self)) == NULL);
+	g_assert_null(gtk_container_get_children(GTK_CONTAINER(self)));
 
 	/* Preferences */
 	widget = gtk_menu_item_new_with_label(PREFS_LABEL);

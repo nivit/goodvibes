@@ -177,8 +177,8 @@ caphe_dbus_proxy_set_well_known_name(CapheDbusProxy *self, const gchar *name)
 	CapheDbusProxyPrivate *priv = self->priv;
 
 	/* Construct-only property */
-	g_assert(priv->well_known_name == NULL);
-	g_assert(name != NULL);
+	g_assert_null(priv->well_known_name);
+	g_assert_nonnull(name);
 
 	priv->well_known_name = g_strdup(name);
 }
@@ -189,8 +189,8 @@ caphe_dbus_proxy_set_object_path(CapheDbusProxy *self, const gchar *object_path)
 	CapheDbusProxyPrivate *priv = self->priv;
 
 	/* Construct-only property */
-	g_assert(priv->object_path == NULL);
-	g_assert(object_path != NULL);
+	g_assert_null(priv->object_path);
+	g_assert_nonnull(object_path);
 
 	priv->object_path = g_strdup(object_path);
 }
@@ -201,8 +201,8 @@ caphe_dbus_proxy_set_interface_name(CapheDbusProxy *self, const gchar *interface
 	CapheDbusProxyPrivate *priv = self->priv;
 
 	/* Construct-only property */
-	g_assert(priv->interface_name == NULL);
-	g_assert(interface_name != NULL);
+	g_assert_null(priv->interface_name);
+	g_assert_nonnull(interface_name);
 
 	priv->interface_name = g_strdup(interface_name);
 }

@@ -534,7 +534,7 @@ gszn_serializer_constructed(GObject *object)
 	GsznSerializerPrivate *priv = self->priv;
 
 	/* Settings are mandatory */
-	g_assert(priv->settings != NULL);
+	g_assert_nonnull(priv->settings);
 
 	/* Chain up */
 	if (G_OBJECT_CLASS(gszn_serializer_parent_class)->constructed)

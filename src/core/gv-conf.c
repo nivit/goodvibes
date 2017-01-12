@@ -222,7 +222,7 @@ gv_conf_unwatch(GvConf *self)
 	GsznSerializer *serializer = priv->serializer;
 
 	/* This should be called only once at cleanup */
-	g_assert(serializer);
+	g_assert_nonnull(serializer);
 
 	/* Run any pending save operation */
 	if (priv->save_timeout_id > 0)
@@ -256,7 +256,7 @@ gv_conf_watch(GvConf *self)
 	                 G_CALLBACK(on_serializer_object_changed), self);
 
 	/* This should be called only once at startup */
-	g_assert(priv->serializer == NULL);
+	g_assert_null(priv->serializer);
 	priv->serializer = serializer;
 }
 
@@ -289,7 +289,7 @@ gv_conf_save(GvConf *self)
 	gchar *text;
 
 	/* Stringify data */
-	g_assert(serializer);
+	g_assert_nonnull(serializer);
 	text = gszn_serializer_print(serializer);
 
 	/* Write to file */
@@ -319,8 +319,8 @@ gv_conf_load(GvConf *self)
 	TRACE("%p", self);
 
 	/* This should be called only once at startup */
-	g_assert(priv->serializer == NULL);
-	g_assert(priv->deserializer == NULL);
+	g_assert_null(priv->serializer);
+	g_assert_null(priv->deserializer);
 
 	/* Create the deserializer */
 	deserializer = gszn_deserializer_new(priv->serialization_settings);
@@ -383,9 +383,9 @@ gv_conf_finalize(GObject *object)
 	TRACE("%p", object);
 
 	/* Ensure that everything happened in order */
-	g_assert(priv->save_timeout_id == 0);
-	g_assert(priv->serializer == NULL);
-	g_assert(priv->deserializer == NULL);
+	g_assert_true(priv->save_timeout_id == 0);
+	g_assert_null(priv->serializer);
+	g_assert_null(priv->deserializer);
 
 	/* Free serialization settings */
 	gszn_settings_free(priv->serialization_settings);

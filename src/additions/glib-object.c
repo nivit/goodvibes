@@ -97,9 +97,9 @@ g_object_get_property_desc(GObject *object, const gchar *property_name)
 	const gchar *desc;
 
 	pspec = g_object_class_find_property(G_OBJECT_GET_CLASS(object), property_name);
-	g_assert(pspec);
+	g_assert_nonnull(pspec);
 	desc = g_param_spec_get_blurb(pspec);
-	g_assert(desc);
+	g_assert_nonnull(desc);
 
 	return desc;
 }
@@ -117,8 +117,8 @@ g_object_get_property_uint_bounds(GObject *object, const gchar *property_name,
 		*maximum = 0;
 
 	pspec = g_object_class_find_property(G_OBJECT_GET_CLASS(object), property_name);
-	g_assert(pspec);
-	g_assert(G_IS_PARAM_SPEC_UINT(pspec));
+	g_assert_nonnull(pspec);
+	g_assert_true(G_IS_PARAM_SPEC_UINT(pspec));
 
 	pspec_uint = G_PARAM_SPEC_UINT(pspec);
 	if (minimum)
