@@ -32,7 +32,7 @@
 #include "ui/gv-ui.h"
 #include "ui/gv-ui-helpers.h"
 #include "ui/gv-ui-enum-types.h"
-#include "ui/gv-tray.h"
+#include "ui/gv-status-icon.h"
 #include "ui/gv-prefs-window.h"
 
 #define UI_FILE "ui/prefs-window.glade"
@@ -330,8 +330,8 @@ static void
 gv_prefs_window_setup_widgets(GvPrefsWindow *self)
 {
 	GvPrefsWindowPrivate *priv = self->priv;
-	GObject *tray_obj   = G_OBJECT(gv_ui_tray);
-	GObject *player_obj = G_OBJECT(gv_core_player);
+	GObject *status_icon_obj   = G_OBJECT(gv_ui_status_icon);
+	GObject *player_obj        = G_OBJECT(gv_core_player);
 
 	/* Setup adjustments
 	 * This must be done before intializing any widget values.
@@ -360,17 +360,17 @@ gv_prefs_window_setup_widgets(GvPrefsWindow *self)
 	              priv->hotkeys_switch,
 	              priv->hotkeys_feat);
 
-	if (tray_obj) {
-		setup_setting(_("Action triggered by a middle click on the tray icon."),
+	if (status_icon_obj) {
+		setup_setting(_("Action triggered by a middle click on the status icon."),
 		              priv->middle_click_action_label,
 		              priv->middle_click_action_combo, "active-id",
-		              tray_obj, "middle-click-action",
+		              status_icon_obj, "middle-click-action",
 		              NULL, NULL);
 
-		setup_setting(_("Action triggered by mouse-scrolling on the tray icon."),
+		setup_setting(_("Action triggered by mouse-scrolling on the status icon."),
 		              priv->scroll_action_label,
 		              priv->scroll_action_combo, "active-id",
-		              tray_obj, "scroll-action",
+		              status_icon_obj, "scroll-action",
 		              NULL, NULL);
 	} else {
 		setdown_widget(_("Application was not launched in status icon mode."),

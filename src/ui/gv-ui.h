@@ -22,13 +22,13 @@
 
 #include <gtk/gtk.h>
 
-#include "ui/gv-tray.h"
+#include "ui/gv-status-icon.h"
 
 /* Global variables */
 
-extern GvTray    *gv_ui_tray;
-extern GtkWidget *gv_ui_main_window;
-extern GtkWidget *gv_ui_prefs_window;
+extern GvStatusIcon *gv_ui_status_icon;
+extern GtkWidget    *gv_ui_main_window;
+extern GtkWidget    *gv_ui_prefs_window;
 
 /* Functions */
 

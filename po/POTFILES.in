@@ -16,6 +16,6 @@ src/ui/gv-main-window.c
 src/ui/gv-prefs-window.c
 src/ui/gv-station-context-menu.c
 src/ui/gv-station-dialog.c
-src/ui/gv-tray.c
+src/ui/gv-status-icon.c
 src/feat/gv-hotkeys.c
 

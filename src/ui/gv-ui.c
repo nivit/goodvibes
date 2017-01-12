@@ -27,7 +27,7 @@
 #include "ui/gv-about-dialog.h"
 #include "ui/gv-prefs-window.h"
 #include "ui/gv-stock-icons.h"
-#include "ui/gv-tray.h"
+#include "ui/gv-status-icon.h"
 
 #ifdef HOTKEYS_ENABLED
 #include "feat/gv-hotkeys.h"
@@ -36,9 +36,9 @@
 #include "feat/gv-notifications.h"
 #endif
 
-GvTray    *gv_ui_tray;
-GtkWidget *gv_ui_main_window;
-GtkWidget *gv_ui_prefs_window;
+GvStatusIcon *gv_ui_status_icon;
+GtkWidget    *gv_ui_main_window;
+GtkWidget    *gv_ui_prefs_window;
 
 static GvFeature *features[8];
 
@@ -49,7 +49,7 @@ gv_ui_hide(void)
 	GtkWidget *main_window  = gv_ui_main_window;
 
 	/* In status icon mode, do nothing */
-	if (gv_ui_tray)
+	if (gv_ui_status_icon)
 		return;
 
 	if (prefs_window)
@@ -84,7 +84,7 @@ gv_ui_present_main(void)
 	GtkWidget *main_window = gv_ui_main_window;
 
 	/* In status icon mode, do nothing */
-	if (gv_ui_tray)
+	if (gv_ui_status_icon)
 		return;
 
 	gtk_window_present(GTK_WINDOW(main_window));
@@ -127,13 +127,13 @@ gv_ui_cleanup(void)
 	 * https://developer.gnome.org/gtk3/stable/GtkWindow.html#gtk-window-new
 	 */
 
-	GtkWidget *prefs_window = gv_ui_prefs_window;
-	GtkWidget *main_window  = gv_ui_main_window;
-	GvTray    *tray         = gv_ui_tray;
+	GtkWidget    *prefs_window = gv_ui_prefs_window;
+	GtkWidget    *main_window  = gv_ui_main_window;
+	GvStatusIcon *status_icon  = gv_ui_status_icon;
 
-	if (tray) {
-		gv_framework_configurables_remove(tray);
-		g_object_unref(tray);
+	if (status_icon) {
+		gv_framework_configurables_remove(status_icon);
+		g_object_unref(status_icon);
 	}
 
 	if (prefs_window)
@@ -159,8 +159,8 @@ gv_ui_init(GApplication *app, gboolean status_icon_mode)
 	 * Ui objects                                      *
 	 * ----------------------------------------------- */
 
-	GtkWidget *main_window;
-	GvTray    *tray;
+	GtkWidget    *main_window;
+	GvStatusIcon *status_icon;
 
 	main_window = gv_main_window_new(app);
 	gv_framework_configurables_append(main_window);
@@ -169,15 +169,15 @@ gv_ui_init(GApplication *app, gboolean status_icon_mode)
 		/* Configure window for popup mode */
 		gv_main_window_configure_for_popup(GV_MAIN_WINDOW(main_window));
 
-		/* Create a tray icon, and we're done */
-		tray = gv_tray_new(GTK_WINDOW(main_window));
-		gv_framework_configurables_append(tray);
+		/* Create a status icon, and we're done */
+		status_icon = gv_status_icon_new(GTK_WINDOW(main_window));
+		gv_framework_configurables_append(status_icon);
 	} else {
 		/* Configure window for standalone mode */
 		gv_main_window_configure_for_standalone(GV_MAIN_WINDOW(main_window));
 
-		/* No tray icon */
-		tray = NULL;
+		/* No status icon */
+		status_icon = NULL;
 	}
 
 	/* ----------------------------------------------- *
@@ -210,7 +210,7 @@ gv_ui_init(GApplication *app, gboolean status_icon_mode)
 	 * Initialize global variables                     *
 	 * ----------------------------------------------- */
 
-	gv_ui_tray = tray;
+	gv_ui_status_icon = status_icon;
 	gv_ui_main_window = main_window;
 }
 

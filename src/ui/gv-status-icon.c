@@ -35,7 +35,7 @@
 #include "ui/gv-ui-helpers.h"
 #include "ui/gv-ui-enum-types.h"
 #include "ui/gv-main-window.h"
-#include "ui/gv-tray.h"
+#include "ui/gv-status-icon.h"
 
 #define ICON_MIN_SIZE 16
 
@@ -63,11 +63,11 @@ static GParamSpec *properties[PROP_N];
  * GObject definitions
  */
 
-struct _GvTrayPrivate {
+struct _GvStatusIconPrivate {
 	/* Properties */
 	GtkWindow               *main_window;
-	GvTrayMiddleClickAction  middle_click_action;
-	GvTrayScrollAction       scroll_action;
+	GvStatusIconMiddleClick  middle_click_action;
+	GvStatusIconScroll       scroll_action;
 	/* Right-click menu */
 	GtkWidget        *popup_menu;
 	/* Status icon */
@@ -75,34 +75,34 @@ struct _GvTrayPrivate {
 	guint             status_icon_size;
 };
 
-typedef struct _GvTrayPrivate GvTrayPrivate;
+typedef struct _GvStatusIconPrivate GvStatusIconPrivate;
 
-struct _GvTray {
+struct _GvStatusIcon {
 	/* Parent instance structure */
-	GObject         parent_instance;
+	GObject              parent_instance;
 	/* Private data */
-	GvTrayPrivate *priv;
+	GvStatusIconPrivate *priv;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE(GvTray, gv_tray, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE(GvStatusIcon, gv_status_icon, G_TYPE_OBJECT)
 
 /*
  * Helpers
  */
 
 static void
-gv_tray_update_icon_pixbuf(GvTray *self)
+gv_status_icon_update_icon_pixbuf(GvStatusIcon *self)
 {
-	GvTrayPrivate *priv = self->priv;
+	GvStatusIconPrivate *priv = self->priv;
 	GtkStatusIcon *status_icon = priv->status_icon;
 
 	gtk_status_icon_set_from_icon_name(status_icon, PACKAGE_NAME);
 }
 
 static void
-gv_tray_update_icon_tooltip(GvTray *self)
+gv_status_icon_update_icon_tooltip(GvStatusIcon *self)
 {
-	GvTrayPrivate *priv = self->priv;
+	GvStatusIconPrivate *priv = self->priv;
 	GtkStatusIcon *status_icon = priv->status_icon;
 	GvPlayer *player = gv_core_player;
 	GvPlayerState player_state;
@@ -176,13 +176,13 @@ gv_tray_update_icon_tooltip(GvTray *self)
 }
 
 static void
-gv_tray_update_icon(GvTray *self)
+gv_status_icon_update_icon(GvStatusIcon *self)
 {
 	/* Update icon */
-	gv_tray_update_icon_pixbuf(self);
+	gv_status_icon_update_icon_pixbuf(self);
 
 	/* Update tooltip */
-	gv_tray_update_icon_tooltip(self);
+	gv_status_icon_update_icon_tooltip(self);
 
 	/* Set visible */
 	gtk_status_icon_set_visible(self->priv->status_icon, TRUE);
@@ -194,9 +194,9 @@ gv_tray_update_icon(GvTray *self)
 
 static void
 on_activate(GtkStatusIcon *status_icon G_GNUC_UNUSED,
-            GvTray       *self G_GNUC_UNUSED)
+            GvStatusIcon  *self G_GNUC_UNUSED)
 {
-	GvTrayPrivate *priv = self->priv;
+	GvStatusIconPrivate *priv = self->priv;
 	GtkWindow *window = priv->main_window;
 
 	if (gtk_window_is_active(window))
@@ -209,9 +209,9 @@ static void
 on_popup_menu(GtkStatusIcon *status_icon,
               guint          button,
               guint          activate_time,
-              GvTray       *self)
+              GvStatusIcon  *self)
 {
-	GvTrayPrivate *priv = self->priv;
+	GvStatusIconPrivate *priv = self->priv;
 	GtkMenu *menu = GTK_MENU(priv->popup_menu);
 
 #if GTK_CHECK_VERSION(3,22,0)
@@ -233,9 +233,9 @@ on_popup_menu(GtkStatusIcon *status_icon,
 static gboolean
 on_button_release_event(GtkStatusIcon  *status_icon G_GNUC_UNUSED,
                         GdkEventButton *event,
-                        GvTray        *self G_GNUC_UNUSED)
+                        GvStatusIcon   *self G_GNUC_UNUSED)
 {
-	GvTrayPrivate *priv = self->priv;
+	GvStatusIconPrivate *priv = self->priv;
 	GvPlayer *player = gv_core_player;
 
 	/* Here we only handle the middle-click */
@@ -243,10 +243,10 @@ on_button_release_event(GtkStatusIcon  *status_icon G_GNUC_UNUSED,
 		return FALSE;
 
 	switch (priv->middle_click_action) {
-	case GV_TRAY_MIDDLE_CLICK_ACTION_TOGGLE:
+	case GV_STATUS_ICON_MIDDLE_CLICK_TOGGLE:
 		gv_player_toggle(player);
 		break;
-	case GV_TRAY_MIDDLE_CLICK_ACTION_MUTE:
+	case GV_STATUS_ICON_MIDDLE_CLICK_MUTE:
 		gv_player_toggle_mute(player);
 		break;
 	default:
@@ -261,13 +261,13 @@ on_button_release_event(GtkStatusIcon  *status_icon G_GNUC_UNUSED,
 static gboolean
 on_scroll_event(GtkStatusIcon  *status_icon G_GNUC_UNUSED,
                 GdkEventScroll *event,
-                GvTray        *self G_GNUC_UNUSED)
+                GvStatusIcon   *self G_GNUC_UNUSED)
 {
-	GvTrayPrivate *priv = self->priv;
+	GvStatusIconPrivate *priv = self->priv;
 	GvPlayer *player = gv_core_player;
 
 	switch (priv->scroll_action) {
-	case GV_TRAY_SCROLL_ACTION_STATION:
+	case GV_STATUS_ICON_SCROLL_STATION:
 		switch (event->direction) {
 		case GDK_SCROLL_DOWN:
 			gv_player_next(player);
@@ -279,7 +279,7 @@ on_scroll_event(GtkStatusIcon  *status_icon G_GNUC_UNUSED,
 			break;
 		}
 		break;
-	case GV_TRAY_SCROLL_ACTION_VOLUME:
+	case GV_STATUS_ICON_SCROLL_VOLUME:
 		switch (event->direction) {
 		case GDK_SCROLL_DOWN:
 			gv_player_lower_volume(player);
@@ -302,11 +302,11 @@ on_scroll_event(GtkStatusIcon  *status_icon G_GNUC_UNUSED,
 static gboolean
 on_size_changed(GtkStatusIcon *status_icon G_GNUC_UNUSED,
                 gint           size,
-                GvTray       *self G_GNUC_UNUSED)
+                GvStatusIcon  *self G_GNUC_UNUSED)
 {
-	DEBUG("Tray icon size is now %d", size);
+	DEBUG("Status icon size is now %d", size);
 
-	gv_tray_update_icon(self);
+	gv_status_icon_update_icon(self);
 
 	return FALSE;
 }
@@ -316,9 +316,9 @@ on_size_changed(GtkStatusIcon *status_icon G_GNUC_UNUSED,
  */
 
 static void
-on_player_notify(GvPlayer  *player,
-                 GParamSpec *pspec,
-                 GvTray    *self)
+on_player_notify(GvPlayer     *player,
+                 GParamSpec   *pspec,
+                 GvStatusIcon *self)
 {
 	const gchar *property_name = g_param_spec_get_name(pspec);
 
@@ -329,7 +329,7 @@ on_player_notify(GvPlayer  *player,
 	    !g_strcmp0(property_name, "mute") ||
 	    !g_strcmp0(property_name, "station") ||
 	    !g_strcmp0(property_name, "metadata")) {
-		gv_tray_update_icon(self);
+		gv_status_icon_update_icon(self);
 		return;
 	}
 }
@@ -339,25 +339,25 @@ on_player_notify(GvPlayer  *player,
  */
 
 static void
-gv_tray_set_main_window(GvTray *self, GtkWindow *main_window)
+gv_status_icon_set_main_window(GvStatusIcon *self, GtkWindow *main_window)
 {
-	GvTrayPrivate *priv = self->priv;
+	GvStatusIconPrivate *priv = self->priv;
 
 	/* Construct-only property */
 	g_assert(priv->main_window == NULL);
 	priv->main_window = g_object_ref(main_window);
 }
 
-GvTrayMiddleClickAction
-gv_tray_get_middle_click_action(GvTray *self)
+GvStatusIconMiddleClick
+gv_status_icon_get_middle_click_action(GvStatusIcon *self)
 {
 	return self->priv->middle_click_action;
 }
 
 void
-gv_tray_set_middle_click_action(GvTray *self, GvTrayMiddleClickAction action)
+gv_status_icon_set_middle_click_action(GvStatusIcon *self, GvStatusIconMiddleClick action)
 {
-	GvTrayPrivate *priv = self->priv;
+	GvStatusIconPrivate *priv = self->priv;
 
 	if (priv->middle_click_action == action)
 		return;
@@ -366,16 +366,16 @@ gv_tray_set_middle_click_action(GvTray *self, GvTrayMiddleClickAction action)
 	g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_MIDDLE_CLICK_ACTION]);
 }
 
-GvTrayScrollAction
-gv_tray_get_scroll_action(GvTray *self)
+GvStatusIconScroll
+gv_status_icon_get_scroll_action(GvStatusIcon *self)
 {
 	return self->priv->scroll_action;
 }
 
 void
-gv_tray_set_scroll_action(GvTray *self, GvTrayScrollAction action)
+gv_status_icon_set_scroll_action(GvStatusIcon *self, GvStatusIconScroll action)
 {
-	GvTrayPrivate *priv = self->priv;
+	GvStatusIconPrivate *priv = self->priv;
 
 	if (priv->scroll_action == action)
 		return;
@@ -385,21 +385,21 @@ gv_tray_set_scroll_action(GvTray *self, GvTrayScrollAction action)
 }
 
 static void
-gv_tray_get_property(GObject    *object,
-                     guint       property_id,
-                     GValue     *value,
-                     GParamSpec *pspec)
+gv_status_icon_get_property(GObject    *object,
+                            guint       property_id,
+                            GValue     *value,
+                            GParamSpec *pspec)
 {
-	GvTray *self = GV_TRAY(object);
+	GvStatusIcon *self = GV_STATUS_ICON(object);
 
 	TRACE_GET_PROPERTY(object, property_id, value, pspec);
 
 	switch (property_id) {
 	case PROP_MIDDLE_CLICK_ACTION:
-		g_value_set_enum(value, gv_tray_get_middle_click_action(self));
+		g_value_set_enum(value, gv_status_icon_get_middle_click_action(self));
 		break;
 	case PROP_SCROLL_ACTION:
-		g_value_set_enum(value, gv_tray_get_scroll_action(self));
+		g_value_set_enum(value, gv_status_icon_get_scroll_action(self));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -408,24 +408,24 @@ gv_tray_get_property(GObject    *object,
 }
 
 static void
-gv_tray_set_property(GObject      *object,
-                     guint         property_id,
-                     const GValue *value,
-                     GParamSpec   *pspec)
+gv_status_icon_set_property(GObject      *object,
+                            guint         property_id,
+                            const GValue *value,
+                            GParamSpec   *pspec)
 {
-	GvTray *self = GV_TRAY(object);
+	GvStatusIcon *self = GV_STATUS_ICON(object);
 
 	TRACE_SET_PROPERTY(object, property_id, value, pspec);
 
 	switch (property_id) {
 	case PROP_MAIN_WINDOW:
-		gv_tray_set_main_window(self, g_value_get_object(value));
+		gv_status_icon_set_main_window(self, g_value_get_object(value));
 		break;
 	case PROP_MIDDLE_CLICK_ACTION:
-		gv_tray_set_middle_click_action(self, g_value_get_enum(value));
+		gv_status_icon_set_middle_click_action(self, g_value_get_enum(value));
 		break;
 	case PROP_SCROLL_ACTION:
-		gv_tray_set_scroll_action(self, g_value_get_enum(value));
+		gv_status_icon_set_scroll_action(self, g_value_get_enum(value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -437,10 +437,10 @@ gv_tray_set_property(GObject      *object,
  * Public methods
  */
 
-GvTray *
-gv_tray_new(GtkWindow *main_window)
+GvStatusIcon *
+gv_status_icon_new(GtkWindow *main_window)
 {
-	return g_object_new(GV_TYPE_TRAY,
+	return g_object_new(GV_TYPE_STATUS_ICON,
 	                    "main-window", main_window,
 	                    NULL);
 }
@@ -494,10 +494,10 @@ value_transform_string_enum(const GValue *src_value,
  */
 
 static void
-gv_tray_finalize(GObject *object)
+gv_status_icon_finalize(GObject *object)
 {
-	GvTray *self = GV_TRAY(object);
-	GvTrayPrivate *priv = self->priv;
+	GvStatusIcon *self = GV_STATUS_ICON(object);
+	GvStatusIconPrivate *priv = self->priv;
 	GvPlayer *player = gv_core_player;
 
 	TRACE("%p", object);
@@ -515,7 +515,7 @@ gv_tray_finalize(GObject *object)
 	g_object_unref(priv->status_icon);
 
 	/* Chain up */
-	G_OBJECT_CHAINUP_FINALIZE(gv_tray, object);
+	G_OBJECT_CHAINUP_FINALIZE(gv_status_icon, object);
 }
 
 static GtkWidget *
@@ -565,10 +565,10 @@ popup_menu_build(GtkWindow *window)
 }
 
 static void
-gv_tray_constructed(GObject *object)
+gv_status_icon_constructed(GObject *object)
 {
-	GvTray *self = GV_TRAY(object);
-	GvTrayPrivate *priv = self->priv;
+	GvStatusIcon *self = GV_STATUS_ICON(object);
+	GvStatusIconPrivate *priv = self->priv;
 	GvPlayer *player = gv_core_player;
 	GtkStatusIcon *status_icon;
 	GtkWidget *menu;
@@ -576,7 +576,7 @@ gv_tray_constructed(GObject *object)
 	/* Ensure construct-only properties have been set */
 	g_assert(priv->main_window != NULL);
 
-	/* Create the tray icon */
+	/* Create the status icon */
 	status_icon = gtk_status_icon_new();
 
 	/* Create the popup menu */
@@ -607,32 +607,32 @@ gv_tray_constructed(GObject *object)
 	g_signal_connect(player, "notify", G_CALLBACK(on_player_notify), self);
 
 	/* Chain up */
-	G_OBJECT_CHAINUP_CONSTRUCTED(gv_tray, object);
+	G_OBJECT_CHAINUP_CONSTRUCTED(gv_status_icon, object);
 }
 
 static void
-gv_tray_init(GvTray *self)
+gv_status_icon_init(GvStatusIcon *self)
 {
 	TRACE("%p", self);
 
 	/* Initialize private pointer */
-	self->priv = gv_tray_get_instance_private(self);
+	self->priv = gv_status_icon_get_instance_private(self);
 }
 
 static void
-gv_tray_class_init(GvTrayClass *class)
+gv_status_icon_class_init(GvStatusIconClass *class)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS(class);
 
 	TRACE("%p", class);
 
 	/* Override GObject methods */
-	object_class->finalize = gv_tray_finalize;
-	object_class->constructed = gv_tray_constructed;
+	object_class->finalize = gv_status_icon_finalize;
+	object_class->constructed = gv_status_icon_constructed;
 
 	/* Properties */
-	object_class->get_property = gv_tray_get_property;
-	object_class->set_property = gv_tray_set_property;
+	object_class->get_property = gv_status_icon_get_property;
+	object_class->set_property = gv_status_icon_set_property;
 
 	properties[PROP_MAIN_WINDOW] =
 	        g_param_spec_object("main-window", "Main Window", NULL,
@@ -642,31 +642,31 @@ gv_tray_class_init(GvTrayClass *class)
 
 	properties[PROP_MIDDLE_CLICK_ACTION] =
 	        g_param_spec_enum("middle-click-action", "Middle Click Action", NULL,
-	                          GV_TRAY_MIDDLE_CLICK_ACTION_ENUM_TYPE,
-	                          GV_TRAY_MIDDLE_CLICK_ACTION_TOGGLE,
+	                          GV_STATUS_ICON_MIDDLE_CLICK_ENUM_TYPE,
+	                          GV_STATUS_ICON_MIDDLE_CLICK_TOGGLE,
 	                          GV_PARAM_DEFAULT_FLAGS | GSZN_PARAM_SERIALIZE |
 	                          G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
 
 	properties[PROP_SCROLL_ACTION] =
 	        g_param_spec_enum("scroll-action", "Scroll Action", NULL,
-	                          GV_TRAY_SCROLL_ACTION_ENUM_TYPE,
-	                          GV_TRAY_SCROLL_ACTION_STATION,
+	                          GV_STATUS_ICON_SCROLL_ENUM_TYPE,
+	                          GV_STATUS_ICON_SCROLL_STATION,
 	                          GV_PARAM_DEFAULT_FLAGS | GSZN_PARAM_SERIALIZE |
 	                          G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
 
 	g_object_class_install_properties(object_class, PROP_N, properties);
 
 	/* Register transform function */
-	g_value_register_transform_func(GV_TRAY_MIDDLE_CLICK_ACTION_ENUM_TYPE,
+	g_value_register_transform_func(GV_STATUS_ICON_MIDDLE_CLICK_ENUM_TYPE,
 	                                G_TYPE_STRING,
 	                                value_transform_enum_string);
 	g_value_register_transform_func(G_TYPE_STRING,
-	                                GV_TRAY_MIDDLE_CLICK_ACTION_ENUM_TYPE,
+	                                GV_STATUS_ICON_MIDDLE_CLICK_ENUM_TYPE,
 	                                value_transform_string_enum);
-	g_value_register_transform_func(GV_TRAY_SCROLL_ACTION_ENUM_TYPE,
+	g_value_register_transform_func(GV_STATUS_ICON_SCROLL_ENUM_TYPE,
 	                                G_TYPE_STRING,
 	                                value_transform_enum_string);
 	g_value_register_transform_func(G_TYPE_STRING,
-	                                GV_TRAY_SCROLL_ACTION_ENUM_TYPE,
+	                                GV_STATUS_ICON_SCROLL_ENUM_TYPE,
 	                                value_transform_string_enum);
 }
