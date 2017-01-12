@@ -1,3 +1,4 @@
+
 /*
  * Goodvibes Radio Player
  *
@@ -145,7 +146,7 @@ main(int argc, char *argv[])
 
 	/* Set application name */
 	g_set_prgname(PACKAGE_NAME);
-	g_set_application_name(PACKAGE_LONG_NAME);
+	g_set_application_name(_("Goodvibes Radio Player"));
 
 #ifdef UI_ENABLED
 	/* Set application icon */

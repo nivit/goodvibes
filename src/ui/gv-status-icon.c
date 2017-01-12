@@ -139,10 +139,12 @@ gv_status_icon_update_icon_tooltip(GvStatusIcon *self)
 	}
 
 	if (player_muted)
-		player_str = g_strdup_printf("<b>" PACKAGE_LONG_NAME "</b> (%s, %s)",
+		player_str = g_strdup_printf("<b>%s</b> (%s, %s)",
+		                             g_get_application_name(),
 		                             player_state_str, _("muted"));
 	else
-		player_str = g_strdup_printf("<b>" PACKAGE_LONG_NAME "</b> (%s, %s %u%%)",
+		player_str = g_strdup_printf("<b>%s</b> (%s, %s %u%%)",
+		                             g_get_application_name(),
 		                             player_state_str, _("vol."), player_volume);
 
 	/* Current station */

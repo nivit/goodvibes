@@ -167,7 +167,7 @@ update_notification_metadata(NotifyNotification *notif, GvMetadata *metadata)
 static gboolean
 update_notification_error(NotifyNotification *notif, const gchar *error_string)
 {
-	notify_notification_update(notif, PACKAGE_LONG_NAME, error_string, "dialog-error");
+	notify_notification_update(notif, g_get_application_name(), error_string, "dialog-error");
 
 	return TRUE;
 }

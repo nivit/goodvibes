@@ -45,7 +45,6 @@ gv_show_about_dialog(GtkWindow *parent)
 	                      "copyright", PACKAGE_COPYRIGHT " " PACKAGE_AUTHOR_NAME,
 	                      "license-type", GTK_LICENSE_GPL_3_0,
 	                      "logo-icon-name", PACKAGE_NAME,
-	                      "program-name", PACKAGE_LONG_NAME,
 	                      "version", PACKAGE_VERSION,
 	                      "website", PACKAGE_WEBSITE,
 	                      NULL);

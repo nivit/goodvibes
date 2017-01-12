@@ -837,9 +837,7 @@ prop_get_can_raise(GvDbusServer *dbus_server G_GNUC_UNUSED)
 static GVariant *
 prop_get_identity(GvDbusServer *dbus_server G_GNUC_UNUSED)
 {
-	// TODO Add gettext stuff for translating, I saw that somewhere.
-	//      But, wait, what does the MPRIS2 spec say about that ?
-	return g_variant_new_string(PACKAGE_LONG_NAME);
+	return g_variant_new_string(g_get_application_name());
 }
 
 static GVariant *

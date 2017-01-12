@@ -9,6 +9,7 @@ data/ui/prefs-window.glade
 data/ui/station-dialog.glade
 
 # Source files
+src/main.c
 src/core/gv-conf.c
 src/core/gv-station-list.c
 src/ui/gv-main-menu.c
