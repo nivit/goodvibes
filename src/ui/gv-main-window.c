@@ -35,7 +35,7 @@
 #include "ui/gv-main-window.h"
 #include "ui/gv-stations-tree-view.h"
 
-#define UI_FILE "ui/main-window.glade"
+#define UI_FILE "main-window.glade"
 
 /*
  * GObject definitions

@@ -34,7 +34,7 @@
 #include "ui/gv-status-icon.h"
 #include "ui/gv-prefs-window.h"
 
-#define UI_FILE "ui/prefs-window.glade"
+#define UI_FILE "prefs-window.glade"
 
 /*
  * GObject definitions

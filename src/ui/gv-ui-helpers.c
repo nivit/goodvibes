@@ -24,21 +24,28 @@
 void
 gv_builder_load(const char *filename, GtkBuilder **builder_out, gchar **uifile_out)
 {
+	gchar *ui_filename;
+	gchar *file_found;
 	GtkBuilder *builder;
-	gchar *uifile;
 
 	g_return_if_fail(builder_out != NULL);
 
+	/* Prepend the 'ui' prefix */
+	ui_filename = g_build_filename("ui/", filename, NULL);
+
 	/* Find the location of the ui file */
-	uifile = gv_get_first_existing_path(GV_DIR_CURRENT_DATA | GV_DIR_SYSTEM_DATA,
-	                                    filename);
-	g_assert(uifile);
+	file_found = gv_get_first_existing_path(GV_DIR_CURRENT_DATA | GV_DIR_SYSTEM_DATA,
+	                                        ui_filename);
+	g_assert(file_found);
+	g_free(ui_filename);
 
 	/* Build ui from file */
-	builder = gtk_builder_new_from_file(uifile);
+	builder = gtk_builder_new_from_file(file_found);
 
 	/* Fill output parameters */
 	*builder_out = builder;
 	if (uifile_out)
-		*uifile_out = uifile;
+		*uifile_out = file_found;
+	else
+		g_free(file_found);
 }

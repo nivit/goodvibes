@@ -206,7 +206,7 @@ gv_graphical_application_startup(GApplication *app)
 		GMenuModel *model;
 		gchar *uifile;
 
-		gv_builder_load("ui/app-menu.glade", &builder, &uifile);
+		gv_builder_load("app-menu.glade", &builder, &uifile);
 		model = G_MENU_MODEL(gtk_builder_get_object(builder, "app-menu"));
 		gtk_application_set_app_menu(GTK_APPLICATION(app), model);
 		DEBUG("App menu set from ui file '%s'", uifile);
@@ -220,7 +220,7 @@ gv_graphical_application_startup(GApplication *app)
 		GMenuModel *model;
 		gchar *uifile;
 
-		gv_builder_load("ui/menubar.glade", &builder, &uifile);
+		gv_builder_load("menubar.glade", &builder, &uifile);
 		model = G_MENU_MODEL(gtk_builder_get_object(builder, "menubar"));
 		gtk_application_set_menubar(GTK_APPLICATION(app), model);
 		DEBUG("Menubar set from ui file '%s'", uifile);

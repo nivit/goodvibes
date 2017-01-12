@@ -33,7 +33,7 @@
 #include "ui/gv-ui-helpers.h"
 #include "ui/gv-station-dialog.h"
 
-#define UI_FILE "ui/station-dialog.glade"
+#define UI_FILE "station-dialog.glade"
 
 /*
  * GObject definitions
