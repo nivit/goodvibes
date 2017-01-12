@@ -148,23 +148,17 @@ static const GActionEntry gv_graphical_application_actions[] = {
 static void
 gv_graphical_application_shutdown(GApplication *app)
 {
-	DEBUG(">>>> Shutting down application <<<<");
+	DEBUG_NO_CONTEXT(">>>> Main loop terminated <<<<");
 
 	/* Shutdown */
-	DEBUG("---- Shutting down ui ----");
+	DEBUG_NO_CONTEXT("---- Shutting down ----");
 	gv_ui_shutdown();
-
-	DEBUG("---- Shutting down core ----");
 	gv_core_shutdown();
 
 	/* Cleanup */
-	DEBUG("---- Cleaning up ui ----");
+	DEBUG_NO_CONTEXT("---- Cleaning up ----");
 	gv_ui_cleanup();
-
-	DEBUG("---- Cleaning up core ----");
 	gv_core_cleanup();
-
-	DEBUG("---- Cleaning up framework ----");
 	gv_framework_cleanup();
 
 	/* Mandatory chain-up */
@@ -176,7 +170,7 @@ gv_graphical_application_startup(GApplication *app)
 {
 	gboolean prefers_app_menu;
 
-	DEBUG(">>>> Starting application <<<<");
+	DEBUG_NO_CONTEXT("---- Starting application ----");
 
 	/* Mandatory chain-up, see:
 	 * https://developer.gnome.org/gtk3/stable/GtkApplication.html#gtk-application-new
@@ -229,26 +223,20 @@ gv_graphical_application_startup(GApplication *app)
 	}
 
 	/* Initialization */
-	DEBUG("---- Initializing framework ----");
+	DEBUG_NO_CONTEXT("---- Initializing ----");
 	gv_framework_init();
-
-	DEBUG("---- Initializing core ----");
 	gv_core_init(app);
-
-	DEBUG("---- Initializing ui ----");
 	gv_ui_init(app, options.status_icon);
 
 	/* Debug messages */
-	DEBUG("---- Peeping into lists ----");
-	DEBUG("%s", stringify_list("Feature list     : ", gv_framework_feature_list));
-	DEBUG("%s", stringify_list("Configurable list: ", gv_framework_configurable_list));
-	DEBUG("%s", stringify_list("Errorable list   : ", gv_framework_errorable_list));
+	DEBUG_NO_CONTEXT("---- Lists ----");
+	DEBUG_NO_CONTEXT("%s", stringify_list("Feature     : ", gv_framework_feature_list));
+	DEBUG_NO_CONTEXT("%s", stringify_list("Configurable: ", gv_framework_configurable_list));
+	DEBUG_NO_CONTEXT("%s", stringify_list("Errorable   : ", gv_framework_errorable_list));
 
 	/* Startup */
-	DEBUG("---- Starting up core ----");
+	DEBUG_NO_CONTEXT("---- Starting up ----");
 	gv_core_startup();
-
-	DEBUG("---- Starting up ui ----");
 	gv_ui_startup();
 
 	/* Hold application */
@@ -271,8 +259,6 @@ gv_graphical_application_activate(GApplication *app G_GNUC_UNUSED)
 {
 	static gboolean first_invocation = TRUE;
 
-	DEBUG("Activated !");
-
 	/* Present the main window */
 	if (!options.without_ui)
 		gv_ui_present_main();
@@ -284,6 +270,8 @@ gv_graphical_application_activate(GApplication *app G_GNUC_UNUSED)
 	 * the playback. Therefore we schedule with a low priority.
 	 */
 	if (first_invocation) {
+		DEBUG_NO_CONTEXT(">>> Main loop started <<<<");
+
 		first_invocation = FALSE;
 
 		g_idle_add_full(G_PRIORITY_LOW, when_idle_go_player,

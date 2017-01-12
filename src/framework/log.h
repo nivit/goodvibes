@@ -45,6 +45,7 @@ void log_trace_property_access(const gchar *file, const gchar *func, GObject *ob
 #define WARNING(fmt, ...)  log_msg(G_LOG_LEVEL_WARNING,  __FILE__, __func__, fmt, ##__VA_ARGS__)
 #define INFO(fmt, ...)     log_msg(G_LOG_LEVEL_INFO,     __FILE__, __func__, fmt, ##__VA_ARGS__)
 #define DEBUG(fmt, ...)    log_msg(G_LOG_LEVEL_DEBUG,    __FILE__, __func__, fmt, ##__VA_ARGS__)
+#define DEBUG_NO_CONTEXT(fmt, ...) log_msg(G_LOG_LEVEL_DEBUG, NULL, NULL, fmt, ##__VA_ARGS__)
 
 #define TRACE(fmt, ...)    log_trace(__FILE__, __func__, fmt, ##__VA_ARGS__)
 #define TRACE_GET_PROPERTY(obj, prop_id, value, pspec) \

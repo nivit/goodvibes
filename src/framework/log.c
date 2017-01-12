@@ -286,8 +286,11 @@ log_msg(GLogLevelFlags level, const gchar *file, const gchar *func, const gchar 
 	if (level > log_level)
 		return;
 
-	snprintf(fmt2, sizeof fmt2, "%s%s: %s()%s: %s",
-	         log_strings->dim, file, func, log_strings->reset, fmt);
+	if (!file && !func)
+		snprintf(fmt2, sizeof fmt2, "%s", fmt);
+	else
+		snprintf(fmt2, sizeof fmt2, "%s%s: %s()%s: %s",
+		         log_strings->dim, file, func, log_strings->reset, fmt);
 
 	va_start(ap, fmt);
 	g_logv(G_LOG_DOMAIN, level, fmt2, ap);

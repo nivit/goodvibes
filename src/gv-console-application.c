@@ -93,17 +93,15 @@ gv_console_application_new(const gchar *application_id)
 static void
 gv_console_application_shutdown(GApplication *app)
 {
-	DEBUG(">>>> Shutting down application <<<<");
+	DEBUG_NO_CONTEXT(">>>> Main loop started <<<<");
 
 	/* Shutdown */
-	DEBUG("---- Shutting down core ----");
+	DEBUG_NO_CONTEXT("---- Shutting down ----");
 	gv_core_shutdown();
 
 	/* Cleanup */
-	DEBUG("---- Cleaning up core ----");
+	DEBUG_NO_CONTEXT("---- Cleaning up ----");
 	gv_core_cleanup();
-
-	DEBUG("---- Cleaning up framework ----");
 	gv_framework_cleanup();
 
 	/* Mandatory chain-up */
@@ -113,7 +111,7 @@ gv_console_application_shutdown(GApplication *app)
 static void
 gv_console_application_startup(GApplication *app)
 {
-	DEBUG(">>>> Starting application <<<<");
+	DEBUG_NO_CONTEXT("---- Starting application ----");
 
 	/* Mandatory chain-up, see:
 	 * https://developer.gnome.org/gtk3/stable/GtkApplication.html#gtk-application-new
@@ -121,20 +119,18 @@ gv_console_application_startup(GApplication *app)
 	G_APPLICATION_CLASS(gv_console_application_parent_class)->startup(app);
 
 	/* Initialization */
-	DEBUG("---- Initializing framework ----");
+	DEBUG_NO_CONTEXT("---- Initializing ----");
 	gv_framework_init();
-
-	DEBUG("---- Initializing core ----");
 	gv_core_init(app);
 
 	/* Debug messages */
-	DEBUG("---- Peeping into lists ----");
-	DEBUG("%s", stringify_list("Feature list     : ", gv_framework_feature_list));
-	DEBUG("%s", stringify_list("Configurable list: ", gv_framework_configurable_list));
-	DEBUG("%s", stringify_list("Errorable list   : ", gv_framework_errorable_list));
+	DEBUG_NO_CONTEXT("---- Lists ----");
+	DEBUG_NO_CONTEXT("%s", stringify_list("Feature     : ", gv_framework_feature_list));
+	DEBUG_NO_CONTEXT("%s", stringify_list("Configurable: ", gv_framework_configurable_list));
+	DEBUG_NO_CONTEXT("%s", stringify_list("Errorable   : ", gv_framework_errorable_list));
 
 	/* Startup */
-	DEBUG("---- Starting up core ----");
+	DEBUG_NO_CONTEXT("---- Starting up ----");
 	gv_core_startup();
 
 	/* Hold application */
@@ -157,8 +153,6 @@ gv_console_application_activate(GApplication *app G_GNUC_UNUSED)
 {
 	static gboolean first_invocation = TRUE;
 
-	DEBUG("Activated !");
-
 	/* First invocation, schedule a callback to play music.
 	 * DO NOT start playing now ! It's too early !
 	 * There's still some init code pending, and we want to ensure
@@ -166,6 +160,10 @@ gv_console_application_activate(GApplication *app G_GNUC_UNUSED)
 	 * the playback. Therefore we schedule with a low priority.
 	 */
 	if (first_invocation) {
+		DEBUG_NO_CONTEXT(">>>> Main loop started <<<<");
+
+		first_invocation = FALSE;
+
 		g_idle_add_full(G_PRIORITY_LOW, when_idle_go_player,
 		                (void *) options.uri_to_play, NULL);
 	}
