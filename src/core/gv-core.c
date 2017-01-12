@@ -113,6 +113,12 @@ gv_core_cleanup(void)
 
 	gv_framework_errorables_remove(conf);
 	g_object_unref(conf);
+
+	/* Ensure everything has been destroyed */
+	g_assert_null(gv_core_conf);
+	g_assert_null(gv_core_engine);
+	g_assert_null(gv_core_player);
+	g_assert_null(gv_core_station_list);
 }
 
 void
@@ -128,23 +134,18 @@ gv_core_init(GApplication *application)
 	 * Core objects                                    *
 	 * ----------------------------------------------- */
 
-	GvConf        *conf;
-	GvEngine      *engine;
-	GvPlayer      *player;
-	GvStationList *station_list;
+	gv_core_conf = gv_conf_new();
+	gv_framework_errorables_append(gv_core_conf);
 
-	conf = gv_conf_new();
-	gv_framework_errorables_append(conf);
+	gv_core_engine = gv_engine_new();
+	gv_framework_errorables_append(gv_core_engine);
 
-	engine = gv_engine_new();
-	gv_framework_errorables_append(engine);
+	gv_core_station_list = gv_station_list_new();
+	gv_framework_errorables_append(gv_core_station_list);
 
-	station_list = gv_station_list_new();
-	gv_framework_errorables_append(station_list);
-
-	player = gv_player_new(engine, station_list);
-	gv_framework_configurables_append(player);
-	gv_framework_errorables_append(player);
+	gv_core_player = gv_player_new(gv_core_engine, gv_core_station_list);
+	gv_framework_configurables_append(gv_core_player);
+	gv_framework_errorables_append(gv_core_player);
 
 
 
@@ -189,13 +190,17 @@ gv_core_init(GApplication *application)
 
 
 	/* ----------------------------------------------- *
-	 * Initialize global variables                     *
+	 * Make weak pointers to assert proper cleanup     *
 	 * ----------------------------------------------- */
 
-	gv_core_conf = conf;
-	gv_core_engine = engine;
-	gv_core_station_list = station_list;
-	gv_core_player = player;
+	g_object_add_weak_pointer(G_OBJECT(gv_core_conf),
+	                          (gpointer *) &gv_core_conf);
+	g_object_add_weak_pointer(G_OBJECT(gv_core_engine),
+	                          (gpointer *) &gv_core_engine);
+	g_object_add_weak_pointer(G_OBJECT(gv_core_station_list),
+	                          (gpointer *) &gv_core_station_list);
+	g_object_add_weak_pointer(G_OBJECT(gv_core_player),
+	                          (gpointer *) &gv_core_player);
 }
 
 /*

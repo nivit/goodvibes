@@ -45,17 +45,14 @@ static GvFeature *features[8];
 void
 gv_ui_hide(void)
 {
-	GtkWidget *prefs_window = gv_ui_prefs_window;
-	GtkWidget *main_window  = gv_ui_main_window;
-
 	/* In status icon mode, do nothing */
 	if (gv_ui_status_icon)
 		return;
 
-	if (prefs_window)
-		gtk_widget_destroy(prefs_window);
+	if (gv_ui_prefs_window)
+		gtk_widget_destroy(gv_ui_prefs_window);
 
-	gtk_widget_hide(main_window);
+	gtk_widget_hide(gv_ui_main_window);
 }
 
 void
@@ -67,27 +64,23 @@ gv_ui_present_about(void)
 void
 gv_ui_present_preferences(void)
 {
-	GtkWidget *prefs_window = gv_ui_prefs_window;
-
-	if (prefs_window == NULL) {
-		prefs_window = gv_prefs_window_new();
-		g_object_add_weak_pointer(G_OBJECT(prefs_window),
+	if (gv_ui_prefs_window == NULL) {
+		gv_ui_prefs_window = gv_prefs_window_new();
+		g_object_add_weak_pointer(G_OBJECT(gv_ui_prefs_window),
 		                          (gpointer *) &gv_ui_prefs_window);
 	}
 
-	gtk_window_present(GTK_WINDOW(prefs_window));
+	gtk_window_present(GTK_WINDOW(gv_ui_prefs_window));
 }
 
 void
 gv_ui_present_main(void)
 {
-	GtkWidget *main_window = gv_ui_main_window;
-
 	/* In status icon mode, do nothing */
 	if (gv_ui_status_icon)
 		return;
 
-	gtk_window_present(GTK_WINDOW(main_window));
+	gtk_window_present(GTK_WINDOW(gv_ui_main_window));
 }
 
 void
@@ -99,9 +92,7 @@ gv_ui_cool_down(void)
 void
 gv_ui_warm_up(void)
 {
-	GvMainWindow *main_window = GV_MAIN_WINDOW(gv_ui_main_window);
-
-	gv_main_window_populate_stations(main_window);
+	gv_main_window_populate_stations(GV_MAIN_WINDOW(gv_ui_main_window));
 }
 
 void
@@ -142,6 +133,11 @@ gv_ui_cleanup(void)
 	gv_framework_configurables_remove(main_window);
 	gtk_widget_destroy(main_window);
 
+	/* Ensure everything has been destroyed */
+	g_assert_null(gv_ui_prefs_window);
+	g_assert_null(gv_ui_main_window);
+	g_assert_null(gv_ui_status_icon);
+
 	/* Stock icons */
 
 	gv_stock_icons_cleanup();
@@ -159,25 +155,22 @@ gv_ui_init(GApplication *app, gboolean status_icon_mode)
 	 * Ui objects                                      *
 	 * ----------------------------------------------- */
 
-	GtkWidget    *main_window;
-	GvStatusIcon *status_icon;
-
-	main_window = gv_main_window_new(app);
-	gv_framework_configurables_append(main_window);
+	gv_ui_main_window = gv_main_window_new(app);
+	gv_framework_configurables_append(gv_ui_main_window);
 
 	if (status_icon_mode) {
 		/* Configure window for popup mode */
-		gv_main_window_configure_for_popup(GV_MAIN_WINDOW(main_window));
+		gv_main_window_configure_for_popup(GV_MAIN_WINDOW(gv_ui_main_window));
 
 		/* Create a status icon, and we're done */
-		status_icon = gv_status_icon_new(GTK_WINDOW(main_window));
-		gv_framework_configurables_append(status_icon);
+		gv_ui_status_icon = gv_status_icon_new(GTK_WINDOW(gv_ui_main_window));
+		gv_framework_configurables_append(gv_ui_status_icon);
 	} else {
 		/* Configure window for standalone mode */
-		gv_main_window_configure_for_standalone(GV_MAIN_WINDOW(main_window));
+		gv_main_window_configure_for_standalone(GV_MAIN_WINDOW(gv_ui_main_window));
 
 		/* No status icon */
-		status_icon = NULL;
+		gv_ui_status_icon = NULL;
 	}
 
 	/* ----------------------------------------------- *
@@ -207,11 +200,15 @@ gv_ui_init(GApplication *app, gboolean status_icon_mode)
 
 
 	/* ----------------------------------------------- *
-	 * Initialize global variables                     *
+	 * Make weak pointers to assert proper cleanup     *
 	 * ----------------------------------------------- */
 
-	gv_ui_status_icon = status_icon;
-	gv_ui_main_window = main_window;
+	if (gv_ui_status_icon)
+		g_object_add_weak_pointer(G_OBJECT(gv_ui_status_icon),
+		                          (gpointer *) &gv_ui_status_icon);
+
+	g_object_add_weak_pointer(G_OBJECT(gv_ui_main_window),
+	                          (gpointer *) &gv_ui_main_window);
 }
 
 /*
