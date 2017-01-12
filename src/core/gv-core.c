@@ -31,10 +31,8 @@
 #ifdef CONSOLE_OUTPUT_ENABLED
 #include "feat/gv-console-output.h"
 #endif
-#ifdef DBUS_SERVER_NATIVE_ENABLED
+#ifdef DBUS_SERVER_ENABLED
 #include "feat/gv-dbus-server-native.h"
-#endif
-#ifdef DBUS_SERVER_MPRIS2_ENABLED
 #include "feat/gv-dbus-server-mpris2.h"
 #endif
 #ifdef INHIBITOR_ENABLED
@@ -170,13 +168,12 @@ gv_core_init(GApplication *application)
 	gv_framework_features_append(feature);
 	gv_framework_configurables_append(feature);
 #endif
-#ifdef DBUS_SERVER_NATIVE_ENABLED
+#ifdef DBUS_SERVER_ENABLED
 	feature = gv_feature_new(GV_TYPE_DBUS_SERVER_NATIVE, TRUE);
 	features[idx++] = feature;
 	gv_framework_features_append(feature);
 	gv_framework_configurables_append(feature);
-#endif
-#ifdef DBUS_SERVER_MPRIS2_ENABLED
+
 	feature = gv_feature_new(GV_TYPE_DBUS_SERVER_MPRIS2, TRUE);
 	features[idx++] = feature;
 	gv_framework_features_append(feature);

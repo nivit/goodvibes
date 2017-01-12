@@ -207,18 +207,11 @@ gv_feat_sources += feat/gv-console-output.c feat/gv-console-output.h
 gv_feat_cflags  += -DCONSOLE_OUTPUT_ENABLED
 endif
 
-if DBUS_NATIVE_ENABLED
-gv_feat_sources += feat/gv-dbus-server.c feat/gv-dbus-server.h \
-		   feat/gv-dbus-server-native.c feat/gv-dbus-server-native.h
-gv_feat_cflags  += -DDBUS_SERVER_NATIVE_ENABLED
-endif
-
-if DBUS_MPRIS2_ENABLED
-if ! DBUS_NATIVE_ENABLED
-gv_feat_sources += feat/gv-dbus-server.c feat/gv-dbus-server.h
-endif
-gv_feat_sources += feat/gv-dbus-server-mpris2.c feat/gv-dbus-server-mpris2.h
-gv_feat_cflags  += -DDBUS_SERVER_MPRIS2_ENABLED
+if DBUS_SERVER_ENABLED
+gv_feat_sources += feat/gv-dbus-server.c 	feat/gv-dbus-server.h		\
+		   feat/gv-dbus-server-native.c feat/gv-dbus-server-native.h	\
+		   feat/gv-dbus-server-mpris2.c feat/gv-dbus-server-mpris2.h
+gv_feat_cflags  += -DDBUS_SERVER_ENABLED
 endif
 
 if INHIBITOR_ENABLED

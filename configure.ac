@@ -123,14 +123,12 @@ AM_CONDITIONAL([UI_ENABLED], [test "$enable_ui" = "yes"])
 
 AS_ECHO(["---- Core Features ----"])
 
-GV_FEATURE_ENABLE([dbus_native],    [native dbus server support], [$feat_noextra])
-GV_FEATURE_ENABLE([dbus_mpris2],    [mpris2 dbus server support], [$feat_noextra])
-GV_FEATURE_ENABLE([console_output], [console output support],     [$feat_noextra])
-GV_FEATURE_ENABLE([inhibitor],      [inhibitor support],          [$feat_noextra])
+GV_FEATURE_ENABLE([console_output], [console output support], [$feat_noextra])
+GV_FEATURE_ENABLE([dbus_server],    [dbus server support],    [$feat_noextra])
+GV_FEATURE_ENABLE([inhibitor],      [inhibitor support],      [$feat_noextra])
 
-AM_CONDITIONAL([DBUS_NATIVE_ENABLED],    [test "$enable_dbus_native" = "yes"])
-AM_CONDITIONAL([DBUS_MPRIS2_ENABLED],    [test "$enable_dbus_mpris2" = "yes"])
 AM_CONDITIONAL([CONSOLE_OUTPUT_ENABLED], [test "$enable_console_output" = "yes"])
+AM_CONDITIONAL([DBUS_SERVER_ENABLED],    [test "$enable_dbus_server" = "yes"])
 AM_CONDITIONAL([INHIBITOR_ENABLED],      [test "$enable_inhibitor" = "yes"])
 
 # Check for ui features dependencies
@@ -214,8 +212,7 @@ AS_ECHO(["
 	Core
 	----
 	Console output    : $enable_console_output
-	Native dbus server: $enable_dbus_native
-	Mpris2 dbus server: $enable_dbus_mpris2
+	D-Bus server      : $enable_dbus_server
 	Inhibitor         : $enable_inhibitor
 
 	Ui                : $enable_ui
