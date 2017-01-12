@@ -54,7 +54,7 @@ gv_core_quit(void)
 }
 
 void
-gv_core_cool_down(void)
+gv_core_shutdown(void)
 {
 	GvConf *conf = gv_core_conf;
 
@@ -63,7 +63,7 @@ gv_core_cool_down(void)
 }
 
 void
-gv_core_warm_up(void)
+gv_core_startup(void)
 {
 	GvConf        *conf         = gv_core_conf;
 	GvStationList *station_list = gv_core_station_list;

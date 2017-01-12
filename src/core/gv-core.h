@@ -36,12 +36,12 @@ extern GvStationList *gv_core_station_list;
 
 /* Functions */
 
-void gv_core_init      (GApplication *app);
-void gv_core_cleanup   (void);
-void gv_core_warm_up   (void);
-void gv_core_cool_down (void);
+void gv_core_init    (GApplication *app);
+void gv_core_cleanup (void);
+void gv_core_startup (void);
+void gv_core_shutdown(void);
 
-void gv_core_quit      (void);
+void gv_core_quit    (void);
 
 /*
  * Underlying audio backend

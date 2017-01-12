@@ -150,12 +150,12 @@ gv_graphical_application_shutdown(GApplication *app)
 {
 	DEBUG(">>>> Shutting down application <<<<");
 
-	/* Cool down */
-	DEBUG("---- Cooling down ui ----");
-	gv_ui_cool_down();
+	/* Shutdown */
+	DEBUG("---- Shutting down ui ----");
+	gv_ui_shutdown();
 
-	DEBUG("---- Cooling down core ----");
-	gv_core_cool_down();
+	DEBUG("---- Shutting down core ----");
+	gv_core_shutdown();
 
 	/* Cleanup */
 	DEBUG("---- Cleaning up ui ----");
@@ -244,12 +244,12 @@ gv_graphical_application_startup(GApplication *app)
 	DEBUG("%s", stringify_list("Configurable list: ", gv_framework_configurable_list));
 	DEBUG("%s", stringify_list("Errorable list   : ", gv_framework_errorable_list));
 
-	/* Warm-up */
-	DEBUG("---- Warming up core ----");
-	gv_core_warm_up();
+	/* Startup */
+	DEBUG("---- Starting up core ----");
+	gv_core_startup();
 
-	DEBUG("---- Warming up ui ----");
-	gv_ui_warm_up();
+	DEBUG("---- Starting up ui ----");
+	gv_ui_startup();
 
 	/* Hold application */
 	// TODO: move that somewhere else

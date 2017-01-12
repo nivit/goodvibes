@@ -8,7 +8,7 @@ Understand initialisation
 
 In a nutshell, here's what happen at init.
 
-First part: creation.
+**First part: creation**
 
 - objects are created
 - objects are added to global lists (features, configurables, errorables)
@@ -20,12 +20,12 @@ modified. For the sake of simplicity, this should remain like that.
 Of course, I'm talking here about global objects, with a global visibility.
 Other objects, like stations, are created and deleted per user request.
 
-Second part: warm up.
+**Second part: startup**
 
 It's time for the objects to wake up, do their init stuff (files are loaded),
 watch each other (signals are connected) and so on.
 
-Last part: main loop is started.
+**Last part: main loop is started**
 
 This whole little world becomes alive, and is eagerly waiting for the user
 to start clicking.

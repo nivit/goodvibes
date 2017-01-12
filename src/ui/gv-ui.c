@@ -84,13 +84,13 @@ gv_ui_present_main(void)
 }
 
 void
-gv_ui_cool_down(void)
+gv_ui_shutdown(void)
 {
 	/* Dummy */
 }
 
 void
-gv_ui_warm_up(void)
+gv_ui_startup(void)
 {
 	gv_main_window_populate_stations(GV_MAIN_WINDOW(gv_ui_main_window));
 }
