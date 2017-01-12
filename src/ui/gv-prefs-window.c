@@ -521,7 +521,7 @@ gv_prefs_window_constructed(GObject *object)
 	gv_prefs_window_setup_appearance(self);
 
 	/* Configure the window behavior */
-	gtk_window_set_title(window, PACKAGE_CAMEL_NAME " Preferences");
+	gtk_window_set_title(window, _("Preferences"));
 	gtk_window_set_skip_taskbar_hint(window, TRUE);
 	gtk_window_set_resizable(window, FALSE);
 	gtk_window_set_modal(window, TRUE);

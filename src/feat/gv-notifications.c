@@ -397,7 +397,7 @@ gv_notifications_enable(GvFeature *feature)
 
 	/* Init libnotify */
 	g_assert(notify_is_initted() == FALSE);
-	if (notify_init(PACKAGE_CAMEL_NAME) == FALSE)
+	if (notify_init(g_get_application_name()) == FALSE)
 		CRITICAL("Failed to initialize libnotify");
 
 	/* Create notifications */
