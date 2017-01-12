@@ -61,9 +61,37 @@ struct _GvPrefsWindowPrivate {
 
 	/* Top-level */
 	GtkWidget *window_vbox;
-	GtkWidget *notebook;
+	/* Misc */
+	GtkWidget *misc_vbox;
+	GtkWidget *player_frame;
+	GtkWidget *player_grid;
+	GtkWidget *autoplay_check;
+	GtkWidget *system_frame;
+	GtkWidget *system_grid;
+	GtkWidget *inhibitor_label;
+	GtkWidget *inhibitor_switch;
+	GtkWidget *dbus_frame;
+	GtkWidget *dbus_grid;
+	GtkWidget *dbus_native_label;
+	GtkWidget *dbus_native_switch;
+	GtkWidget *dbus_mpris2_label;
+	GtkWidget *dbus_mpris2_switch;
+	/* Display */
+	GtkWidget *display_vbox;
+	GtkWidget *notif_frame;
+	GtkWidget *notif_grid;
+	GtkWidget *notif_enable_label;
+	GtkWidget *notif_enable_switch;
+	GtkWidget *notif_timeout_check;
+	GtkWidget *notif_timeout_spin;
+	GObject   *notif_timeout_adj;
+	GtkWidget *console_frame;
+	GtkWidget *console_grid;
+	GtkWidget *console_output_label;
+	GtkWidget *console_output_switch;
 	/* Controls */
 	GtkWidget *controls_vbox;
+	GtkWidget *keyboard_frame;
 	GtkWidget *keyboard_grid;
 	GtkWidget *hotkeys_label;
 	GtkWidget *hotkeys_switch;
@@ -73,30 +101,6 @@ struct _GvPrefsWindowPrivate {
 	GtkWidget *middle_click_action_combo;
 	GtkWidget *scroll_action_label;
 	GtkWidget *scroll_action_combo;
-	GtkWidget *dbus_grid;
-	GtkWidget *dbus_native_label;
-	GtkWidget *dbus_native_switch;
-	GtkWidget *dbus_mpris2_label;
-	GtkWidget *dbus_mpris2_switch;
-	/* Display */
-	GtkWidget *display_vbox;
-	GtkWidget *notif_vbox;
-	GtkWidget *notif_enable_grid;
-	GtkWidget *notif_enable_label;
-	GtkWidget *notif_enable_switch;
-	GtkWidget *notif_timeout_grid;
-	GtkWidget *notif_timeout_check;
-	GtkWidget *notif_timeout_spin;
-	GObject   *notif_timeout_adj;
-	GtkWidget *console_grid;
-	GtkWidget *console_output_label;
-	GtkWidget *console_output_switch;
-	/* Player */
-	GtkWidget *player_vbox;
-	GtkWidget *player_grid;
-	GtkWidget *autoplay_check;
-	GtkWidget *inhibitor_label;
-	GtkWidget *inhibitor_switch;
 	/* Buttons */
 	GtkWidget *close_button;
 };
@@ -105,7 +109,7 @@ typedef struct _GvPrefsWindowPrivate GvPrefsWindowPrivate;
 
 struct _GvPrefsWindow {
 	/* Parent instance structure */
-	GtkWindow              parent_instance;
+	GtkWindow             parent_instance;
 	/* Private data */
 	GvPrefsWindowPrivate *priv;
 };
@@ -140,6 +144,41 @@ on_window_key_press_event(GvPrefsWindow *self, GdkEventKey *event, gpointer data
 /*
  * Construct private methods
  */
+
+static void
+setup_notebook_page_appearance(GtkWidget *vbox)
+{
+	g_return_if_fail(GTK_IS_BOX(vbox));
+
+	g_object_set(vbox,
+	             "margin", GV_UI_WINDOW_BORDER,
+	             "spacing", GV_UI_GROUP_SPACING,
+	             NULL);
+}
+
+static void
+setup_section_appearance(GtkWidget *frame, GtkWidget *grid)
+{
+	static PangoAttrList *attr_list;
+	GtkWidget *label;
+
+	g_return_if_fail(GTK_IS_FRAME(frame));
+	g_return_if_fail(GTK_IS_GRID(grid));
+
+	if (attr_list == NULL) {
+		attr_list = pango_attr_list_new();
+		pango_attr_list_insert(attr_list, pango_attr_weight_new(PANGO_WEIGHT_BOLD));
+	}
+
+	label = gtk_frame_get_label_widget(GTK_FRAME(frame));
+	gtk_label_set_attributes(GTK_LABEL(label), attr_list);
+
+	g_object_set(grid,
+	             "row-spacing", GV_UI_ELEM_SPACING,
+	             "column-spacing", GV_UI_LABEL_SPACING,
+	             "halign", GTK_ALIGN_END,
+	             NULL);
+}
 
 static void
 setdown_widget(const gchar *tooltip_text, GtkWidget *widget)
@@ -274,10 +313,40 @@ gv_prefs_window_populate_widgets(GvPrefsWindow *self)
 
 	/* Top-level */
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, window_vbox);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, notebook);
+
+	/* Misc */
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, misc_vbox);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, player_frame);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, player_grid);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, autoplay_check);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, system_frame);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, system_grid);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, inhibitor_label);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, inhibitor_switch);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, dbus_frame);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, dbus_grid);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, dbus_native_label);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, dbus_native_switch);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, dbus_mpris2_label);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, dbus_mpris2_switch);
+
+	/* Display */
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, display_vbox);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, notif_frame);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, notif_grid);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, notif_enable_label);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, notif_enable_switch);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, notif_timeout_check);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, notif_timeout_spin);
+	GTK_BUILDER_SAVE_OBJECT(builder, priv, notif_timeout_adj);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, console_frame);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, console_grid);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, console_output_label);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, console_output_switch);
 
 	/* Controls */
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, controls_vbox);
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, keyboard_frame);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, keyboard_grid);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, hotkeys_label);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, hotkeys_switch);
@@ -287,32 +356,6 @@ gv_prefs_window_populate_widgets(GvPrefsWindow *self)
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, middle_click_action_combo);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, scroll_action_label);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, scroll_action_combo);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, dbus_grid);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, dbus_native_label);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, dbus_native_switch);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, dbus_mpris2_label);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, dbus_mpris2_switch);
-
-	/* Display */
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, display_vbox);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, notif_vbox);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, notif_enable_grid);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, notif_enable_label);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, notif_enable_switch);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, notif_timeout_grid);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, notif_timeout_check);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, notif_timeout_spin);
-	GTK_BUILDER_SAVE_OBJECT(builder, priv, notif_timeout_adj);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, console_grid);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, console_output_label);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, console_output_switch);
-
-	/* Player */
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, player_vbox);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, player_grid);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, autoplay_check);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, inhibitor_label);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, inhibitor_switch);
 
 	/* Action area */
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, close_button);
@@ -333,16 +376,16 @@ gv_prefs_window_setup_widgets(GvPrefsWindow *self)
 	GObject *player_obj        = G_OBJECT(gv_core_player);
 
 	/* Setup adjustments
-	 * This must be done before intializing any widget values.
+	 * This must be done before initializing any widget values.
 	 */
 	setup_adjustment(GTK_ADJUSTMENT(priv->notif_timeout_adj),
 	                 G_OBJECT(priv->notifications_feat), "timeout-seconds");
 
 	/* Setup conditionally sensitive widgets */
 	g_object_bind_property(priv->notif_enable_switch, "active",
-	                       priv->notif_timeout_grid, "sensitive",
+	                       priv->notif_timeout_check, "sensitive",
 	                       G_BINDING_SYNC_CREATE);
-	g_object_bind_property(priv->notif_timeout_check, "active",
+	g_object_bind_property(priv->notif_enable_switch, "active",
 	                       priv->notif_timeout_spin, "sensitive",
 	                       G_BINDING_SYNC_CREATE);
 
@@ -353,28 +396,17 @@ gv_prefs_window_setup_widgets(GvPrefsWindow *self)
 	 * widgets tooltips (label + setting).
 	 */
 
-	/* Controls */
-	setup_feature(_("Bind mutimedia keys (play/pause/stop/previous/next)."),
-	              priv->hotkeys_label,
-	              priv->hotkeys_switch,
-	              priv->hotkeys_feat);
+	/* Misc */
+	setup_setting(_("Whether to start playback automatically on startup."),
+	              NULL,
+	              priv->autoplay_check, "active",
+	              player_obj, "autoplay",
+	              NULL, NULL);
 
-	if (status_icon_obj) {
-		setup_setting(_("Action triggered by a middle click on the status icon."),
-		              priv->middle_click_action_label,
-		              priv->middle_click_action_combo, "active-id",
-		              status_icon_obj, "middle-click-action",
-		              NULL, NULL);
-
-		setup_setting(_("Action triggered by mouse-scrolling on the status icon."),
-		              priv->scroll_action_label,
-		              priv->scroll_action_combo, "active-id",
-		              status_icon_obj, "scroll-action",
-		              NULL, NULL);
-	} else {
-		setdown_widget(_("Application was not launched in status icon mode."),
-		               priv->mouse_frame);
-	}
+	setup_feature(_("Prevent the system from going to sleep while playing."),
+	              priv->inhibitor_label,
+	              priv->inhibitor_switch,
+	              priv->inhibitor_feat);
 
 	setup_feature(_("Enable the native D-Bus server "
 	                "(needed for the command-line interface)."),
@@ -410,85 +442,56 @@ gv_prefs_window_setup_widgets(GvPrefsWindow *self)
 	              priv->console_output_switch,
 	              priv->console_output_feat);
 
-	/* Player */
-	setup_setting(_("Whether to start playback automatically on startup."),
-	              NULL,
-	              priv->autoplay_check, "active",
-	              player_obj, "autoplay",
-	              NULL, NULL);
+	/* Controls */
+	setup_feature(_("Bind mutimedia keys (play/pause/stop/previous/next)."),
+	              priv->hotkeys_label,
+	              priv->hotkeys_switch,
+	              priv->hotkeys_feat);
 
-	setup_feature(_("Prevent the system from going to sleep while playing."),
-	              priv->inhibitor_label,
-	              priv->inhibitor_switch,
-	              priv->inhibitor_feat);
+	if (status_icon_obj) {
+		setup_setting(_("Action triggered by a middle click on the status icon."),
+		              priv->middle_click_action_label,
+		              priv->middle_click_action_combo, "active-id",
+		              status_icon_obj, "middle-click-action",
+		              NULL, NULL);
+
+		setup_setting(_("Action triggered by mouse-scrolling on the status icon."),
+		              priv->scroll_action_label,
+		              priv->scroll_action_combo, "active-id",
+		              status_icon_obj, "scroll-action",
+		              NULL, NULL);
+	} else {
+		setdown_widget(_("Application was not launched in status icon mode."),
+		               priv->mouse_frame);
+	}
 }
 
 static void
-gv_prefs_window_setup_layout(GvPrefsWindow *self)
+gv_prefs_window_setup_appearance(GvPrefsWindow *self)
 {
 	GvPrefsWindowPrivate *priv = self->priv;
 
-	/* Main */
+	/* Window */
 	g_object_set(priv->window_vbox,
 	             "margin", 0,
 	             "spacing", 0,
 	             NULL);
 
-	/* Controls */
-	g_object_set(priv->controls_vbox,
-	             "margin", GV_UI_WINDOW_BORDER,
-	             "spacing", GV_UI_GROUP_SPACING,
-	             NULL);
-	g_object_set(priv->keyboard_grid,
-	             "row-spacing", GV_UI_ELEM_SPACING,
-	             "column-spacing", GV_UI_LABEL_SPACING,
-	             "halign", GTK_ALIGN_END,
-	             NULL);
-	g_object_set(priv->mouse_grid,
-	             "row-spacing", GV_UI_ELEM_SPACING,
-	             "column-spacing", GV_UI_LABEL_SPACING,
-	             "halign", GTK_ALIGN_END,
-	             NULL);
-	g_object_set(priv->dbus_grid,
-	             "row-spacing", GV_UI_ELEM_SPACING,
-	             "column-spacing", GV_UI_LABEL_SPACING,
-	             "halign", GTK_ALIGN_END,
-	             NULL);
+	/* Misc */
+	setup_notebook_page_appearance(priv->misc_vbox);
+	setup_section_appearance(priv->player_frame, priv->player_grid);
+	setup_section_appearance(priv->system_frame, priv->system_grid);
+	setup_section_appearance(priv->dbus_frame, priv->dbus_grid);
 
 	/* Display */
-	g_object_set(priv->display_vbox,
-	             "margin", GV_UI_WINDOW_BORDER,
-	             "spacing", GV_UI_GROUP_SPACING,
-	             NULL);
+	setup_notebook_page_appearance(priv->display_vbox);
+	setup_section_appearance(priv->notif_frame, priv->notif_grid);
+	setup_section_appearance(priv->console_frame, priv->console_grid);
 
-	g_object_set(priv->notif_enable_grid,
-	             "row-spacing", GV_UI_ELEM_SPACING,
-	             "column-spacing", GV_UI_LABEL_SPACING,
-	             "margin-bottom", GV_UI_ELEM_SPACING,
-	             NULL);
-	g_object_set(priv->notif_timeout_grid,
-	             "halign", GTK_ALIGN_END,
-	             "row-spacing", GV_UI_ELEM_SPACING,
-	             "column-spacing", GV_UI_LABEL_SPACING,
-	             NULL);
-
-	g_object_set(priv->console_grid,
-	             "row-spacing", GV_UI_ELEM_SPACING,
-	             "column-spacing", GV_UI_LABEL_SPACING,
-	             "halign", GTK_ALIGN_END,
-	             NULL);
-
-	/* Player */
-	g_object_set(priv->player_vbox,
-	             "margin", GV_UI_WINDOW_BORDER,
-	             "spacing", GV_UI_GROUP_SPACING,
-	             NULL);
-	g_object_set(priv->player_grid,
-	             "row-spacing", GV_UI_ELEM_SPACING,
-	             "column-spacing", GV_UI_LABEL_SPACING,
-	             "halign", GTK_ALIGN_END,
-	             NULL);
-
+	/* Controls */
+	setup_notebook_page_appearance(priv->controls_vbox);
+	setup_section_appearance(priv->keyboard_frame, priv->keyboard_grid);
+	setup_section_appearance(priv->mouse_frame, priv->mouse_grid);
 }
 
 /*
@@ -515,7 +518,7 @@ gv_prefs_window_constructed(GObject *object)
 	gv_prefs_window_populate_features(self);
 	gv_prefs_window_populate_widgets(self);
 	gv_prefs_window_setup_widgets(self);
-	gv_prefs_window_setup_layout(self);
+	gv_prefs_window_setup_appearance(self);
 
 	/* Configure the window behavior */
 	gtk_window_set_title(window, PACKAGE_CAMEL_NAME " Preferences");
