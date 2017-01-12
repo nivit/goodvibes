@@ -32,6 +32,6 @@ G_DECLARE_FINAL_TYPE(GvConsoleApplication, gv_console_application,
 
 /* Methods */
 
-GApplication *gv_console_application_new(void);
+GApplication *gv_console_application_new(const gchar *application_id);
 
 #endif /* __GOODVIBES_GV_CONSOLE_APPLICATION_H__ */

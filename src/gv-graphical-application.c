@@ -80,10 +80,10 @@ stringify_list(const gchar *prefix, GList *list)
  */
 
 GApplication *
-gv_graphical_application_new(void)
+gv_graphical_application_new(const gchar *application_id)
 {
 	return G_APPLICATION(g_object_new(GV_TYPE_GRAPHICAL_APPLICATION,
-	                                  "application-id", "org." PACKAGE_CAMEL_NAME,
+	                                  "application-id", application_id,
 	                                  "flags", G_APPLICATION_FLAGS_NONE,
 	                                  NULL));
 }

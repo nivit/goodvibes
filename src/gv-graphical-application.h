@@ -33,6 +33,6 @@ G_DECLARE_FINAL_TYPE(GvGraphicalApplication, gv_graphical_application,
 
 /* Methods */
 
-GApplication *gv_graphical_application_new(void);
+GApplication *gv_graphical_application_new(const gchar *application_id);
 
 #endif /* __GOODVIBES_GV_GRAPHICAL_APPLICATION_H__ */
