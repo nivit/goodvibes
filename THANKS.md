@@ -27,20 +27,22 @@ and in the end relied entirely on GObject for a clean object-oriented design.
 Learning GObject was a bit tough, and I must thank the following projects for
 teaching me everything I know now about GObject.
 
- - [GLib/GObject](https://developer.gnome.org/glib/)
- - [GStreamer](https://gstreamer.freedesktop.org/)
- - [GTK+](https://www.gtk.org/)
+ - [GLib/GObject](https://developer.gnome.org/glib)
+ - [GStreamer](https://gstreamer.freedesktop.org)
+ - [GTK+](https://www.gtk.org)
 
 I also had to peek into the code of some other music players here and there.
 
  - [Rhythmbox](https://wiki.gnome.org/Apps/Rhythmbox)
+ - [Totem](https://wiki.gnome.org/Apps/Totem)
+ - [Transmission](https://transmissionbt.com)
  - [Parole](http://docs.xfce.org/apps/parole/start)
- - [Quodlibet](https://quodlibet.readthedocs.io/)
- - [RadioTray](http://radiotray.sourceforge.net/)
+ - [Quodlibet](https://quodlibet.readthedocs.io)
+ - [RadioTray](http://radiotray.sourceforge.net)
 
 As for my little Makefile skills, I owe it all to Buildroot.
 
- - [Buildroot](https://buildroot.org/)
+ - [Buildroot](https://buildroot.org)
 
 
 
