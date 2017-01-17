@@ -23,5 +23,5 @@ build:
     pull: true
 
   ci:
-    - ./autogen.sh && CPPFLAGS="$CPPFLAGS" ./configure --enable-all && make
+    - ./autogen.sh && CPPFLAGS="$CPPFLAGS" ./configure --enable-all && make && make install
 
