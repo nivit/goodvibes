@@ -23,16 +23,18 @@ Installation
 
 The easiest way to install Goodvibes is to use an existing package for your distribution. You can check the [release][] pages to see what's available.
 
-If there's no package for you, you will need to grab the source code and compile it. Goodvibes uses the *Autotools* to build, so the procedure is quite straightforward, and should look like this.
+If there's no package for you, you will need to grab the source code at first.
 
-	# Get the source code
 	git clone https://github.com/elboulangero/goodvibes.git
-	cd goodvibes
-	# Compile
+
+Compilation is done with the [Autotools][] using the usual set of commands.
+
 	./autogen.sh
 	./configure
 	make
-	# Install
+
+Installation is a one-liner, and must be run as root.
+
 	sudo make install
 
 Of course, you need to install the required dependencies.
@@ -50,8 +52,8 @@ For more details, please refer to the `configure.ac` file.
 
 If you're a packager and want to help, please get in touch.
 
-[release]: https://github.com/elboulangero/goodvibes/releases
-
+[release]:   https://github.com/elboulangero/goodvibes/releases
+[autotools]: https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html
 
 
 License

@@ -5,16 +5,32 @@ Here's the place to get started when hacking Goodvibes. Additional documentation
 
 
 
+Grabbing the source code
+------------------------
+
+To get the latest source, clone the repository from GitHub.
+
+	git clone https://github.com/elboulangero/goodvibes.git
+
+Some additional resources are handled with git submodules for convenience. They are not needed for the build, but in case you're curious you can get it with the following commands.
+
+	git submodule update
+	git submodule init
+
+You will find the wiki there, among other things, which can be handy if you want to grep it.
+
+
+
 Compiling
 ---------
 
-Goodvibes uses the `autotools` as a build system. The procedure to compile is the usual one:
+Goodvibes uses the `autotools` as a build system. The procedure to compile is the usual one.
 
         ./autogen.sh
         ./configure
         make
 
-If you want the build to be more verbose, invoke configure as such:
+If you want the build to be more verbose, invoke `./configure` as such.
 
         ./configure --enable-silent-rules
 
