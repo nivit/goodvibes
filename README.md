@@ -1,6 +1,10 @@
 Goodvibes Radio Player
 ======================
 
+* [Installation](#installation)
+* [License](#license)
+* [Hacking](#hacking)
+
 
 
 Goodvibes is a lightweight internet radio player for GNU/Linux. It offers a simple way to have your favorite radio stations at easy reach.

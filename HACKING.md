@@ -3,10 +3,20 @@ HACKING
 
 Here's the place to get started when hacking Goodvibes. Additional documentation is available on the Github Wiki: <https://github.com/elboulangero/goodvibes/wiki>
 
+Table of Contents
+-----------------
+
+1. [Download](#download)
+2. [Compilation](#compilation)
+3. [Program Invocation](#program-invocation)
+4. [Code Overview](#code-overview)
+5. [Coding Style](#coding-style)
+6. [Contribution](#contribution)
 
 
-Grabbing the source code
-------------------------
+
+Download
+--------
 
 To get the latest source, clone the repository from GitHub.
 
@@ -21,8 +31,8 @@ You will find the wiki there, among other things, which can be handy if you want
 
 
 
-Compiling
----------
+Compilation
+-----------
 
 Goodvibes uses the `autotools` as a build system. The procedure to compile is the usual one.
 
@@ -183,7 +193,7 @@ If you stick to these conventions, then it's easy to find your way in the code: 
 
 
 
-Contributing
+Contribution
 ------------
 
 Contributing is better done through Github, so please follow the usual Github workflow:
