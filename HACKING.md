@@ -24,10 +24,14 @@ To get the latest source, clone the repository from GitHub.
 
 Some additional resources are handled with git submodules for convenience. They are not needed for the build, but in case you're curious you can get it with the following commands.
 
-	git submodule update
 	git submodule init
+	git submodule update
 
-You will find the wiki there, among other things, which can be handy if you want to grep it.
+You can pull the latest changes in each submodule anytime.
+
+	git submodule foreach git pull
+
+Among the submodules, you will find the wiki, which can be handy if you want to grep it.
 
 
 
