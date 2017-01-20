@@ -46,7 +46,6 @@ Makefile.in
 
 # I18n stuff
 /ABOUT-NLS
-/po/*.pot
 /po/*.gmo
 /po/*.header
 /po/*.mo
