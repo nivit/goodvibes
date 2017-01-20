@@ -194,7 +194,6 @@ gv_ui_init(GApplication *app, gboolean status_icon_mode)
 	feature = gv_feature_new(GV_TYPE_NOTIFICATIONS, TRUE);
 	features[idx++] = feature;
 	gv_framework_features_append(feature);
-	gv_framework_configurables_append(feature);
 #endif
 
 

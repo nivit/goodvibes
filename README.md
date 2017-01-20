@@ -44,13 +44,13 @@ Installation is a one-liner, and must be run as root.
 Of course, you need to install the required dependencies.
 
 - For the core: `glib`, `libsoup`, `libxml2`, `gstreamer`
-- For the UI: `gtk+`, `libkeybinder`, `libnotify`
+- For the UI: `gtk+`, `libkeybinder`
 
 To install all the dependencies under Debian, run:
 
 	sudo apt install build-essential autoconf autopoint
 	sudo apt install libglib2.0-dev libsoup2.4-dev libxml2-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
-	sudo apt install libgtk-3-dev libkeybinder-3.0-dev libnotify-dev
+	sudo apt install libgtk-3-dev libkeybinder-3.0-dev
 
 For more details, please refer to the `configure.ac` file.
 

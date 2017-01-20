@@ -197,7 +197,7 @@ endif # UI_ENABLED
 
 # Core features
 
-gv_feat_sources = 
+gv_feat_sources =
 gv_feat_cflags  =
 gv_feat_static_ldadd =
 gv_feat_shared_ldadd =
@@ -230,8 +230,7 @@ endif
 
 if NOTIFICATIONS_ENABLED
 gv_feat_sources      += feat/gv-notifications.c feat/gv-notifications.h
-gv_feat_cflags       += $(NOTIFICATIONS_CFLAGS) -DNOTIFICATIONS_ENABLED
-gv_feat_shared_ldadd += $(NOTIFICATIONS_LIBS)
+gv_feat_cflags       += -DNOTIFICATIONS_ENABLED
 endif
 
 

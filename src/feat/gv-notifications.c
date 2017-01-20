@@ -19,11 +19,9 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include <libnotify/notify.h>
+#include <gio/gio.h>
 
 #include "additions/glib.h"
-
-#include "libgszn/gszn.h"
 
 #include "framework/gv-framework.h"
 
@@ -31,42 +29,18 @@
 
 #include "feat/gv-notifications.h"
 
-//#define ICON "audio-x-generic"
-#define ICON PACKAGE_NAME
-
-/*
- * Properties
- */
-
-#define DEFAULT_TIMEOUT_ENABLED FALSE
-#define MIN_TIMEOUT_SECONDS     1
-#define MAX_TIMEOUT_SECONDS     10
-#define DEFAULT_TIMEOUT_SECONDS 5
-
-enum {
-	/* Reserved */
-	PROP_0,
-	/* Properties */
-	PROP_TIMEOUT_ENABLED,
-	PROP_TIMEOUT_SECONDS,
-	/* Number of properties */
-	PROP_N
-};
-
-static GParamSpec *properties[PROP_N];
+#define ICON_PACKAGE PACKAGE_NAME /* "audio-x-generic" is also suitable */
+#define ICON_ERROR   "dialog-error"
 
 /*
  * GObject definitions
  */
 
 struct _GvNotificationsPrivate {
-	/* Properties */
-	gboolean timeout_enabled;
-	guint    timeout_ms;
 	/* Notifications */
-	NotifyNotification *notif_station;
-	NotifyNotification *notif_metadata;
-	NotifyNotification *notif_error;
+	GNotification *notif_station;
+	GNotification *notif_metadata;
+	GNotification *notif_error;
 };
 
 typedef struct _GvNotificationsPrivate GvNotificationsPrivate;
@@ -84,20 +58,25 @@ G_DEFINE_TYPE_WITH_PRIVATE(GvNotifications, gv_notifications, GV_TYPE_FEATURE)
  * Helpers
  */
 
-static NotifyNotification *
-make_notification(NotifyUrgency urgency, gint timeout_ms)
+static GNotification *
+make_notification(const gchar *title, const gchar *icon_name, GNotificationPriority priority)
 {
-	NotifyNotification *notif;
+	GNotification *notif;
+	GIcon *icon;
 
-	notif = notify_notification_new("", NULL, NULL);
-	notify_notification_set_timeout(notif, timeout_ms);
-	notify_notification_set_urgency(notif, urgency);
+	notif = g_notification_new(title);
+
+	icon = g_themed_icon_new(icon_name);
+	g_notification_set_icon(notif, icon);
+	g_object_unref(icon);
+
+	g_notification_set_priority(notif, priority);
 
 	return notif;
 }
 
 static gboolean
-update_notification_station(NotifyNotification *notif, GvStation *station)
+update_notification_station(GNotification *notif, GvStation *station)
 {
 	const gchar *str;
 	gchar *text;
@@ -113,7 +92,7 @@ update_notification_station(NotifyNotification *notif, GvStation *station)
 		text = g_strdup_printf("Playing <%s>", str);
 	}
 
-	notify_notification_update(notif, text, NULL, ICON);
+	g_notification_set_body(notif, text);
 
 	g_free(text);
 
@@ -121,7 +100,7 @@ update_notification_station(NotifyNotification *notif, GvStation *station)
 }
 
 static gboolean
-update_notification_metadata(NotifyNotification *notif, GvMetadata *metadata)
+update_notification_metadata(GNotification *notif, GvMetadata *metadata)
 {
 	const gchar *artist;
 	const gchar *title;
@@ -140,12 +119,12 @@ update_notification_metadata(NotifyNotification *notif, GvMetadata *metadata)
 	year = gv_metadata_get_year(metadata);
 	genre = gv_metadata_get_genre(metadata);
 
-	/* If there's only the 'title' field, don't bother being clever,
+	/* If there's only the 'title' field, don't bother being smart,
 	 * just display it as it. Actually, most radios fill only this field,
-	 * and put everything in (title + artist + some more stuff).
+	 * and put everything in it (title + artist + some more stuff).
 	 */
 	if (title && !artist && !album && !year && !genre) {
-		notify_notification_update(notif, title, NULL, ICON);
+		g_notification_set_body(notif, title);
 		return TRUE;
 	}
 
@@ -156,7 +135,7 @@ update_notification_metadata(NotifyNotification *notif, GvMetadata *metadata)
 	album_year = gv_metadata_make_album_year(metadata, FALSE);
 	text = g_strjoin_null("\n", 4, title, artist, album_year, genre);
 
-	notify_notification_update(notif, text, NULL, ICON);
+	g_notification_set_body(notif, text);
 
 	g_free(text);
 	g_free(album_year);
@@ -165,9 +144,10 @@ update_notification_metadata(NotifyNotification *notif, GvMetadata *metadata)
 }
 
 static gboolean
-update_notification_error(NotifyNotification *notif, const gchar *error_string)
+update_notification_error(GNotification *notif, const gchar *error_string)
 {
-	notify_notification_update(notif, g_get_application_name(), error_string, "dialog-error");
+	// TODO Add application name ?
+	g_notification_set_body(notif, error_string);
 
 	return TRUE;
 }
@@ -183,39 +163,36 @@ on_player_notify(GvPlayer        *player,
 {
 	GvNotificationsPrivate *priv = self->priv;
 	const gchar *property_name = g_param_spec_get_name(pspec);
-	NotifyNotification *notif = NULL;
-	gboolean must_notify = FALSE;
-	GError *error = NULL;
+	GApplication *app = gv_core_application;
 
-	/* Check what changed, and update notification if needed */
 	if (!g_strcmp0(property_name, "state")) {
+		GNotification *notif = priv->notif_station;
+		gboolean must_notify = FALSE;
 		GvPlayerState state;
+		GvStation *station;
 
-		notif = priv->notif_station;
 		state = gv_player_get_state(player);
+		if (state != GV_PLAYER_STATE_PLAYING)
+			return;
 
-		if (state == GV_PLAYER_STATE_PLAYING) {
-			GvStation *station;
+		station = gv_player_get_station(player);
+		must_notify = update_notification_station(notif, station);
+		if (must_notify == FALSE)
+			return;
 
-			station = gv_player_get_station(player);
-			must_notify = update_notification_station(notif, station);
-		}
+		g_application_send_notification(app, "station", notif);
+
 	} else if (!g_strcmp0(property_name, "metadata")) {
+		GNotification *notif = priv->notif_metadata;
+		gboolean must_notify = FALSE;
 		GvMetadata *metadata;
 
-		notif = priv->notif_metadata;
 		metadata = gv_player_get_metadata(player);
 		must_notify = update_notification_metadata(notif, metadata);
-	}
+		if (must_notify == FALSE)
+			return;
 
-	/* There might be nothing to notify */
-	if (notif == NULL || must_notify == FALSE)
-		return;
-
-	/* Show notification */
-	if (notify_notification_show(notif, &error) != TRUE) {
-		CRITICAL("Could not send notification: %s", error->message);
-		g_error_free(error);
+		g_application_send_notification(app, "metadata", notif);
 	}
 }
 
@@ -224,136 +201,11 @@ on_errorable_error(GvErrorable *errorable G_GNUC_UNUSED, const gchar *error_stri
                    GvNotifications *self)
 {
 	GvNotificationsPrivate *priv = self->priv;
-	NotifyNotification *notif;
-	GError *error = NULL;
+	GNotification *notif = priv->notif_error;
+	GApplication *app = gv_core_application;
 
-	notif = priv->notif_error;
-
-	/* Update notification */
 	update_notification_error(notif, error_string);
-
-	/* Show notification */
-	if (notify_notification_show(notif, &error) != TRUE) {
-		CRITICAL("Could not send notification: %s", error->message);
-		g_error_free(error);
-	}
-}
-
-/*
- * Property accessors
- */
-
-static gboolean
-gv_notifications_get_timeout_enabled(GvNotifications *self)
-{
-	return self->priv->timeout_enabled;
-}
-
-static void
-gv_notifications_set_timeout_enabled(GvNotifications *self, gboolean enabled)
-{
-	GvNotificationsPrivate *priv = self->priv;
-	gint timeout_ms;
-
-	/* Bail out if needed */
-	if (priv->timeout_enabled == enabled)
-		return;
-
-	/* Set to existing notifications that care about it */
-	if (enabled == TRUE)
-		timeout_ms = self->priv->timeout_ms;
-	else
-		timeout_ms = NOTIFY_EXPIRES_DEFAULT;
-
-	if (priv->notif_station)
-		notify_notification_set_timeout(priv->notif_station, timeout_ms);
-
-	if (priv->notif_metadata)
-		notify_notification_set_timeout(priv->notif_metadata, timeout_ms);
-
-	/* Save and notify */
-	priv->timeout_enabled = enabled;
-	g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_TIMEOUT_ENABLED]);
-}
-
-static gint
-gv_notifications_get_timeout_seconds(GvNotifications *self)
-{
-	return self->priv->timeout_ms / 1000;
-}
-
-static void
-gv_notifications_set_timeout_seconds(GvNotifications *self, guint timeout)
-{
-	GvNotificationsPrivate *priv = self->priv;
-
-	/* No need to validate the incoming value, this function is private, it's
-	 * only invoked by set_property(), where the value was validated already.
-	 */
-
-	/* Incoming value in seconds, we want to store it in ms for convenience */
-	timeout *= 1000;
-
-	/* Bail out if needed */
-	if (priv->timeout_ms == timeout)
-		return;
-
-	/* Set to existing notifications */
-	if (priv->notif_station && priv->timeout_enabled)
-		notify_notification_set_timeout(priv->notif_station, timeout);
-
-	if (priv->notif_metadata && priv->timeout_enabled)
-		notify_notification_set_timeout(priv->notif_metadata, timeout);
-
-	/* Save and notify */
-	priv->timeout_ms = timeout;
-	g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_TIMEOUT_SECONDS]);
-}
-
-static void
-gv_notifications_get_property(GObject    *object,
-                              guint       property_id,
-                              GValue     *value,
-                              GParamSpec *pspec)
-{
-	GvNotifications *self = GV_NOTIFICATIONS(object);
-
-	TRACE_GET_PROPERTY(object, property_id, value, pspec);
-
-	switch (property_id) {
-	case PROP_TIMEOUT_ENABLED:
-		g_value_set_boolean(value, gv_notifications_get_timeout_enabled(self));
-		break;
-	case PROP_TIMEOUT_SECONDS:
-		g_value_set_uint(value, gv_notifications_get_timeout_seconds(self));
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
-		break;
-	}
-}
-
-static void
-gv_notifications_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
-{
-	GvNotifications *self = GV_NOTIFICATIONS(object);
-
-	TRACE_SET_PROPERTY(object, property_id, value, pspec);
-
-	switch (property_id) {
-	case PROP_TIMEOUT_ENABLED:
-		gv_notifications_set_timeout_enabled(self, g_value_get_boolean(value));
-		break;
-	case PROP_TIMEOUT_SECONDS:
-		gv_notifications_set_timeout_seconds(self, g_value_get_uint(value));
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
-		break;
-	}
+	g_application_send_notification(app, "error", notif);
 }
 
 /*
@@ -378,10 +230,6 @@ gv_notifications_disable(GvFeature *feature)
 	g_object_unref(priv->notif_error);
 	priv->notif_error = NULL;
 
-	/* Cleanup libnotify */
-	if (notify_is_initted() == TRUE)
-		notify_uninit();
-
 	/* Chain up */
 	GV_FEATURE_CHAINUP_DISABLE(gv_notifications, feature);
 }
@@ -395,20 +243,16 @@ gv_notifications_enable(GvFeature *feature)
 	/* Chain up */
 	GV_FEATURE_CHAINUP_ENABLE(gv_notifications, feature);
 
-	/* Init libnotify */
-	g_assert(notify_is_initted() == FALSE);
-	if (notify_init(g_get_application_name()) == FALSE)
-		CRITICAL("Failed to initialize libnotify");
-
 	/* Create notifications */
-	priv->notif_station = make_notification
-	                      (NOTIFY_URGENCY_LOW,
-	                       priv->timeout_enabled ? (gint) priv->timeout_ms : -1);
-	priv->notif_metadata = make_notification
-	                       (NOTIFY_URGENCY_LOW,
-	                        priv->timeout_enabled ? (gint) priv->timeout_ms : -1);
-	priv->notif_error = make_notification
-	                    (NOTIFY_URGENCY_NORMAL, 5 * 1000);
+	g_assert_null(priv->notif_station);
+	priv->notif_station = make_notification(_("Playing Station"), ICON_PACKAGE,
+	                                        G_NOTIFICATION_PRIORITY_NORMAL);
+	g_assert_null(priv->notif_metadata);
+	priv->notif_metadata = make_notification(_("New Metadata"), ICON_PACKAGE,
+	                       G_NOTIFICATION_PRIORITY_NORMAL);
+	g_assert_null(priv->notif_error);
+	priv->notif_error = make_notification(_("Error"), ICON_ERROR,
+	                                      G_NOTIFICATION_PRIORITY_NORMAL);
 
 	/* Signal handlers */
 	g_signal_connect(player, "notify", G_CALLBACK(on_player_notify), feature);
@@ -423,23 +267,15 @@ gv_notifications_enable(GvFeature *feature)
 static void
 gv_notifications_init(GvNotifications *self)
 {
-	GvNotificationsPrivate *priv;
-
 	TRACE("%p", self);
 
 	/* Initialize private pointer */
 	self->priv = gv_notifications_get_instance_private(self);
-
-	/* Initialize properties */
-	priv = self->priv;
-	priv->timeout_enabled = DEFAULT_TIMEOUT_ENABLED;
-	priv->timeout_ms = DEFAULT_TIMEOUT_SECONDS * 1000;
 }
 
 static void
 gv_notifications_class_init(GvNotificationsClass *class)
 {
-	GObjectClass *object_class = G_OBJECT_CLASS(class);
 	GvFeatureClass *feature_class = GV_FEATURE_CLASS(class);
 
 	TRACE("%p", class);
@@ -447,26 +283,4 @@ gv_notifications_class_init(GvNotificationsClass *class)
 	/* Override GvFeature methods */
 	feature_class->enable  = gv_notifications_enable;
 	feature_class->disable = gv_notifications_disable;
-
-	/* Properties */
-	object_class->get_property = gv_notifications_get_property;
-	object_class->set_property = gv_notifications_set_property;
-
-	properties[PROP_TIMEOUT_ENABLED] =
-	        g_param_spec_boolean("timeout-enabled", "Timeout Enabled",
-	                             "Whether to use a custom timeout for the notifications",
-	                             DEFAULT_TIMEOUT_ENABLED,
-	                             GV_PARAM_DEFAULT_FLAGS | GSZN_PARAM_SERIALIZE |
-	                             G_PARAM_READWRITE);
-
-	properties[PROP_TIMEOUT_SECONDS] =
-	        g_param_spec_uint("timeout-seconds", "Timeout in seconds",
-	                          "How long the notifications should be displayed",
-	                          MIN_TIMEOUT_SECONDS,
-	                          MAX_TIMEOUT_SECONDS,
-	                          DEFAULT_TIMEOUT_SECONDS,
-	                          GV_PARAM_DEFAULT_FLAGS | GSZN_PARAM_SERIALIZE |
-	                          G_PARAM_READWRITE);
-
-	g_object_class_install_properties(object_class, PROP_N, properties);
 }

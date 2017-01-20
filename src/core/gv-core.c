@@ -38,6 +38,7 @@
 #include "feat/gv-inhibitor.h"
 #endif
 
+GApplication  *gv_core_application;
 GvConf        *gv_core_conf;
 GvStationList *gv_core_station_list;
 GvPlayer      *gv_core_player;
@@ -45,12 +46,10 @@ GvPlayer      *gv_core_player;
 static GvEngine  *gv_core_engine;
 static GvFeature *features[8];
 
-static GApplication *gv_application;
-
 void
 gv_core_quit(void)
 {
-	g_application_quit(gv_application);
+	g_application_quit(gv_core_application);
 }
 
 void
@@ -114,25 +113,24 @@ gv_core_cleanup(void)
 	gv_framework_errorables_remove(conf);
 	g_object_unref(conf);
 
+	gv_core_application = NULL;
+
 	/* Ensure everything has been destroyed */
 	g_assert_null(gv_core_conf);
 	g_assert_null(gv_core_engine);
 	g_assert_null(gv_core_player);
 	g_assert_null(gv_core_station_list);
+	g_assert_null(gv_core_application);
 }
 
 void
 gv_core_init(GApplication *application)
 {
-	/* Application: just keep a pointer toward it */
-
-	gv_application = application;
-
-
-
 	/* ----------------------------------------------- *
 	 * Core objects                                    *
 	 * ----------------------------------------------- */
+
+	gv_core_application = application;
 
 	gv_core_conf = gv_conf_new();
 	gv_framework_errorables_append(gv_core_conf);

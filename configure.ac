@@ -12,7 +12,7 @@ AC_INIT([goodvibes], [0.1])
 AM_INIT_AUTOMAKE([1.14 foreign subdir-objects])
 AM_SILENT_RULES([yes])
 
-# Load our own set of m4 macros 
+# Load our own set of m4 macros
 AC_CONFIG_MACRO_DIRS([m4])
 
 # Additional package information
@@ -144,10 +144,9 @@ if test "$enable_ui" = "no"; then
 fi
 
 GV_FEATURE_ENABLE([hotkeys],       [hotkeys support],       [$feat_extra])
-GV_FEATURE_ENABLE([notifications], [notifications support], [$feat_extra])
+GV_FEATURE_ENABLE([notifications], [notifications support], [$feat_noextra])
 
 GV_FEATURE_PKG_CHECK([hotkeys],       [HOTKEYS],       [keybinder-3.0 >= 0.3])
-GV_FEATURE_PKG_CHECK([notifications], [NOTIFICATIONS], [libnotify >= 0.7])
 
 AM_CONDITIONAL([HOTKEYS_ENABLED],       [test "$enable_hotkeys" = "yes"])
 AM_CONDITIONAL([NOTIFICATIONS_ENABLED], [test "$enable_notifications" = "yes"])

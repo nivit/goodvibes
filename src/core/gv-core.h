@@ -30,6 +30,7 @@
 
 /* Global variables */
 
+extern GApplication  *gv_core_application;
 extern GvConf        *gv_core_conf;
 extern GvPlayer      *gv_core_player;
 extern GvStationList *gv_core_station_list;

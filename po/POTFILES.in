@@ -19,4 +19,4 @@ src/ui/gv-station-context-menu.c
 src/ui/gv-station-dialog.c
 src/ui/gv-status-icon.c
 src/feat/gv-hotkeys.c
-
+src/feat/gv-notifications.c
