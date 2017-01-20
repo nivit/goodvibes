@@ -82,9 +82,6 @@ struct _GvPrefsWindowPrivate {
 	GtkWidget *notif_grid;
 	GtkWidget *notif_enable_label;
 	GtkWidget *notif_enable_switch;
-	GtkWidget *notif_timeout_check;
-	GtkWidget *notif_timeout_spin;
-	GObject   *notif_timeout_adj;
 	GtkWidget *console_frame;
 	GtkWidget *console_grid;
 	GtkWidget *console_output_label;
@@ -187,17 +184,6 @@ setdown_widget(const gchar *tooltip_text, GtkWidget *widget)
 		gtk_widget_set_tooltip_text(widget, tooltip_text);
 
 	gtk_widget_set_sensitive(widget, FALSE);
-}
-
-static void
-setup_adjustment(GtkAdjustment *adjustment, GObject *obj, const gchar *obj_prop)
-{
-	guint minimum, maximum;
-
-	/* Get property bounds, and assign it to the adjustment */
-	g_object_get_property_uint_bounds(obj, obj_prop, &minimum, &maximum);
-	gtk_adjustment_set_lower(adjustment, minimum);
-	gtk_adjustment_set_upper(adjustment, maximum);
 }
 
 static void
@@ -336,9 +322,6 @@ gv_prefs_window_populate_widgets(GvPrefsWindow *self)
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, notif_grid);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, notif_enable_label);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, notif_enable_switch);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, notif_timeout_check);
-	GTK_BUILDER_SAVE_WIDGET(builder, priv, notif_timeout_spin);
-	GTK_BUILDER_SAVE_OBJECT(builder, priv, notif_timeout_adj);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, console_frame);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, console_grid);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, console_output_label);
@@ -375,20 +358,6 @@ gv_prefs_window_setup_widgets(GvPrefsWindow *self)
 	GObject *status_icon_obj   = G_OBJECT(gv_ui_status_icon);
 	GObject *player_obj        = G_OBJECT(gv_core_player);
 
-	/* Setup adjustments
-	 * This must be done before initializing any widget values.
-	 */
-	setup_adjustment(GTK_ADJUSTMENT(priv->notif_timeout_adj),
-	                 G_OBJECT(priv->notifications_feat), "timeout-seconds");
-
-	/* Setup conditionally sensitive widgets */
-	g_object_bind_property(priv->notif_enable_switch, "active",
-	                       priv->notif_timeout_check, "sensitive",
-	                       G_BINDING_SYNC_CREATE);
-	g_object_bind_property(priv->notif_enable_switch, "active",
-	                       priv->notif_timeout_spin, "sensitive",
-	                       G_BINDING_SYNC_CREATE);
-
 	/*
 	 * Setup settings and features.
 	 * These function calls create a binding between a gtk widget and
@@ -424,18 +393,6 @@ gv_prefs_window_setup_widgets(GvPrefsWindow *self)
 	              priv->notif_enable_label,
 	              priv->notif_enable_switch,
 	              priv->notifications_feat);
-
-	setup_setting(_("Whether to use a custom timeout for the notifications."),
-	              NULL,
-	              priv->notif_timeout_check, "active",
-	              G_OBJECT(priv->notifications_feat), "timeout-enabled",
-	              NULL, NULL);
-
-	setup_setting(_("How long the notifications should be displayed (seconds)."),
-	              NULL,
-	              priv->notif_timeout_spin, "value",
-	              G_OBJECT(priv->notifications_feat), "timeout-seconds",
-	              NULL, NULL);
 
 	setup_feature(_("Display information on the standard output."),
 	              priv->console_output_label,
