@@ -279,14 +279,25 @@ caphe_dbus_inhibitor_constructed(GObject *object)
 	TRACE("%p", object);
 
 	/* Create the dbus proxy */
-	if (!g_strcmp0(priv->service_id, "SessionManager")) {
+	if (!g_strcmp0(priv->service_id, "Gnome")) {
 		priv->invokator_type = CAPHE_TYPE_SESSION_DBUS_INVOKATOR;
 		priv->proxy = caphe_dbus_proxy_new(G_BUS_TYPE_SESSION,
 		                                   "org.gnome.SessionManager",
 		                                   "/org/gnome/SessionManager",
 		                                   "org.gnome.SessionManager");
 
+	} else if (!g_strcmp0(priv->service_id, "Xfce")) {
+		priv->invokator_type = CAPHE_TYPE_SESSION_DBUS_INVOKATOR;
+		priv->proxy = caphe_dbus_proxy_new(G_BUS_TYPE_SESSION,
+		                                   "org.xfce.SessionManager",
+		                                   "/org/xfce/SessionManager",
+		                                   "org.xfce.SessionManager");
+
 	} else if (!g_strcmp0(priv->service_id, "PowerManagement")) {
+		/* Also provided by the following names:
+		 * - org.xfce.PowerManager
+		 * - org.kde.Solid.PowerManagement
+		 */
 		priv->invokator_type = CAPHE_TYPE_POWER_DBUS_INVOKATOR;
 		priv->proxy = caphe_dbus_proxy_new(G_BUS_TYPE_SESSION,
 		                                   "org.freedesktop.PowerManagement",

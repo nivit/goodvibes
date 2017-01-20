@@ -34,16 +34,18 @@
 /* Inhibitors we know of. This list is ordered by priority. */
 
 enum {
-	CAPHE_SESSION_M_IDX,
-	CAPHE_POWER_M_IDX,
+	CAPHE_GNOME_SM_IDX,
+	CAPHE_XFCE_SM_IDX,
+	CAPHE_POWER_MANAGEMENT_IDX,
 	CAPHE_LOGIN1_IDX,
 	CAPHE_N_INHIBITORS,
 };
 
 static const gchar *caphe_inhibitor_ids[] = {
-	"SessionManager",  /* gnome */
-	"PowerManagement", /* freedesktop */
-	"Login1",          /* systemd */
+	"Gnome",  /* gnome session manager */
+	"Xfce", /* xfce session manager */
+	"PowerManagement", /* freedesktop power management */
+	"Login1", /* systemd */
 	NULL
 };
 
