@@ -8,88 +8,91 @@ msgstr ""
 "Project-Id-Version: goodvibes 0.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-01-20 09:42+0700\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2017-01-21 16:02+0000\n"
+"Last-Translator: Michal Čihař <michal@cihar.com>\n"
+"Language-Team: Czech "
+"<https://hosted.weblate.org/projects/goodvibes/translations/cs/>\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: Weblate 2.11-dev\n"
 
 #: data/desktop/com.elboulangero.Goodvibes.desktop.in:3 src/main.c:149
 msgid "Goodvibes Radio Player"
-msgstr ""
+msgstr "Přehrávač rádia Goodvibes"
 
 #: data/desktop/com.elboulangero.Goodvibes.desktop.in:4
 msgid "Radio Player"
-msgstr ""
+msgstr "Přehrávač rádia"
 
 #: data/desktop/com.elboulangero.Goodvibes.desktop.in:5
 msgid "Play web radios"
-msgstr ""
+msgstr "Přehrát webové rádio"
 
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: data/desktop/com.elboulangero.Goodvibes.desktop.in:7
 msgid "Audio;Radio;Player;"
-msgstr ""
+msgstr "Audio;Radio;Přehrávač;Zvuk;"
 
 #: data/desktop/com.elboulangero.Goodvibes.desktop.in:11
 msgid "goodvibes"
-msgstr ""
+msgstr "goodvibes"
 
 #: data/ui/app-menu.glade:6 data/ui/menubar.glade:8 src/ui/gv-main-menu.c:32
 #: src/ui/gv-prefs-window.c:524
 msgid "Preferences"
-msgstr ""
+msgstr "Nastavení"
 
 #: data/ui/app-menu.glade:12 data/ui/menubar.glade:27
 msgid "Online Help"
-msgstr ""
+msgstr "Online nápověda"
 
 #: data/ui/app-menu.glade:16 data/ui/menubar.glade:33 src/ui/gv-main-menu.c:33
 msgid "About"
-msgstr ""
+msgstr "O programu"
 
 #: data/ui/app-menu.glade:20 data/ui/menubar.glade:14
 #: src/ui/gv-status-icon.c:557
 msgid "Close UI"
-msgstr ""
+msgstr "Zavřít rozhraní"
 
 #: data/ui/app-menu.glade:24 data/ui/menubar.glade:18 src/ui/gv-main-menu.c:34
 msgid "Quit"
-msgstr ""
+msgstr "Ukončit"
 
 #: data/ui/main-window.glade:47 src/ui/gv-main-window.c:94
 msgid "No station selected"
-msgstr ""
+msgstr "Nebyla zvolena žádná stanice"
 
 #: data/ui/main-window.glade:62 src/ui/gv-main-window.c:117
 msgid "Stopped"
-msgstr ""
+msgstr "Zastaveno"
 
 #: data/ui/menubar.glade:5
 msgid "File"
-msgstr ""
+msgstr "Soubor"
 
 #: data/ui/menubar.glade:24
 msgid "Help"
-msgstr ""
+msgstr "Nápověda"
 
 #: data/ui/prefs-window.glade:35
 msgid "Autoplay on Startup"
-msgstr ""
+msgstr "Automaticky přehrávat při spuštění"
 
 #: data/ui/prefs-window.glade:52
 msgid "Player"
-msgstr ""
+msgstr "Přehrávač"
 
 #: data/ui/prefs-window.glade:87
 msgid "Prevent sleep while playing"
-msgstr ""
+msgstr "Zabránit uspání při přehrávání"
 
 #: data/ui/prefs-window.glade:100
 msgid "System"
-msgstr ""
+msgstr "Nastavení systému"
 
 #: data/ui/prefs-window.glade:145
 msgid "Native D-Bus Server"
@@ -105,7 +108,7 @@ msgstr ""
 
 #: data/ui/prefs-window.glade:186
 msgid "Misc"
-msgstr ""
+msgstr "Různé"
 
 #: data/ui/prefs-window.glade:213
 msgid "Emit Notifications"
