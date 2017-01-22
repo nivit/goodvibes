@@ -3,6 +3,7 @@ Goodvibes Radio Player
 
 * [Installation](#installation)
 * [License](#license)
+* [Translations](#translations)
 * [Hacking](#hacking)
 
 
@@ -68,6 +69,13 @@ Copyright (C) 2015-2017 Arnaud Rebillout <elboulangero@gmail.com>
 Goodvibes is released under the [General Public License (GPL) version 3](LICENSE).
 
 
+
+Translations
+------------
+
+Goodvibes uses [Weblate][] to manage translations. If you want to help translating Goodvibes, please visit the project page at <https://hosted.weblate.org/projects/goodvibes>.
+
+[weblate]: https://weblate.org
 
 Hacking
 -------
