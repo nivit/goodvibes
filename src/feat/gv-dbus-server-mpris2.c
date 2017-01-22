@@ -843,7 +843,7 @@ prop_get_identity(GvDbusServer *dbus_server G_GNUC_UNUSED)
 static GVariant *
 prop_get_desktop_entry(GvDbusServer *dbus_server G_GNUC_UNUSED)
 {
-	return g_variant_new_string(PACKAGE_NAME);
+	return g_variant_new_string(PACKAGE_APPLICATION_ID);
 }
 
 static GVariant *
