@@ -192,26 +192,18 @@ gv_inhibitor_enable(GvFeature *feature)
 }
 
 /*
- * GObject methods
+ * Public methods
  */
 
-static void
-gv_inhibitor_finalize(GObject *object)
+GvFeature *
+gv_inhibitor_new(void)
 {
-	TRACE("%p", object);
-
-	/* Chain up */
-	G_OBJECT_CHAINUP_FINALIZE(gv_inhibitor, object);
+	return gv_feature_new(GV_TYPE_INHIBITOR, "Inhibitor");
 }
 
-static void
-gv_inhibitor_constructed(GObject *object)
-{
-	TRACE("%p", object);
-
-	/* Chain up */
-	G_OBJECT_CHAINUP_CONSTRUCTED(gv_inhibitor, object);
-}
+/*
+ * GObject methods
+ */
 
 static void
 gv_inhibitor_init(GvInhibitor *self)
@@ -225,14 +217,9 @@ gv_inhibitor_init(GvInhibitor *self)
 static void
 gv_inhibitor_class_init(GvInhibitorClass *class)
 {
-	GObjectClass *object_class = G_OBJECT_CLASS(class);
 	GvFeatureClass *feature_class = GV_FEATURE_CLASS(class);
 
 	TRACE("%p", class);
-
-	/* Override GObject methods */
-	object_class->finalize = gv_inhibitor_finalize;
-	object_class->constructed = gv_inhibitor_constructed;
 
 	/* Override GvFeature methods */
 	feature_class->enable = gv_inhibitor_enable;

@@ -30,4 +30,8 @@
 
 G_DECLARE_FINAL_TYPE(GvNotifications, gv_notifications, GV, NOTIFICATIONS, GvFeature)
 
+/* Public methods */
+
+GvFeature *gv_notifications_new(void);
+
 #endif /* __GOODVIBES_FEAT_GV_NOTIFICATIONS_H__ */

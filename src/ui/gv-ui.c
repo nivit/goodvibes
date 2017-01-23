@@ -36,6 +36,8 @@
 #include "feat/gv-notifications.h"
 #endif
 
+GSettings    *gv_ui_settings;
+
 GvStatusIcon *gv_ui_status_icon;
 GtkWidget    *gv_ui_main_window;
 GtkWidget    *gv_ui_prefs_window;
@@ -118,6 +120,8 @@ gv_ui_cleanup(void)
 	 * https://developer.gnome.org/gtk3/stable/GtkWindow.html#gtk-window-new
 	 */
 
+	GSettings    *settings     = gv_ui_settings;
+
 	GtkWidget    *prefs_window = gv_ui_prefs_window;
 	GtkWidget    *main_window  = gv_ui_main_window;
 	GvStatusIcon *status_icon  = gv_ui_status_icon;
@@ -133,10 +137,13 @@ gv_ui_cleanup(void)
 	gv_framework_configurables_remove(main_window);
 	gtk_widget_destroy(main_window);
 
+	g_object_unref(settings);
+
 	/* Ensure everything has been destroyed */
 	g_assert_null(gv_ui_prefs_window);
 	g_assert_null(gv_ui_main_window);
 	g_assert_null(gv_ui_status_icon);
+	g_assert_null(gv_ui_settings);
 
 	/* Stock icons */
 
@@ -154,6 +161,8 @@ gv_ui_init(GApplication *app, gboolean status_icon_mode)
 	/* ----------------------------------------------- *
 	 * Ui objects                                      *
 	 * ----------------------------------------------- */
+
+	gv_ui_settings = g_settings_new(PACKAGE_APPLICATION_ID ".Ui");
 
 	gv_ui_main_window = gv_main_window_new(app);
 	gv_framework_configurables_append(gv_ui_main_window);
@@ -184,14 +193,14 @@ gv_ui_init(GApplication *app, gboolean status_icon_mode)
 	idx = 0;
 
 #ifdef HOTKEYS_ENABLED
-	feature = gv_feature_new(GV_TYPE_HOTKEYS, FALSE);
+	feature = gv_hotkeys_new();
 	features[idx++] = feature;
 	gv_framework_features_append(feature);
 	gv_framework_configurables_append(feature);
 	gv_framework_errorables_append(feature);
 #endif
 #ifdef NOTIFICATIONS_ENABLED
-	feature = gv_feature_new(GV_TYPE_NOTIFICATIONS, TRUE);
+	feature = gv_notifications_new();
 	features[idx++] = feature;
 	gv_framework_features_append(feature);
 #endif
@@ -201,6 +210,9 @@ gv_ui_init(GApplication *app, gboolean status_icon_mode)
 	/* ----------------------------------------------- *
 	 * Make weak pointers to assert proper cleanup     *
 	 * ----------------------------------------------- */
+
+	g_object_add_weak_pointer(G_OBJECT(gv_ui_settings),
+	                          (gpointer *) &gv_ui_settings);
 
 	if (gv_ui_status_icon)
 		g_object_add_weak_pointer(G_OBJECT(gv_ui_status_icon),

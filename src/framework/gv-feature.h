@@ -21,6 +21,7 @@
 #define __GOODVIBES_FRAMEWORK_GV_FEATURE_H__
 
 #include <glib-object.h>
+#include <gio/gio.h>
 
 #include "additions/glib-object.h"
 
@@ -57,18 +58,19 @@ struct _GvFeatureClass {
 	/* Parent class */
 	GObjectClass parent_class;
 	/* Virtual methods */
-	void (*enable)  (GvFeature *);
-	void (*disable) (GvFeature *);
+	void (*enable) (GvFeature *);
+	void (*disable)(GvFeature *);
 };
 
 /* Public methods */
 
-GvFeature     *gv_feature_new(GType object_type, gboolean enabled);
+GvFeature     *gv_feature_new(GType object_type, const gchar *name);
 
 /* Property accessors */
 
-GvFeatureState gv_feature_get_state  (GvFeature *self);
-gboolean        gv_feature_get_enabled(GvFeature *self);
-void            gv_feature_set_enabled(GvFeature *self, gboolean enabled);
+GSettings      *gv_feature_get_settings(GvFeature *self);
+GvFeatureState  gv_feature_get_state   (GvFeature *self);
+gboolean        gv_feature_get_enabled (GvFeature *self);
+void            gv_feature_set_enabled (GvFeature *self, gboolean enabled);
 
 #endif /* __GOODVIBES_FRAMEWORK_GV_FEATURE_H__ */

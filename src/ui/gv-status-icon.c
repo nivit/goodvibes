@@ -20,6 +20,7 @@
 #include <math.h>
 #include <glib.h>
 #include <glib-object.h>
+#include <gio/gio.h>
 #include <gtk/gtk.h>
 
 #include "additions/gtk.h"
@@ -31,6 +32,7 @@
 
 #include "core/gv-core.h"
 
+#include "ui/gv-ui.h"
 #include "ui/gv-ui-helpers.h"
 #include "ui/gv-ui-enum-types.h"
 #include "ui/gv-main-window.h"
@@ -606,6 +608,12 @@ gv_status_icon_constructed(GObject *object)
 
 	/* Connect core signal handlers */
 	g_signal_connect(player, "notify", G_CALLBACK(on_player_notify), self);
+
+	/* Bind settings */
+	g_settings_bind(gv_ui_settings, "middle-click-action",
+	                self, "middle-click-action", G_SETTINGS_BIND_DEFAULT);
+	g_settings_bind(gv_ui_settings, "scroll-action",
+	                self, "scroll-action", G_SETTINGS_BIND_DEFAULT);
 
 	/* Chain up */
 	G_OBJECT_CHAINUP_CONSTRUCTED(gv_status_icon, object);

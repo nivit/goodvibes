@@ -20,6 +20,7 @@
 #include <math.h>
 #include <glib.h>
 #include <glib-object.h>
+#include <gio/gio.h>
 
 #include "additions/glib-object.h"
 
@@ -29,6 +30,7 @@
 
 #include "core/gv-engine.h"
 #include "core/gv-core-enum-types.h"
+#include "core/gv-core.h"
 #include "core/gv-metadata.h"
 #include "core/gv-station.h"
 #include "core/gv-station-list.h"
@@ -842,6 +844,20 @@ gv_player_constructed(GObject *object)
 	priv->shuffle  = DEFAULT_SHUFFLE;
 	priv->autoplay = DEFAULT_AUTOPLAY;
 	priv->station  = NULL;
+
+	/* Bind settings */
+	g_settings_bind(gv_core_settings, "volume",
+	                self, "volume", G_SETTINGS_BIND_DEFAULT);
+	g_settings_bind(gv_core_settings, "mute",
+	                self, "mute", G_SETTINGS_BIND_DEFAULT);
+	g_settings_bind(gv_core_settings, "repeat",
+	                self, "repeat", G_SETTINGS_BIND_DEFAULT);
+	g_settings_bind(gv_core_settings, "shuffle",
+	                self, "shuffle", G_SETTINGS_BIND_DEFAULT);
+	g_settings_bind(gv_core_settings, "autoplay",
+	                self, "autoplay", G_SETTINGS_BIND_DEFAULT);
+	g_settings_bind(gv_core_settings, "station-uri",
+	                self, "station-uri", G_SETTINGS_BIND_DEFAULT);
 
 	/* Chain up */
 	G_OBJECT_CHAINUP_CONSTRUCTED(gv_player, object);

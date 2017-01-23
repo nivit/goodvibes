@@ -38,6 +38,8 @@ enum {
 	/* Reserved */
 	PROP_0,
 	/* Properties */
+	PROP_NAME,
+	PROP_SETTINGS,
 	PROP_STATE,
 	PROP_ENABLED,
 	/* Number of properties */
@@ -52,7 +54,9 @@ static GParamSpec *properties[PROP_N];
 
 struct _GvFeaturePrivate {
 	/* Properties */
-	GvFeatureState state;
+	gchar          *name;
+	GSettings      *settings;
+	GvFeatureState  state;
 	gboolean        enabled;
 	/* Pending enable/disable task */
 	guint           when_idle_id;
@@ -135,6 +139,33 @@ when_idle_disable_feature(gpointer user_data)
 /*
  * Property accessors
  */
+
+static const gchar *
+gv_feature_get_name(GvFeature *self)
+{
+	GvFeaturePrivate *priv = gv_feature_get_instance_private(self);
+
+	return priv->name;
+}
+
+static void
+gv_feature_set_name(GvFeature *self, const gchar *name)
+{
+	GvFeaturePrivate *priv = gv_feature_get_instance_private(self);
+
+	/* Construct-only property */
+	g_assert_null(priv->name);
+	g_assert_nonnull(name);
+	priv->name = g_strdup(name);
+}
+
+GSettings *
+gv_feature_get_settings(GvFeature *self)
+{
+	GvFeaturePrivate *priv = gv_feature_get_instance_private(self);
+
+	return priv->settings;
+}
 
 GvFeatureState
 gv_feature_get_state(GvFeature *self)
@@ -262,6 +293,12 @@ gv_feature_get_property(GObject    *object,
 	TRACE_GET_PROPERTY(object, property_id, value, pspec);
 
 	switch (property_id) {
+	case PROP_NAME:
+		g_value_set_string(value, gv_feature_get_name(self));
+		break;
+	case PROP_SETTINGS:
+		g_value_set_object(value, gv_feature_get_settings(self));
+		break;
 	case PROP_STATE:
 		g_value_set_enum(value, gv_feature_get_state(self));
 		break;
@@ -285,6 +322,9 @@ gv_feature_set_property(GObject      *object,
 	TRACE_SET_PROPERTY(object, property_id, value, pspec);
 
 	switch (property_id) {
+	case PROP_NAME:
+		gv_feature_set_name(self, g_value_get_string(value));
+		break;
 	case PROP_ENABLED:
 		gv_feature_set_enabled(self, g_value_get_boolean(value));
 		break;
@@ -299,10 +339,10 @@ gv_feature_set_property(GObject      *object,
  */
 
 GvFeature *
-gv_feature_new(GType object_type, gboolean enabled)
+gv_feature_new(GType object_type, const gchar *name)
 {
 	return g_object_new(object_type,
-	                    "enabled", enabled,
+	                    "name", name,
 	                    NULL);
 }
 
@@ -330,6 +370,10 @@ gv_feature_finalize(GObject *object)
 			g_source_remove(priv->when_idle_id);
 	}
 
+	/* Free resources */
+	g_object_unref(priv->settings);
+	g_free(priv->name);
+
 	/* Chain up */
 	G_OBJECT_CHAINUP_FINALIZE(gv_feature, object);
 }
@@ -337,10 +381,23 @@ gv_feature_finalize(GObject *object)
 static void
 gv_feature_constructed(GObject *object)
 {
+	GvFeature *self = GV_FEATURE(object);
+	GvFeaturePrivate *priv = gv_feature_get_instance_private(self);
+	gchar *schema_id;
+
 	TRACE("%p", object);
 
 	/* Chain up */
 	G_OBJECT_CHAINUP_CONSTRUCTED(gv_feature, object);
+
+	/* Handle settings */
+	g_assert_nonnull(priv->name);
+
+	schema_id = g_strjoin(".", PACKAGE_APPLICATION_ID, "Feat", priv->name, NULL);
+	priv->settings = g_settings_new(schema_id);
+	g_free(schema_id);
+
+	g_settings_bind(priv->settings, "enabled", self, "enabled", G_SETTINGS_BIND_DEFAULT);
 }
 
 static void
@@ -363,6 +420,17 @@ gv_feature_class_init(GvFeatureClass *class)
 	/* Properties */
 	object_class->get_property = gv_feature_get_property;
 	object_class->set_property = gv_feature_set_property;
+
+	properties[PROP_NAME] =
+	        g_param_spec_string("name", "Name", NULL,
+	                            NULL,
+	                            GV_PARAM_DEFAULT_FLAGS | G_PARAM_READWRITE |
+	                            G_PARAM_CONSTRUCT_ONLY);
+
+	properties[PROP_SETTINGS] =
+	        g_param_spec_object("settings", "Settings", NULL,
+	                            G_TYPE_SETTINGS,
+	                            GV_PARAM_DEFAULT_FLAGS | G_PARAM_READABLE);
 
 	properties[PROP_STATE] =
 	        g_param_spec_enum("state", "Feature State", NULL,

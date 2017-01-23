@@ -214,6 +214,16 @@ gv_console_output_enable(GvFeature *feature)
 }
 
 /*
+ * Public methods
+ */
+
+GvFeature *
+gv_console_output_new(void)
+{
+	return gv_feature_new(GV_TYPE_CONSOLE_OUTPUT, "ConsoleOutput");
+}
+
+/*
  * GObject methods
  */
 
