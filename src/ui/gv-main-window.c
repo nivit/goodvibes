@@ -59,6 +59,7 @@ struct _GvMainWindowPrivate {
 	GtkWidget *shuffle_toggle_button;
 	GtkWidget *volume_button;
 	/* Stations */
+	GtkWidget *scrolled_window;
 	GtkWidget *stations_tree_view;
 
 	/*
@@ -498,14 +499,17 @@ gv_main_window_populate_widgets(GvMainWindow *self)
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, shuffle_toggle_button);
 	GTK_BUILDER_SAVE_WIDGET(builder, priv, volume_button);
 
+	/* Stations tree view */
+	GTK_BUILDER_SAVE_WIDGET(builder, priv, scrolled_window);
+
 	/* Now create the stations tree view */
 	priv->stations_tree_view = gv_stations_tree_view_new();
 	gtk_widget_show_all(priv->stations_tree_view);
-	gtk_box_pack_start(GTK_BOX(priv->window_vbox), priv->stations_tree_view,
-	                   TRUE, TRUE, 0);
 
+	/* Add to scrolled window */
+	gtk_container_add(GTK_CONTAINER(priv->scrolled_window), priv->stations_tree_view);
 
-	/* Pack that within the window */
+	/* Add vbox to the window */
 	gtk_container_add(GTK_CONTAINER(self), priv->window_vbox);
 
 	/* Cleanup */
