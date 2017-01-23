@@ -207,8 +207,7 @@ fi
 AS_ECHO(["
 -------------------------------------------------------------
 
-	Goodvibes Radio Player
-	======================
+	~ $PACKAGE_LONG_NAME - $PACKAGE_VERSION ~
 
 	Core
 	----
