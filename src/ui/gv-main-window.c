@@ -472,6 +472,40 @@ gv_main_window_new(GApplication *application)
  */
 
 static void
+on_stations_tree_view_realize(GtkWidget *widget G_GNUC_UNUSED,
+                              GvMainWindow *self)
+{
+	GtkRequisition min, max;
+	GvMainWindowPrivate *priv = self->priv;
+
+	DEBUG("REALIZE STATIONS TREE VIEW");
+
+	gtk_widget_get_preferred_size(priv->stations_tree_view, &min, &max);
+	DEBUG("treeview");
+	DEBUG("min: w=%d, h=%d", min.width, min.height);
+	DEBUG("max: w=%d, h=%d", max.width, max.height);
+
+	gtk_widget_get_preferred_size(priv->scrolled_window, &min, &max);
+	DEBUG("scrolled window");
+	DEBUG("min: w=%d, h=%d", min.width, min.height);
+	DEBUG("max: w=%d, h=%d", max.width, max.height);
+
+	gtk_widget_get_preferred_size(GTK_WIDGET(self), &min, &max);
+	DEBUG("main window");
+	DEBUG("min: w=%d, h=%d", min.width, min.height);
+	DEBUG("max: w=%d, h=%d", max.width, max.height);
+
+	gint width, height;
+	gtk_window_get_size(GTK_WINDOW(self), &width, &height);
+	DEBUG("main window cur size: w=%d, h=%d", width, height);
+
+	/* Resize window to its maximum size */
+	gtk_window_resize(GTK_WINDOW(self), max.width, max.height);
+
+	DEBUG("main window cur size: w=%d, h=%d", width, height);
+}
+
+static void
 gv_main_window_populate_widgets(GvMainWindow *self)
 {
 	GvMainWindowPrivate *priv = self->priv;
@@ -567,6 +601,18 @@ gv_main_window_setup_layout(GvMainWindow *self)
 	g_object_set(priv->window_vbox,
 	             "spacing", GV_UI_ELEM_SPACING,
 	             NULL);
+
+	/* The scrolled window must propagate the height of the treeview,
+	 * so that we can easily resize the main window.
+	 */
+	gtk_scrolled_window_set_propagate_natural_height
+	(GTK_SCROLLED_WINDOW(priv->scrolled_window), TRUE);
+	gtk_scrolled_window_set_propagate_natural_width
+	(GTK_SCROLLED_WINDOW(priv->scrolled_window), TRUE);
+
+	/* Resize on realize */
+	g_signal_connect(priv->stations_tree_view, "realize",
+	                 G_CALLBACK(on_stations_tree_view_realize), self);
 }
 
 /*
