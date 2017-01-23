@@ -29,7 +29,6 @@
 #include "framework/gv-framework.h"
 
 GList *gv_framework_feature_list;
-GList *gv_framework_configurable_list;
 GList *gv_framework_errorable_list;
 
 static void
@@ -45,8 +44,6 @@ gv_framework_cleanup(void)
 	/* Lists should be empty by now */
 	if (gv_framework_feature_list)
 		WARNING("Feature list not empty, memory is leaked !");
-	if (gv_framework_configurable_list)
-		WARNING("Configurable list not empty, memory is leaked !");
 	if (gv_framework_errorable_list)
 		WARNING("Errorable list not empty, memory is leaked !");
 

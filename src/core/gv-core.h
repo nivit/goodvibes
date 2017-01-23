@@ -23,7 +23,6 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include "core/gv-conf.h"
 #include "core/gv-player.h"
 #include "core/gv-station.h"
 #include "core/gv-station-list.h"
@@ -33,7 +32,6 @@
 extern GApplication  *gv_core_application;
 extern GSettings     *gv_core_settings;
 
-extern GvConf        *gv_core_conf;
 extern GvPlayer      *gv_core_player;
 extern GvStationList *gv_core_station_list;
 

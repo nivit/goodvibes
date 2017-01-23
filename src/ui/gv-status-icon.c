@@ -26,8 +26,6 @@
 #include "additions/gtk.h"
 #include "additions/glib-object.h"
 
-#include "libgszn/gszn.h"
-
 #include "framework/gv-framework.h"
 
 #include "core/gv-core.h"
@@ -653,15 +651,13 @@ gv_status_icon_class_init(GvStatusIconClass *class)
 	        g_param_spec_enum("middle-click-action", "Middle Click Action", NULL,
 	                          GV_STATUS_ICON_MIDDLE_CLICK_ENUM_TYPE,
 	                          GV_STATUS_ICON_MIDDLE_CLICK_TOGGLE,
-	                          GV_PARAM_DEFAULT_FLAGS | GSZN_PARAM_SERIALIZE |
-	                          G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+	                          GV_PARAM_DEFAULT_FLAGS | G_PARAM_READWRITE);
 
 	properties[PROP_SCROLL_ACTION] =
 	        g_param_spec_enum("scroll-action", "Scroll Action", NULL,
 	                          GV_STATUS_ICON_SCROLL_ENUM_TYPE,
 	                          GV_STATUS_ICON_SCROLL_STATION,
-	                          GV_PARAM_DEFAULT_FLAGS | GSZN_PARAM_SERIALIZE |
-	                          G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+	                          GV_PARAM_DEFAULT_FLAGS | G_PARAM_READWRITE);
 
 	g_object_class_install_properties(object_class, PROP_N, properties);
 

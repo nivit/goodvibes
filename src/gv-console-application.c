@@ -126,7 +126,6 @@ gv_console_application_startup(GApplication *app)
 	/* Debug messages */
 	DEBUG_NO_CONTEXT("---- Lists ----");
 	DEBUG_NO_CONTEXT("%s", stringify_list("Feature     : ", gv_framework_feature_list));
-	DEBUG_NO_CONTEXT("%s", stringify_list("Configurable: ", gv_framework_configurable_list));
 	DEBUG_NO_CONTEXT("%s", stringify_list("Errorable   : ", gv_framework_errorable_list));
 
 	/* Startup */

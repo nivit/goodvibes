@@ -23,8 +23,6 @@
 #include "additions/glib.h"
 #include "additions/glib-object.h"
 
-#include "libgszn/gszn.h"
-
 #include "framework/log.h"
 #include "framework/gv-feature.h"
 #include "framework/gv-framework-enum-types.h"
@@ -441,8 +439,7 @@ gv_feature_class_init(GvFeatureClass *class)
 	properties[PROP_ENABLED] =
 	        g_param_spec_boolean("enabled", "Enabled", NULL,
 	                             FALSE,
-	                             GV_PARAM_DEFAULT_FLAGS | GSZN_PARAM_SERIALIZE |
-	                             G_PARAM_READWRITE);
+	                             GV_PARAM_DEFAULT_FLAGS | G_PARAM_READWRITE);
 
 	g_object_class_install_properties(object_class, PROP_N, properties);
 }

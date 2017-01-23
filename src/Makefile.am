@@ -109,7 +109,6 @@ $(eval $(call make_types,framework/gv-framework-enum-types,$(gv_framework_types_
 # Sources
 
 gv_core_sources =					\
-	core/gv-conf.c		core/gv-conf.h		\
 	core/gv-core.c		core/gv-core.h		\
 	core/gv-engine.c	core/gv-engine.h	\
 	core/gv-metadata.c	core/gv-metadata.h	\
