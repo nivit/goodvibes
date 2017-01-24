@@ -61,10 +61,7 @@ gv_core_shutdown(void)
 void
 gv_core_startup(void)
 {
-	GvStationList *station_list = gv_core_station_list;
-
-	/* Load data files */
-	gv_station_list_load(station_list);
+	/* Dummy */
 }
 
 void
@@ -125,6 +122,7 @@ gv_core_init(GApplication *application)
 	gv_framework_errorables_append(gv_core_engine);
 
 	gv_core_station_list = gv_station_list_new();
+	gv_station_list_load(gv_core_station_list);
 	gv_framework_errorables_append(gv_core_station_list);
 
 	gv_core_player = gv_player_new(gv_core_engine, gv_core_station_list);

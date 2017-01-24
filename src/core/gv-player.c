@@ -940,8 +940,7 @@ gv_player_class_init(GvPlayerClass *class)
 
 	properties[PROP_STATION_URI] =
 	        g_param_spec_string("station-uri", "Current Station Uri",
-	                            "This is a workaround for serialization, because we "
-	                            "can't serialize the 'station' property (GObject type)",
+	                            "This is used only to save the current station in conf",
 	                            NULL,
 	                            GV_PARAM_DEFAULT_FLAGS | G_PARAM_READWRITE);
 
