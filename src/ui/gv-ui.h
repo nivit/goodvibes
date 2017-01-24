@@ -35,10 +35,8 @@ extern GtkWidget    *gv_ui_prefs_window;
 
 /* Functions */
 
-void gv_ui_init    (GApplication *app, gboolean status_icon_mode);
-void gv_ui_cleanup (void);
-void gv_ui_startup (void);
-void gv_ui_shutdown(void);
+void gv_ui_init   (GApplication *app, gboolean status_icon_mode);
+void gv_ui_cleanup(void);
 
 void gv_ui_present_main       (void);
 void gv_ui_present_preferences(void);

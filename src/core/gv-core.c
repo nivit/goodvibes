@@ -53,18 +53,6 @@ gv_core_quit(void)
 }
 
 void
-gv_core_shutdown(void)
-{
-	/* Dummy */
-}
-
-void
-gv_core_startup(void)
-{
-	/* Dummy */
-}
-
-void
 gv_core_cleanup(void)
 {
 	/* Features */

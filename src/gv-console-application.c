@@ -95,10 +95,6 @@ gv_console_application_shutdown(GApplication *app)
 {
 	DEBUG_NO_CONTEXT(">>>> Main loop started <<<<");
 
-	/* Shutdown */
-	DEBUG_NO_CONTEXT("---- Shutting down ----");
-	gv_core_shutdown();
-
 	/* Cleanup */
 	DEBUG_NO_CONTEXT("---- Cleaning up ----");
 	gv_core_cleanup();
@@ -128,12 +124,7 @@ gv_console_application_startup(GApplication *app)
 	DEBUG_NO_CONTEXT("%s", stringify_list("Feature     : ", gv_framework_feature_list));
 	DEBUG_NO_CONTEXT("%s", stringify_list("Errorable   : ", gv_framework_errorable_list));
 
-	/* Startup */
-	DEBUG_NO_CONTEXT("---- Starting up ----");
-	gv_core_startup();
-
 	/* Hold application */
-	// TODO: move that somewhere else
 	g_application_hold(app);
 }
 

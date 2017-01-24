@@ -86,18 +86,6 @@ gv_ui_present_main(void)
 }
 
 void
-gv_ui_shutdown(void)
-{
-	/* Dummy */
-}
-
-void
-gv_ui_startup(void)
-{
-	gv_main_window_populate_stations(GV_MAIN_WINDOW(gv_ui_main_window));
-}
-
-void
 gv_ui_cleanup(void)
 {
 	/* Features */
@@ -176,6 +164,8 @@ gv_ui_init(GApplication *app, gboolean status_icon_mode)
 		/* No status icon */
 		gv_ui_status_icon = NULL;
 	}
+
+	gv_main_window_populate_stations(GV_MAIN_WINDOW(gv_ui_main_window));
 
 	/* ----------------------------------------------- *
 	 * Features                                        *
