@@ -22,8 +22,6 @@
 
 #include "additions/glib-object.h"
 
-#include "libgszn/gszn.h"
-
 #include "framework/gv-framework.h"
 
 #include "core/gv-station.h"
@@ -378,13 +376,13 @@ gv_station_class_init(GvStationClass *class)
 
 	properties[PROP_NAME] =
 	        g_param_spec_string("name", "Name", NULL, NULL,
-	                            GV_PARAM_DEFAULT_FLAGS | GSZN_PARAM_SERIALIZE |
-	                            G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+	                            GV_PARAM_DEFAULT_FLAGS | G_PARAM_READWRITE |
+	                            G_PARAM_CONSTRUCT);
 
 	properties[PROP_URI] =
 	        g_param_spec_string("uri", "Uri", NULL, NULL,
-	                            GV_PARAM_DEFAULT_FLAGS | GSZN_PARAM_SERIALIZE |
-	                            G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+	                            GV_PARAM_DEFAULT_FLAGS | G_PARAM_READWRITE |
+	                            G_PARAM_CONSTRUCT);
 
 	properties[PROP_STREAM_URIS] =
 	        g_param_spec_pointer("stream-uris", "Stream uris", NULL,

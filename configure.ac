@@ -37,7 +37,7 @@ AC_PROG_CC()
 AC_PROG_INSTALL()
 PKG_PROG_PKG_CONFIG()
 
-# To build static libraries (libgszn, libcaphe)
+# To build static libraries (libcaphe)
 AC_PROG_RANLIB()
 AM_PROG_AR()
 
@@ -61,20 +61,12 @@ AM_GNU_GETTEXT_VERSION([0.19.7])
 # Check for core dependencies
 # - gio-unix-2.0 is needed for libcaphe. In a perfect world, libcaphe
 # (and therefore gio-unix-2.0) should depend on the inhibitor feature.
-# - libxml-2.0 is needed for libgszn (which is a mandatory dependency)
 
 AS_ECHO(["---- Core ----"])
 
 PKG_CHECK_MODULES([GLIB],    [glib-2.0, gobject-2.0, gio-2.0, gio-unix-2.0 >= 2.44])
 PKG_CHECK_MODULES([LIBSOUP], [libsoup-2.4 >= 2.42])
 PKG_CHECK_MODULES([GST],     [gstreamer-1.0, gstreamer-base-1.0, gstreamer-audio-1.0 >= 1.4.4])
-PKG_CHECK_MODULES([XML],     [libxml-2.0 >= 2.9.3])
-
-# Libgszn flags
-GSZN_CFLAGS="-I.."
-GSZN_LIBS="../libgszn/libgszn.a"
-AC_SUBST(GSZN_CFLAGS)
-AC_SUBST(GSZN_LIBS)
 
 # Libcaphe flags
 CAPHE_CFLAGS="-I../libcaphe/"
@@ -192,7 +184,6 @@ data/ui/Makefile
 libcaphe/Makefile
 libcaphe/caphe/Makefile
 libcaphe/tests/Makefile
-libgszn/Makefile
 po/Makefile.in
 src/Makefile
 ])

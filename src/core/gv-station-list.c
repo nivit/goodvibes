@@ -23,8 +23,6 @@
 
 #include "additions/glib-object.h"
 
-#include "libgszn/gszn.h"
-
 #include "framework/gv-framework.h"
 
 #include "core/gv-station-list.h"
@@ -196,8 +194,6 @@ struct _GvStationListPrivate {
 	gchar  *save_path;
 	/* Timeout id, > 0 if a save operation is scheduled */
 	guint   save_timeout_id;
-	/* Serialization objects */
-	GsznSettings *serialization_settings;
 	/* Ordered list of stations */
 	GList  *stations;
 	/* Shuffled list of stations, automatically created
@@ -220,30 +216,119 @@ G_DEFINE_TYPE_WITH_CODE(GvStationList, gv_station_list, G_TYPE_OBJECT,
                         G_IMPLEMENT_INTERFACE(GV_TYPE_ERRORABLE, NULL))
 
 /*
- * Serialization settings
+ * Markup handling
  */
 
-static gchar *
-serialize_object_name(const gchar *object_type_name)
+static void
+markup_parse_element_cb(GMarkupParseContext *context G_GNUC_UNUSED,
+                        const gchar         *element_name,
+                        const gchar        **attribute_names,
+                        const gchar        **attribute_values,
+                        gpointer             user_data,
+                        GError             **error)
 {
-	static const gchar *prefix = "Gv";
-	static guint prefix_len = 0;
+	GList **llink = (GList **) user_data;
+	const gchar *name = NULL, *uri = NULL;
+	GvStation *station;
 
-	if (prefix_len == 0)
-		prefix_len = strlen(prefix);
+	/* Ensure this is a valid element */
+	if (g_strcmp0(element_name, "station")) {
+		WARNING("Markup parser: discarding unexpected element '%s'", element_name);
+		return;
+	}
 
-	if (g_str_has_prefix(object_type_name, prefix))
-		object_type_name += prefix_len;
+	/* Collect attributes */
+	if (!g_markup_collect_attributes(element_name, attribute_names,
+	                                 attribute_values, error,
+	                                 G_MARKUP_COLLECT_STRING | G_MARKUP_COLLECT_OPTIONAL,
+	                                 "name", &name,
+	                                 G_MARKUP_COLLECT_STRING,
+	                                 "uri", &uri,
+	                                 G_MARKUP_COLLECT_INVALID))
+		return;
 
-	return g_strdup(object_type_name);
+	/* Discard stations with no url */
+	if (uri == NULL || uri[0] == '\0') {
+		WARNING("Station '%s' has no uri, discarding", name);
+		return;
+	}
+
+	/* Create a new station */
+	station = gv_station_new(name, uri);
+
+	/* Add to list, use prepend for efficiency */
+	*llink = g_list_prepend(*llink, station);
+}
+
+static void
+markup_error_cb(GMarkupParseContext *context G_GNUC_UNUSED,
+                GError              *error   G_GNUC_UNUSED,
+                gpointer             user_data)
+{
+	GList **llink = (GList **) user_data;
+
+	g_list_free_full(*llink, g_object_unref);
+	*llink = NULL;
+}
+
+static GList *
+parse_markup(const gchar *text, GError **err)
+{
+	GMarkupParseContext *context;
+	GMarkupParser parser = {
+		markup_parse_element_cb,
+		NULL,
+		NULL,
+		NULL,
+		markup_error_cb,
+	};
+	GList *list = NULL;
+
+	context = g_markup_parse_context_new(&parser, 0, &list, NULL);
+
+	if (!g_markup_parse_context_parse(context, text, -1, err))
+		WARNING("Failed to parse markup context: %s", (*err)->message);
+
+	g_markup_parse_context_free(context);
+
+	return g_list_reverse(list);
 }
 
 static gchar *
-deserialize_object_name(const gchar *object_name)
+print_markup(GList *list, GError **err G_GNUC_UNUSED)
 {
-	static const gchar *prefix = "Gv";
+	GString *string = g_string_new(NULL);
 
-	return g_strconcat(prefix, object_name, NULL);
+	while (list) {
+		GvStation *station = list->data;
+		const gchar *name = gv_station_get_name(station);
+		const gchar *uri = gv_station_get_uri(station);
+		gchar *text;
+
+		/* Write that stuff in XML fashion */
+		if (name)
+			text = g_markup_printf_escaped(
+			               "<station"
+			               " name='%s'"
+			               " uri='%s'"
+			               "/>\n",
+			               name, uri);
+		else
+			text = g_markup_printf_escaped(
+			               "<station"
+			               " uri='%s'"
+			               "/>\n",
+			               uri);
+
+		/* Append */
+		g_string_append(string, text);
+		g_free(text);
+
+		/* Iterate */
+		list = list->next;
+	}
+
+	return g_string_free(string, FALSE);
 }
 
 /*
@@ -415,8 +500,10 @@ on_station_notify(GvStation     *station,
 	TRACE("%s, %s, %p", gv_station_get_uid(station), property_name, self);
 
 	/* We might want to save changes */
-	if (pspec->flags & GSZN_PARAM_SERIALIZE)
+	if (!g_strcmp0(property_name, "uri") ||
+	    !g_strcmp0(property_name, "name")) {
 		gv_station_list_schedule_save(self);
+	}
 
 	/* Emit signal */
 	g_signal_emit(self, signals[SIGNAL_STATION_MODIFIED], 0, station);
@@ -863,26 +950,20 @@ void
 gv_station_list_save(GvStationList *self)
 {
 	GvStationListPrivate *priv = self->priv;
-	GsznSerializer *serializer;
 	GError *err = NULL;
 	gchar *text;
 
-	/* Create a serializer */
-	serializer = gszn_serializer_new(priv->serialization_settings,
-	                                 GSZN_SERIALIZER_FLAG_SERIALIZE_FLAG_ONLY |
-	                                 GSZN_SERIALIZER_FLAG_NON_DEFAULT_ONLY);
-
-	gszn_serializer_add_list(serializer, priv->stations);
-
 	/* Stringify data */
-	text = gszn_serializer_print(serializer);
+	text = print_markup(priv->stations, &err);
+	if (err)
+		goto cleanup;
 
 	/* Write to file */
 	gv_file_write_sync(priv->save_path, text, &err);
 
+cleanup:
 	/* Cleanup */
 	g_free(text);
-	g_object_unref(serializer);
 
 	/* Handle error */
 	if (err == NULL) {
@@ -901,7 +982,6 @@ void
 gv_station_list_load(GvStationList *self)
 {
 	GvStationListPrivate *priv = self->priv;
-	GsznDeserializer *deserializer;
 	GSList *item = NULL;
 	GList *sta_item;
 
@@ -909,9 +989,6 @@ gv_station_list_load(GvStationList *self)
 
 	/* This should be called only once at startup */
 	g_assert_null(priv->stations);
-
-	/* Create the deserializer */
-	deserializer = gszn_deserializer_new(priv->serialization_settings);
 
 	/* Load from a list of pathes */
 	for (item = priv->load_pathes; item; item = item->next) {
@@ -928,7 +1005,7 @@ gv_station_list_load(GvStationList *self)
 		}
 
 		/* Attempt to parse it */
-		gszn_deserializer_parse(deserializer, text, &err);
+		priv->stations = parse_markup(text, &err);
 		g_free(text);
 		if (err) {
 			WARNING("Failed to parse '%s': %s", path, err->message);
@@ -950,18 +1027,12 @@ gv_station_list_load(GvStationList *self)
 
 		INFO("No valid station list file found, using hard-coded default");
 
-		gszn_deserializer_parse(deserializer, DEFAULT_STATION_LIST, &err);
+		priv->stations = parse_markup(DEFAULT_STATION_LIST, &err);
 		if (err) {
 			ERROR("%s", err->message);
 			/* Program execution stops here */
 		}
 	}
-
-	/* Now it's time to create the stations */
-	priv->stations = gszn_deserializer_create_all(deserializer);
-
-	/* Dispose of the deserializer */
-	g_object_unref(deserializer);
 
 	/* Register a notify handler for each station */
 	for (sta_item = priv->stations; sta_item; sta_item = sta_item->next) {
@@ -1024,7 +1095,6 @@ gv_station_list_set_property(GObject      *object,
 	}
 }
 
-
 /*
  * GObject methods
  */
@@ -1052,12 +1122,6 @@ gv_station_list_finalize(GObject *object)
 	g_list_free_full(priv->stations, g_object_unref);
 	g_list_free_full(priv->shuffled, g_object_unref);
 
-	/* Free serialization settings */
-	gszn_settings_free(priv->serialization_settings);
-
-	/* Drop the reference to the station type */
-	g_type_class_unref(g_type_class_peek(GV_TYPE_STATION));
-
 	/* Free pathes */
 	g_free(priv->save_path);
 	g_slist_free_full(priv->load_pathes, g_free);
@@ -1071,25 +1135,11 @@ gv_station_list_constructed(GObject *object)
 {
 	GvStationList *self = GV_STATION_LIST(object);
 	GvStationListPrivate *priv = self->priv;
-	GsznSettings *settings;
 
 	/* Initialize pathes */
 	priv->load_pathes = gv_get_existing_path_list
 	                    (GV_DIR_USER_CONFIG | GV_DIR_SYSTEM_CONFIG, "stations");
 	priv->save_path = g_build_filename(gv_get_user_config_dir(), "stations", NULL);
-
-	/* Ensure the station type is registered in the type system
-	 * (this is needed when deserializing the station list)
-	 */
-	g_type_class_ref(GV_TYPE_STATION);
-
-	/* Create serialization settings */
-	settings = gszn_settings_new();
-	settings->backend_type        = GSZN_TYPE_BACKEND_XML;
-	settings->title               = "Stations";
-	settings->ser_object_name     = serialize_object_name;
-	settings->deser_object_name   = deserialize_object_name;
-	priv->serialization_settings  = settings;
 
 	/* Chain up */
 	G_OBJECT_CHAINUP_CONSTRUCTED(gv_station_list, object);

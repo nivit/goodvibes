@@ -1,6 +1,5 @@
 SUBDIRS =	\
 	data	\
-	libgszn	\
 	libcaphe\
 	po	\
 	src

@@ -36,7 +36,7 @@ make_namespace()
 
     # Anything else
     else
-	local first_dir_up=$(echo $first_dir | tr '\-.' _ | tr '[:lower:]' '[:upper:]')    
+	local first_dir_up=$(echo $first_dir | tr '\-.' _ | tr '[:lower:]' '[:upper:]')
 
 	echo __${first_dir_up}_${bn}__
 
@@ -89,7 +89,7 @@ do_fix()
 
 # File list
 if [ $# -eq 1 ]; then
-    files=$(find libgszn libcaphe src -name \*.h)
+    files=$(find libcaphe src -name \*.h)
 else
     files="${@:2}"
 fi
