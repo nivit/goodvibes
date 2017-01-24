@@ -568,6 +568,7 @@ handle_conf_command(int argc, char *argv[])
 	argv += 2;
 
 	/* Process the other arguments */
+	gsettings_cmd = NULL;
 	if (!strcmp(cmd, "get")) {
 		if (argc != 1)
 			help_and_exit(EXIT_FAILURE);
@@ -602,7 +603,6 @@ handle_conf_command(int argc, char *argv[])
 
 		gsettings_cmd = g_strdup_printf("gsettings describe %s %s",
 		                                schema_id, key);
-		print("%s", gsettings_cmd);
 
 	} else {
 		help_and_exit(EXIT_FAILURE);
