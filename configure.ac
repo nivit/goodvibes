@@ -164,7 +164,6 @@ AS_ECHO(["---- Output Files ----"])
 AC_CONFIG_FILES([
 AUTHORS
 Makefile
-cli/Makefile
 data/Makefile
 data/dbus-1/Makefile
 data/dbus-1/services/Makefile

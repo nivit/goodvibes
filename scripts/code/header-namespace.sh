@@ -22,7 +22,7 @@ make_namespace()
     local first_dir=$(echo $file | cut -d/ -f1)
 
    # Goodvibes sources
-    if [ $first_dir == src ] || [ $first_dir == cli ]; then
+    if [ $first_dir == src ]; then
 	local next_dirs=$(echo $file | cut -d/ -f2- | xargs dirname)
 
 	if [ $next_dirs == '.' ]; then
@@ -89,7 +89,7 @@ do_fix()
 
 # File list
 if [ $# -eq 1 ]; then
-    files=$(find cli libgszn libcaphe src -name \*.h)
+    files=$(find libgszn libcaphe src -name \*.h)
 else
     files="${@:2}"
 fi

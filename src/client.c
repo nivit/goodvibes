@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include <glib.h>
 #include <gio/gio.h>
@@ -52,34 +53,37 @@ help_and_exit(int exit_code)
 #define REVISION(name)     print("%s (version " PACKAGE_VERSION ")", name);
 #define USAGE(name)        print("Usage: %s <command> [<args>]", name);
 #define TITLE(str)         print(BOLD(str ":"))
-#define COMMAND(cmd, desc) print(BOLD("  %-28s") "%s", cmd, desc)
-#define DESC(desc)         print("  %-28s%s", "", desc)
+#define COMMAND(cmd, desc) print(BOLD("  %-32s") "%s", cmd, desc)
+#define DESC(desc)         print("  %-32s%s", "", desc)
 #define NL()               print("");
 
 	REVISION(app_name);
 	USAGE(app_name);
 	NL();
+
 	TITLE  ("Base commands");
 	COMMAND("launch", "Launch " PACKAGE_CAMEL_NAME);
-	COMMAND("quit", "Ask " PACKAGE_CAMEL_NAME " to quit");
+	COMMAND("quit", "Quit " PACKAGE_CAMEL_NAME);
 	COMMAND("help", "Print this help message");
 	NL();
-	TITLE  ("Control commands");
+
+	TITLE  ("Control");
+	print  (". <station> can be the station name or uri");
 	COMMAND("play [<station>]", "Without argument, play the current station");
 	DESC   ("Otherwise, play the station given in argument");
 	COMMAND("stop", "Stop playback");
 	COMMAND("next", "Play next station");
 	COMMAND("prev(ious)", "Play previous station");
-	NL();
-	TITLE  ("Properties accessors");
-	COMMAND("current", "Get info on current station");
-	COMMAND("playing", "Get playback status");
-	COMMAND("repeat  [true/false]", "Get/set repeat");
-	COMMAND("shuffle [true/false]", "Get/set shuffle");
 	COMMAND("volume  [<value>]", "Get/set volume (in %)");
 	COMMAND("mute    [true/false]", "Get/set mute state");
+	COMMAND("repeat  [true/false]", "Get/set repeat");
+	COMMAND("shuffle [true/false]", "Get/set shuffle");
+	COMMAND("current", "Get info on current station");
+	COMMAND("playing", "Get playback status");
 	NL();
+
 	TITLE  ("Station list");
+	print  (". <station> can be the station name or uri");
 	COMMAND("list", "Display the list of stations");
 	COMMAND("add    <station-uri> [<station-name>] [[first/last] [before/after <station>]]", "");
 	DESC   ("Add a station to the list");
@@ -88,7 +92,13 @@ help_and_exit(int exit_code)
 	COMMAND("move   <station> [[first/last] [before/after <station>]]", "");
 	DESC   ("Move a station in the list");
 	NL();
-	print("<station> may be the station name or the station uri");
+
+	TITLE  ("Configuration");
+	print  (". sections: core, ui, feat.<feature-name>");
+	COMMAND("conf get <section> <key>",         "Get a config value");
+	COMMAND("conf set <section> <key> <value>", "Set a config value");
+	COMMAND("conf list-keys <section>",         "List config keys");
+	COMMAND("conf describe <section> <key>",    "Describe a config key");
 
 	exit(exit_code);
 }
@@ -512,6 +522,100 @@ struct interface interfaces[] = {
 	{ NULL,                NULL          }
 };
 
+static void
+capitalize_first_letters(gchar *str)
+{
+	char *ptr;
+
+	if (!str)
+		return;
+
+	*str = toupper(*str);
+	str++;
+
+	for (ptr = str; *ptr != '\0'; ptr++) {
+		if (*ptr == '.') {
+			ptr++;
+			if (*ptr != '\0')
+				*ptr = toupper(*ptr);
+		}
+	}
+}
+
+static int
+handle_conf_command(int argc, char *argv[])
+{
+	const gchar *cmd;
+	const gchar *section;
+	const gchar *key;
+	const gchar *value_str;
+	gchar *schema_id;
+	gchar *gsettings_cmd;
+	int success;
+
+	if (argc < 1)
+		help_and_exit(EXIT_FAILURE);
+
+	/* Command */
+	cmd = argv[0];
+
+	/* Section */
+	capitalize_first_letters(argv[1]);
+	section = argv[1];
+	schema_id = g_strjoin(".", PACKAGE_APPLICATION_ID, section, NULL);
+
+	argc -= 2;
+	argv += 2;
+
+	/* Process the other arguments */
+	if (!strcmp(cmd, "get")) {
+		if (argc != 1)
+			help_and_exit(EXIT_FAILURE);
+
+		key = argv[0];
+
+		gsettings_cmd = g_strdup_printf("gsettings get %s %s",
+		                                schema_id, key);
+
+	} else if (!strcmp(cmd, "set")) {
+		if (argc != 2)
+			help_and_exit(EXIT_FAILURE);
+
+		key = argv[0];
+		value_str = argv[1];
+
+		gsettings_cmd = g_strdup_printf("gsettings set %s %s %s",
+		                                schema_id, key, value_str);
+
+	} else if (!strcmp(cmd, "list-keys")) {
+		if (argc != 0)
+			help_and_exit(EXIT_FAILURE);
+
+		gsettings_cmd = g_strdup_printf("gsettings list-keys %s",
+		                                schema_id);
+
+	} else if (!strcmp(cmd, "describe")) {
+		if (argc != 1)
+			help_and_exit(EXIT_FAILURE);
+
+		key = argv[0];
+
+		gsettings_cmd = g_strdup_printf("gsettings describe %s %s",
+		                                schema_id, key);
+		print("%s", gsettings_cmd);
+
+	} else {
+		help_and_exit(EXIT_FAILURE);
+	}
+
+	success = system(gsettings_cmd);
+
+	g_free(gsettings_cmd);
+	g_free(schema_id);
+
+	return success;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -541,6 +645,14 @@ main(int argc, char *argv[])
 		                args, NULL);
 
 		exit(err ? EXIT_FAILURE : EXIT_SUCCESS);
+
+	} else if (!strcmp(argv[1], "conf")) {
+		argc -= 2;
+		argv += 2;
+
+		err = handle_conf_command(argc, argv);
+		exit(err ? EXIT_FAILURE : EXIT_SUCCESS);
+
 	} else if (!strcmp(argv[1], "help")) {
 		help_and_exit(EXIT_SUCCESS);
 	}

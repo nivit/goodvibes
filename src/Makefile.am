@@ -247,8 +247,6 @@ endif
 # here's a bit of reading I recommend:
 # http://eli.thegreenplace.net/2013/07/09/library-order-in-static-linking
 
-bin_PROGRAMS = goodvibes
-
 goodvibes_SOURCES =			\
 	$(gv_additions_sources)		\
 	$(gv_framework_sources)		\
@@ -289,6 +287,22 @@ goodvibes_LDADD += $(sort		\
 	$(gv_ui_shared_ldadd)		\
 	$(gv_feat_shared_ldadd)		\
 	)
+
+
+
+# ----------------------------------------------------- #
+#           Goodvibes Command-Line Client               #
+# ----------------------------------------------------- #
+
+goodvibes_client_SOURCES  = client.c
+goodvibes_client_CPPFLAGS = $(GLIB_CFLAGS)
+goodvibes_client_LDADD    = $(GLIB_LIBS)
+
+
+
+# ----------------------------------------------------- #
+
+bin_PROGRAMS = goodvibes goodvibes-client
 
 BUILT_SOURCES =				\
 	$(gv_framework_built_sources)	\
