@@ -202,9 +202,9 @@ log_default_handler(const gchar   *domain,
 	fputs(prefix, log_stream);
 	fputs(" ", log_stream);
 
-	fputs(VT_CODE_ESC VT_CODE_DIM, log_stream);
+	fputs(log_strings->dim, log_stream);
 	fputs(now_str, log_stream);
-	fputs(VT_CODE_ESC VT_CODE_RESET, log_stream);
+	fputs(log_strings->reset, log_stream);
 	fputs(" ", log_stream);
 
 	if (domain)
