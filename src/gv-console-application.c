@@ -23,6 +23,7 @@
 
 #include "framework/gv-framework.h"
 #include "core/gv-core.h"
+#include "feat/gv-feat.h"
 
 #include "gv-console-application.h"
 #include "options.h"
@@ -97,6 +98,7 @@ gv_console_application_shutdown(GApplication *app)
 
 	/* Cleanup */
 	DEBUG_NO_CONTEXT("---- Cleaning up ----");
+	gv_feat_cleanup();
 	gv_core_cleanup();
 	gv_framework_cleanup();
 
@@ -118,10 +120,10 @@ gv_console_application_startup(GApplication *app)
 	DEBUG_NO_CONTEXT("---- Initializing ----");
 	gv_framework_init();
 	gv_core_init(app);
+	gv_feat_init();
 
 	/* Debug messages */
 	DEBUG_NO_CONTEXT("---- Lists ----");
-	DEBUG_NO_CONTEXT("%s", stringify_list("Feature     : ", gv_framework_feature_list));
 	DEBUG_NO_CONTEXT("%s", stringify_list("Errorable   : ", gv_framework_errorable_list));
 
 	/* Hold application */

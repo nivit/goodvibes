@@ -27,6 +27,7 @@
 #include "framework/gv-framework.h"
 
 #include "core/gv-core.h"
+#include "feat/gv-feat.h"
 
 #include "ui/gv-ui-internal.h"
 #include "ui/gv-ui-helpers.h"
@@ -236,22 +237,6 @@ setup_feature(const gchar *tooltip_text, GtkWidget *label, GtkWidget *sw, GvFeat
 	                       G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
 }
 
-static GvFeature *
-find_feature(const gchar *type_name)
-{
-	GList *item;
-
-	for (item = gv_framework_feature_list; item; item = item->next) {
-		GObject *object;
-
-		object = item->data;
-		if (!g_strcmp0(type_name, G_OBJECT_TYPE_NAME(object)))
-			return GV_FEATURE(object);
-	}
-
-	return NULL;
-}
-
 /*
  * Public methods
  */
@@ -272,16 +257,16 @@ gv_prefs_window_populate_features(GvPrefsWindow *self)
 	GvPrefsWindowPrivate *priv = self->priv;
 
 	/* Controls */
-	priv->hotkeys_feat        = find_feature("GvHotkeys");
-	priv->dbus_native_feat    = find_feature("GvDbusServerNative");
-	priv->dbus_mpris2_feat    = find_feature("GvDbusServerMpris2");
+	priv->hotkeys_feat        = gv_feat_find("Hotkeys");
+	priv->dbus_native_feat    = gv_feat_find("DBusServerNative");
+	priv->dbus_mpris2_feat    = gv_feat_find("DBusServerMpris2");
 
 	/* Display */
-	priv->notifications_feat  = find_feature("GvNotifications");
-	priv->console_output_feat = find_feature("GvConsoleOutput");
+	priv->notifications_feat  = gv_feat_find("Notifications");
+	priv->console_output_feat = gv_feat_find("ConsoleOutput");
 
 	/* Player */
-	priv->inhibitor_feat      = find_feature("GvInhibitor");
+	priv->inhibitor_feat      = gv_feat_find("Inhibitor");
 }
 
 static void

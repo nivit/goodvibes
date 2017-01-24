@@ -26,26 +26,13 @@
 #include "core/gv-player.h"
 #include "core/gv-station-list.h"
 
-#ifdef CONSOLE_OUTPUT_ENABLED
-#include "feat/gv-console-output.h"
-#endif
-#ifdef DBUS_SERVER_ENABLED
-#include "feat/gv-dbus-server-native.h"
-#include "feat/gv-dbus-server-mpris2.h"
-#endif
-#ifdef INHIBITOR_ENABLED
-#include "feat/gv-inhibitor.h"
-#endif
-
 GApplication  *gv_core_application;
 GSettings     *gv_core_settings;
 
 GvStationList *gv_core_station_list;
 GvPlayer      *gv_core_player;
 
-static GvEngine  *gv_core_engine;
-static GvFeature *features[8];
-
+static GvEngine *gv_core_engine;
 
 /*
  * Underlying audio backend
@@ -93,24 +80,12 @@ gv_core_quit(void)
 void
 gv_core_cleanup(void)
 {
-	/* Features */
-
-	GvFeature *feature;
-	guint idx;
-
-	for (idx = 0, feature = features[0]; feature != NULL; feature = features[++idx]) {
-		gv_framework_features_remove(feature);
-		gv_framework_errorables_remove(feature);
-		g_object_unref(feature);
-	}
-
-	/* Core objects */
-
 	GSettings     *settings     = gv_core_settings;
-
 	GvEngine      *engine       = gv_core_engine;
 	GvPlayer      *player       = gv_core_player;
 	GvStationList *station_list = gv_core_station_list;
+
+	/* Destroy core objects */
 
 	gv_framework_errorables_remove(player);
 	g_object_unref(player);
@@ -121,11 +96,16 @@ gv_core_cleanup(void)
 	gv_framework_errorables_remove(engine);
 	g_object_unref(engine);
 
+	/* Destroy settings */
+
 	g_object_unref(settings);
+
+	/* Clean application pointer */
 
 	gv_core_application = NULL;
 
 	/* Ensure everything has been destroyed */
+
 	g_assert_null(gv_core_engine);
 	g_assert_null(gv_core_player);
 	g_assert_null(gv_core_station_list);
@@ -136,13 +116,15 @@ gv_core_cleanup(void)
 void
 gv_core_init(GApplication *application)
 {
-	/* ----------------------------------------------- *
-	 * Core objects                                    *
-	 * ----------------------------------------------- */
+	/* Keep a pointer toward application */
 
 	gv_core_application = application;
 
+	/* Create settings */
+
 	gv_core_settings = g_settings_new(PACKAGE_APPLICATION_ID ".Core");
+
+	/* Create core objects */
 
 	gv_core_engine = gv_engine_new();
 	gv_framework_errorables_append(gv_core_engine);
@@ -154,51 +136,10 @@ gv_core_init(GApplication *application)
 	gv_core_player = gv_player_new(gv_core_engine, gv_core_station_list);
 	gv_framework_errorables_append(gv_core_player);
 
-
-
-	/* ----------------------------------------------- *
-	 * Features                                        *
-	 * ----------------------------------------------- */
-
-	GvFeature *feature;
-	guint idx;
-
-	/* Create every feature enabled at compile-time.
-	 * We can't do that in a more generic way, since objects
-	 * types are not constant and can't be put in an array.
-	 */
-	idx = 0;
-
-#ifdef CONSOLE_OUTPUT_ENABLED
-	feature = gv_console_output_new();
-	features[idx++] = feature;
-	gv_framework_features_append(feature);
-#endif
-#ifdef DBUS_SERVER_ENABLED
-	feature = gv_dbus_server_native_new();
-	features[idx++] = feature;
-	gv_framework_features_append(feature);
-
-	feature = gv_dbus_server_mpris2_new();
-	features[idx++] = feature;
-	gv_framework_features_append(feature);
-#endif
-#ifdef INHIBITOR_ENABLED
-	feature = gv_inhibitor_new();
-	features[idx++] = feature;
-	gv_framework_features_append(feature);
-	gv_framework_errorables_append(feature);
-#endif
-
-
-
-	/* ----------------------------------------------- *
-	 * Make weak pointers to assert proper cleanup     *
-	 * ----------------------------------------------- */
+	/* Make weak pointers to assert proper cleanup */
 
 	g_object_add_weak_pointer(G_OBJECT(gv_core_settings),
 	                          (gpointer *) &gv_core_settings);
-
 	g_object_add_weak_pointer(G_OBJECT(gv_core_engine),
 	                          (gpointer *) &gv_core_engine);
 	g_object_add_weak_pointer(G_OBJECT(gv_core_station_list),

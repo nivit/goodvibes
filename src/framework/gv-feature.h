@@ -68,6 +68,7 @@ GvFeature     *gv_feature_new(GType object_type, const gchar *name);
 
 /* Property accessors */
 
+const gchar    *gv_feature_get_name    (GvFeature *self);
 GSettings      *gv_feature_get_settings(GvFeature *self);
 GvFeatureState  gv_feature_get_state   (GvFeature *self);
 gboolean        gv_feature_get_enabled (GvFeature *self);

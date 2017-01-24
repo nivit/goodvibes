@@ -30,20 +30,11 @@
 #include "ui/gv-stock-icons.h"
 #include "ui/gv-status-icon.h"
 
-#ifdef HOTKEYS_ENABLED
-#include "feat/gv-hotkeys.h"
-#endif
-#ifdef NOTIFICATIONS_ENABLED
-#include "feat/gv-notifications.h"
-#endif
-
 GSettings    *gv_ui_settings;
 
 GvStatusIcon *gv_ui_status_icon;
 GtkWidget    *gv_ui_main_window;
 GtkWidget    *gv_ui_prefs_window;
-
-static GvFeature *features[8];
 
 /*
  * Underlying graphical toolkit
@@ -124,43 +115,34 @@ gv_ui_present_main(void)
 void
 gv_ui_cleanup(void)
 {
-	/* Features */
+	GSettings    *settings     = gv_ui_settings;
+	GtkWidget    *prefs_window = gv_ui_prefs_window;
+	GtkWidget    *main_window  = gv_ui_main_window;
+	GvStatusIcon *status_icon  = gv_ui_status_icon;
 
-	GvFeature *feature;
-	guint idx;
-
-	for (idx = 0, feature = features[0]; feature != NULL; feature = features[++idx]) {
-		gv_framework_features_remove(feature);
-		gv_framework_errorables_remove(feature);
-		g_object_unref(feature);
-	}
-
-	/* Ui objects */
-
-	/* Windows must be destroyed with gtk_widget_destroy().
+	/*
+	 * Destroy ui objects
+	 *
+	 * Windows must be destroyed with gtk_widget_destroy().
 	 * Forget about gtk_window_close() here, which seems to be asynchronous.
 	 * Read the doc:
 	 * https://developer.gnome.org/gtk3/stable/GtkWindow.html#gtk-window-new
 	 */
 
-	GSettings    *settings     = gv_ui_settings;
-
-	GtkWidget    *prefs_window = gv_ui_prefs_window;
-	GtkWidget    *main_window  = gv_ui_main_window;
-	GvStatusIcon *status_icon  = gv_ui_status_icon;
-
-	if (status_icon) {
+	if (status_icon)
 		g_object_unref(status_icon);
-	}
 
 	if (prefs_window)
 		gtk_widget_destroy(prefs_window);
 
 	gtk_widget_destroy(main_window);
 
+	/* Destroy settings */
+
 	g_object_unref(settings);
 
 	/* Ensure everything has been destroyed */
+
 	g_assert_null(gv_ui_prefs_window);
 	g_assert_null(gv_ui_main_window);
 	g_assert_null(gv_ui_status_icon);
@@ -175,15 +157,14 @@ void
 gv_ui_init(GApplication *app, gboolean status_icon_mode)
 {
 	/* Stock icons */
+
 	gv_stock_icons_init();
 
-
-
-	/* ----------------------------------------------- *
-	 * Ui objects                                      *
-	 * ----------------------------------------------- */
+	/* Create settings */
 
 	gv_ui_settings = g_settings_new(PACKAGE_APPLICATION_ID ".Ui");
+
+	/* Create ui objects */
 
 	gv_ui_main_window = gv_main_window_new(app);
 
@@ -203,41 +184,13 @@ gv_ui_init(GApplication *app, gboolean status_icon_mode)
 
 	gv_main_window_populate_stations(GV_MAIN_WINDOW(gv_ui_main_window));
 
-	/* ----------------------------------------------- *
-	 * Features                                        *
-	 * ----------------------------------------------- */
-
-	GvFeature *feature;
-	guint idx;
-
-	/* Create every feature enabled at compile-time */
-	idx = 0;
-
-#ifdef HOTKEYS_ENABLED
-	feature = gv_hotkeys_new();
-	features[idx++] = feature;
-	gv_framework_features_append(feature);
-	gv_framework_errorables_append(feature);
-#endif
-#ifdef NOTIFICATIONS_ENABLED
-	feature = gv_notifications_new();
-	features[idx++] = feature;
-	gv_framework_features_append(feature);
-#endif
-
-
-
-	/* ----------------------------------------------- *
-	 * Make weak pointers to assert proper cleanup     *
-	 * ----------------------------------------------- */
+	/* Make weak pointers to assert proper cleanup */
 
 	g_object_add_weak_pointer(G_OBJECT(gv_ui_settings),
 	                          (gpointer *) &gv_ui_settings);
-
+	g_object_add_weak_pointer(G_OBJECT(gv_ui_main_window),
+	                          (gpointer *) &gv_ui_main_window);
 	if (gv_ui_status_icon)
 		g_object_add_weak_pointer(G_OBJECT(gv_ui_status_icon),
 		                          (gpointer *) &gv_ui_status_icon);
-
-	g_object_add_weak_pointer(G_OBJECT(gv_ui_main_window),
-	                          (gpointer *) &gv_ui_main_window);
 }

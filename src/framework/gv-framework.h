@@ -41,7 +41,7 @@ void gv_framework_cleanup  (void);
  * These lists are intended to solve the problem of shared resource
  * between core and ui.
  * Both core and ui provide some objects that can be grouped in categories:
- * features, and errorables.
+ * errorables.
  * The code that care about these objects needs to access all of them easily,
  * and doesn't care whether the object belongs to the core or the ui.
  * To solve that, the framework provides global lists, that are filled
@@ -50,16 +50,11 @@ void gv_framework_cleanup  (void);
  * be modified, no object should be added or removed.
  */
 
-extern GList *gv_framework_feature_list;
 extern GList *gv_framework_errorable_list;
 
-#define gv_framework_features_append(item)       \
-	gv_framework_feature_list = g_list_append(gv_framework_feature_list, item)
 #define gv_framework_errorables_append(item)     \
 	gv_framework_errorable_list = g_list_append(gv_framework_errorable_list, item)
 
-#define gv_framework_features_remove(item)       \
-	gv_framework_feature_list = g_list_remove(gv_framework_feature_list, item)
 #define gv_framework_errorables_remove(item)     \
 	gv_framework_errorable_list = g_list_remove(gv_framework_errorable_list, item)
 

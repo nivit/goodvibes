@@ -198,7 +198,7 @@ endif # UI_ENABLED
 
 # Core features
 
-gv_feat_sources =
+gv_feat_sources = feat/gv-feat.c feat/gv-feat.h
 gv_feat_cflags  =
 gv_feat_static_ldadd =
 gv_feat_shared_ldadd =
