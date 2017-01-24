@@ -144,9 +144,9 @@
 	FRENCH_STATIONS
 
 #define DEFAULT_STATION_LIST      \
-	"<GoodvibesStationList>" \
+	"<Stations>" \
 	DEFAULT_STATIONS_PROD \
-	"</GoodvibesStationList>"
+	"</Stations>"
 
 /*
  * Save delay - how long do we wait to write configuration to file
@@ -206,7 +206,7 @@ typedef struct _GvStationListPrivate GvStationListPrivate;
 
 struct _GvStationList {
 	/* Parent instance structure */
-	GObject                parent_instance;
+	GObject               parent_instance;
 	/* Private data */
 	GvStationListPrivate *priv;
 };
@@ -219,56 +219,124 @@ G_DEFINE_TYPE_WITH_CODE(GvStationList, gv_station_list, G_TYPE_OBJECT,
  * Markup handling
  */
 
+struct _GvMarkupParsing {
+	/* Persistent during the whole parsing process */
+	GList  *list;
+	/* Current iteration */
+	gchar **cur;
+	gchar  *name;
+	gchar  *uri;
+
+};
+
+typedef struct _GvMarkupParsing GvMarkupParsing;
+
 static void
-markup_parse_element_cb(GMarkupParseContext *context G_GNUC_UNUSED,
-                        const gchar         *element_name,
-                        const gchar        **attribute_names,
-                        const gchar        **attribute_values,
-                        gpointer             user_data,
-                        GError             **error)
+markup_on_text(GMarkupParseContext  *context G_GNUC_UNUSED,
+               const gchar          *text,
+               gsize                 text_len G_GNUC_UNUSED,
+               gpointer              user_data,
+               GError              **error G_GNUC_UNUSED)
 {
-	GList **llink = (GList **) user_data;
-	const gchar *name = NULL, *uri = NULL;
-	GvStation *station;
+	GvMarkupParsing *parsing = user_data;
 
-	/* Ensure this is a valid element */
-	if (g_strcmp0(element_name, "station")) {
-		WARNING("Markup parser: discarding unexpected element '%s'", element_name);
-		return;
-	}
-
-	/* Collect attributes */
-	if (!g_markup_collect_attributes(element_name, attribute_names,
-	                                 attribute_values, error,
-	                                 G_MARKUP_COLLECT_STRING | G_MARKUP_COLLECT_OPTIONAL,
-	                                 "name", &name,
-	                                 G_MARKUP_COLLECT_STRING,
-	                                 "uri", &uri,
-	                                 G_MARKUP_COLLECT_INVALID))
+	/* Happens all the time */
+	if (parsing->cur == NULL)
 		return;
 
-	/* Discard stations with no url */
-	if (uri == NULL || uri[0] == '\0') {
-		WARNING("Station '%s' has no uri, discarding", name);
-		return;
-	}
+	/* Should never happen */
+	g_assert_null(*parsing->cur);
 
-	/* Create a new station */
-	station = gv_station_new(name, uri);
+	/* Save text */
+	*parsing->cur = g_strdup(text);
 
-	/* Add to list, use prepend for efficiency */
-	*llink = g_list_prepend(*llink, station);
+	/* Cleanup */
+	parsing->cur = NULL;
 }
 
 static void
-markup_error_cb(GMarkupParseContext *context G_GNUC_UNUSED,
+markup_on_end_element(GMarkupParseContext  *context G_GNUC_UNUSED,
+                      const gchar          *element_name G_GNUC_UNUSED,
+                      gpointer              user_data,
+                      GError              **error G_GNUC_UNUSED)
+{
+	GvMarkupParsing *parsing = user_data;
+	GvStation *station;
+
+	/* We only care when we leave a station node */
+	if (g_strcmp0(element_name, "Station"))
+		return;
+
+	/* Discard stations with no uri */
+	if (parsing->uri == NULL || parsing->uri[0] == '\0') {
+		DEBUG("Encountered station without uri (named '%s')", parsing->name);
+		goto cleanup;
+	}
+
+	/* Create a new station */
+	station = gv_station_new(parsing->name, parsing->uri);
+
+	/* Add to list, use prepend for efficiency */
+	parsing->list = g_list_prepend(parsing->list, station);
+
+cleanup:
+	/* Cleanup */
+	g_free(parsing->name);
+	g_free(parsing->uri);
+	parsing->name = NULL;
+	parsing->uri = NULL;
+}
+
+static void
+markup_on_start_element(GMarkupParseContext  *context G_GNUC_UNUSED,
+                        const gchar          *element_name,
+                        const gchar         **attribute_names G_GNUC_UNUSED,
+                        const gchar         **attribute_values G_GNUC_UNUSED,
+                        gpointer              user_data,
+                        GError              **error G_GNUC_UNUSED)
+{
+	GvMarkupParsing *parsing = user_data;
+
+	/* Expected top node */
+	if (!g_strcmp0(element_name, "Stations"))
+		return;
+
+	/* Entering a station node */
+	if (!g_strcmp0(element_name, "Station")) {
+		g_assert_null(parsing->name);
+		g_assert_null(parsing->uri);
+		return;
+	}
+
+	/* Name property */
+	if (!g_strcmp0(element_name, "name")) {
+		g_assert_null(parsing->cur);
+		parsing->cur = &parsing->name;
+		return;
+	}
+
+	/* Uri property */
+	if (!g_strcmp0(element_name, "uri")) {
+		g_assert_null(parsing->cur);
+		parsing->cur = &parsing->uri;
+		return;
+	}
+
+	WARNING("Unexpected element: '%s'", element_name);
+}
+
+static void
+markup_on_error(GMarkupParseContext *context G_GNUC_UNUSED,
                 GError              *error   G_GNUC_UNUSED,
                 gpointer             user_data)
 {
-	GList **llink = (GList **) user_data;
+	GvMarkupParsing *parsing = user_data;
 
-	g_list_free_full(*llink, g_object_unref);
-	*llink = NULL;
+	parsing->cur = NULL;
+	g_free(parsing->name);
+	parsing->name = NULL;
+	g_free(parsing->uri);
+	parsing->uri = NULL;
 }
 
 static GList *
@@ -276,22 +344,24 @@ parse_markup(const gchar *text, GError **err)
 {
 	GMarkupParseContext *context;
 	GMarkupParser parser = {
-		markup_parse_element_cb,
+		markup_on_start_element,
+		markup_on_end_element,
+		markup_on_text,
 		NULL,
-		NULL,
-		NULL,
-		markup_error_cb,
+		markup_on_error,
 	};
-	GList *list = NULL;
+	GvMarkupParsing parsing = {
+		NULL,
+		NULL,
+		NULL,
+		NULL
+	};
 
-	context = g_markup_parse_context_new(&parser, 0, &list, NULL);
-
-	if (!g_markup_parse_context_parse(context, text, -1, err))
-		WARNING("Failed to parse markup context: %s", (*err)->message);
-
+	context = g_markup_parse_context_new(&parser, 0, &parsing, NULL);
+	g_markup_parse_context_parse(context, text, -1, err);
 	g_markup_parse_context_free(context);
 
-	return g_list_reverse(list);
+	return g_list_reverse(parsing.list);
 }
 
 static gchar *
@@ -299,34 +369,46 @@ print_markup(GList *list, GError **err G_GNUC_UNUSED)
 {
 	GString *string = g_string_new(NULL);
 
+	g_string_append(string, "<Stations>\n");
+
 	while (list) {
 		GvStation *station = list->data;
 		const gchar *name = gv_station_get_name(station);
 		const gchar *uri = gv_station_get_uri(station);
+		gchar *name_escaped = NULL;
+		gchar *uri_escaped = NULL;
 		gchar *text;
 
 		/* Write that stuff in XML fashion */
 		if (name)
-			text = g_markup_printf_escaped(
-			               "<station"
-			               " name='%s'"
-			               " uri='%s'"
-			               "/>\n",
-			               name, uri);
+			name_escaped = g_markup_escape_text(name, -1);
+
+		if (uri)
+			uri_escaped = g_markup_escape_text(uri, -1);
+
+		if (name_escaped)
+			text = g_strdup_printf("  <Station>\n"
+			                       "    <name>%s</name>\n"
+			                       "    <uri>%s</uri>\n"
+			                       "  </Station>\n",
+			                       name_escaped, uri_escaped);
 		else
-			text = g_markup_printf_escaped(
-			               "<station"
-			               " uri='%s'"
-			               "/>\n",
-			               uri);
+			text = g_strdup_printf("  <Station>\n"
+			                       "    <uri>%s</uri>\n"
+			                       "  </Station>\n",
+			                       uri_escaped);
 
 		/* Append */
 		g_string_append(string, text);
 		g_free(text);
+		g_free(uri_escaped);
+		g_free(name_escaped);
 
 		/* Iterate */
 		list = list->next;
 	}
+
+	g_string_append(string, "</Stations>");
 
 	return g_string_free(string, FALSE);
 }
