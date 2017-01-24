@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+
+  <!-- Core settings -->
+  <schema id="@PACKAGE_APPLICATION_ID@.Core" path="@PACKAGE_APPLICATION_PATH@/Core/">
+    <key name="volume" type="u">
+      <default>100</default>
+      <range min="0" max="100"/>
+      <summary>Volume</summary>
+      <description>The playback volume (in percent)</description>
+    </key>
+    <key name="mute" type="b">
+      <default>false</default>
+      <summary>Mute</summary>
+      <description>Whether playback is muted</description>
+    </key>
+    <key name="repeat" type="b">
+      <default>true</default>
+      <summary>Repeat</summary>
+      <description>Whether to repeat when next/prev reaches the end</description>
+    </key>
+    <key name="shuffle" type="b">
+      <default>false</default>
+      <summary>Shuffle</summary>
+      <description>Whether to use shuffled playlist on next/prev</description>
+    </key>
+    <key name="autoplay" type="b">
+      <default>false</default>
+      <summary>Autoplay</summary>
+      <description>Whether to start playing automatically on startup</description>
+    </key>
+    <key name="station-uri" type="s">
+      <default>''</default>
+      <summary>Current station uri</summary>
+      <description>The uri of the current station</description>
+    </key>
+  </schema>
+
+  <!-- UI settings -->
+  <schema id="@PACKAGE_APPLICATION_ID@.Ui" path="@PACKAGE_APPLICATION_PATH@/Ui/">
+    <key name="middle-click-action" enum="@PACKAGE_APPLICATION_ID@.GvStatusIconMiddleClick">
+      <default>'toggle'</default>
+      <summary>Middle click action</summary>
+      <description>Action for middle click on the status icon</description>
+    </key>
+    <key name="scroll-action" enum="@PACKAGE_APPLICATION_ID@.GvStatusIconScroll">
+      <default>'station'</default>
+      <summary>Scroll action</summary>
+      <description>Action for mouse scroll on the status icon</description>
+    </key>
+  </schema>
+
+  <!-- Feature settings -->
+  <schema id="@PACKAGE_APPLICATION_ID@.Feat">
+    <key name="enabled" type="b">
+      <default>false</default>
+      <summary>Enable the feature</summary>
+      <description>Whether to enable the feature</description>
+    </key>
+  </schema>
+
+  <schema id="@PACKAGE_APPLICATION_ID@.Feat.ConsoleOutput" path="@PACKAGE_APPLICATION_PATH@/Feat/ConsoleOutput/" extends="@PACKAGE_APPLICATION_ID@.Feat">
+    <override name="enabled">false</override>
+  </schema>
+
+  <schema id="@PACKAGE_APPLICATION_ID@.Feat.DBusServerNative" path="@PACKAGE_APPLICATION_PATH@/Feat/DBusServerNative/" extends="@PACKAGE_APPLICATION_ID@.Feat">
+    <override name="enabled">true</override>
+  </schema>
+
+  <schema id="@PACKAGE_APPLICATION_ID@.Feat.DBusServerMpris2" path="@PACKAGE_APPLICATION_PATH@/Feat/DBusServerMpris2/" extends="@PACKAGE_APPLICATION_ID@.Feat">
+    <override name="enabled">true</override>
+  </schema>
+
+  <schema id="@PACKAGE_APPLICATION_ID@.Feat.Inhibitor" path="@PACKAGE_APPLICATION_PATH@/Feat/Inhibitor/" extends="@PACKAGE_APPLICATION_ID@.Feat">
+    <override name="enabled">false</override>
+  </schema>
+
+  <schema id="@PACKAGE_APPLICATION_ID@.Feat.Hotkeys" path="@PACKAGE_APPLICATION_PATH@/Feat/Hotkeys/" extends="@PACKAGE_APPLICATION_ID@.Feat">
+    <override name="enabled">false</override>
+  </schema>
+
+  <schema id="@PACKAGE_APPLICATION_ID@.Feat.Notifications" path="@PACKAGE_APPLICATION_PATH@/Feat/Notifications/" extends="@PACKAGE_APPLICATION_ID@.Feat">
+    <override name="enabled">false</override>
+  </schema>
+
+</schemalist>

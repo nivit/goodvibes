@@ -261,6 +261,16 @@ gv_notifications_enable(GvFeature *feature)
 }
 
 /*
+ * Public methods
+ */
+
+GvFeature *
+gv_notifications_new(void)
+{
+	return gv_feature_new(GV_TYPE_NOTIFICATIONS, "Notifications");
+}
+
+/*
  * GObject methods
  */
 

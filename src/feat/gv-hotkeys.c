@@ -164,6 +164,16 @@ gv_hotkeys_enable(GvFeature *feature)
 }
 
 /*
+ * Public methods
+ */
+
+GvFeature *
+gv_hotkeys_new(void)
+{
+	return gv_feature_new(GV_TYPE_HOTKEYS, "Hotkeys");
+}
+
+/*
  * GObject methods
  */
 

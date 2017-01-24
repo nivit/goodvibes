@@ -41,6 +41,9 @@ PKG_PROG_PKG_CONFIG()
 AC_PROG_RANLIB()
 AM_PROG_AR()
 
+# For glib settings
+GLIB_GSETTINGS()
+
 # ------------------------------------- #
 #      Internationalization (i18n)      #
 # ------------------------------------- #
@@ -161,13 +164,15 @@ AS_ECHO(["---- Output Files ----"])
 AC_CONFIG_FILES([
 AUTHORS
 Makefile
-cli/Makefile
 data/Makefile
 data/dbus-1/Makefile
 data/dbus-1/services/Makefile
 data/dbus-1/services/$PACKAGE_APPLICATION_ID.service
 data/desktop/Makefile
 data/desktop/$PACKAGE_APPLICATION_ID.desktop.in
+data/glib-2.0/Makefile
+data/glib-2.0/schemas/Makefile
+data/glib-2.0/schemas/$PACKAGE_APPLICATION_ID.gschema.xml
 data/icons/Makefile
 data/icons/hicolor/Makefile
 data/icons/hicolor/16x16/Makefile
@@ -207,8 +212,7 @@ fi
 AS_ECHO(["
 -------------------------------------------------------------
 
-	Goodvibes Radio Player
-	======================
+	~ $PACKAGE_LONG_NAME - $PACKAGE_VERSION ~
 
 	Core
 	----

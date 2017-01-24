@@ -1274,6 +1274,16 @@ gv_dbus_server_mpris2_enable(GvFeature *feature)
 }
 
 /*
+ * Public methods
+ */
+
+GvFeature *
+gv_dbus_server_mpris2_new(void)
+{
+	return gv_feature_new(GV_TYPE_DBUS_SERVER_MPRIS2, "DBusServerMpris2");
+}
+
+/*
  * GObject methods
  */
 

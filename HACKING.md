@@ -9,9 +9,10 @@ Table of Contents
 1. [Download](#download)
 2. [Compilation](#compilation)
 3. [Program Invocation](#program-invocation)
-4. [Code Overview](#code-overview)
-5. [Coding Style](#coding-style)
-6. [Contribution](#contribution)
+4. [GSettings and DConf](#gsettings-and-dconf)
+5. [Code Overview](#code-overview)
+6. [Coding Style](#coding-style)
+7. [Contribution](#contribution)
 
 
 
@@ -108,6 +109,36 @@ Hardcore GTK+ debugging can be done with [GtkInspector][]:
 [running gstreamer applications]: https://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gst-running.html
 [running gtk+ applications]: https://developer.gnome.org/gtk3/stable/gtk-running.html
 [gtkinspector]: https://wiki.gnome.org/Projects/GTK+/Inspector
+
+
+
+GSettings and DConf
+-------------------
+
+These two guys are used to manage the configuration.
+
+[GSettings][] is part of GLib, and is the component in charge of handling the application settings. It comes with the command-line tools `gsettings`.
+
+Launching becomes tricky...
+
+	GSETTINGS_SCHEMA_DIR=./data/glib-2.0/schemas/ ./src/goodvibes
+
+GSettings deals with the schema files.
+
+	GSETTINGS_SCHEMA_DIR=./data/glib-2.0/schemas/ gsettings monitor com.elboulangero.Goodvibes.core
+
+Or...
+
+	gsettings --schemadir=./data/glib-2.0/schemas/ monitor com.elboulangero.Goodvibes.core
+
+
+[DConf][] is the backend for GSettings. It's possible to play directly with the `dconf` command, therefore by-passing completely GSettings.
+	
+	dconf watch /com/elboulangero/Goodvibes/
+	dconf reset -f /com/elboulangero/Goodvibes/
+
+[gsettings]: https://developer.gnome.org/gio/stable/GSettings.html
+[dconf]: https://wiki.gnome.org/Projects/dconf
 
 
 

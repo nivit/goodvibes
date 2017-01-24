@@ -150,11 +150,6 @@ gv_graphical_application_shutdown(GApplication *app)
 {
 	DEBUG_NO_CONTEXT(">>>> Main loop terminated <<<<");
 
-	/* Shutdown */
-	DEBUG_NO_CONTEXT("---- Shutting down ----");
-	gv_ui_shutdown();
-	gv_core_shutdown();
-
 	/* Cleanup */
 	DEBUG_NO_CONTEXT("---- Cleaning up ----");
 	gv_ui_cleanup();
@@ -231,16 +226,9 @@ gv_graphical_application_startup(GApplication *app)
 	/* Debug messages */
 	DEBUG_NO_CONTEXT("---- Lists ----");
 	DEBUG_NO_CONTEXT("%s", stringify_list("Feature     : ", gv_framework_feature_list));
-	DEBUG_NO_CONTEXT("%s", stringify_list("Configurable: ", gv_framework_configurable_list));
 	DEBUG_NO_CONTEXT("%s", stringify_list("Errorable   : ", gv_framework_errorable_list));
 
-	/* Startup */
-	DEBUG_NO_CONTEXT("---- Starting up ----");
-	gv_core_startup();
-	gv_ui_startup();
-
 	/* Hold application */
-	// TODO: move that somewhere else
 	g_application_hold(app);
 }
 
