@@ -30,4 +30,8 @@
 
 G_DECLARE_FINAL_TYPE(GvHotkeys, gv_hotkeys, GV, HOTKEYS, GvFeature)
 
+/* Public methods */
+
+GvFeature *gv_hotkeys_new(void);
+
 #endif /* __GOODVIBES_FEAT_GV_HOTKEYS_H__ */

@@ -22,7 +22,6 @@
 
 #include "framework/gv-framework.h"
 
-#include "core/gv-conf.h"
 #include "core/gv-engine.h"
 #include "core/gv-player.h"
 #include "core/gv-station-list.h"
@@ -39,7 +38,8 @@
 #endif
 
 GApplication  *gv_core_application;
-GvConf        *gv_core_conf;
+GSettings     *gv_core_settings;
+
 GvStationList *gv_core_station_list;
 GvPlayer      *gv_core_player;
 
@@ -53,32 +53,6 @@ gv_core_quit(void)
 }
 
 void
-gv_core_shutdown(void)
-{
-	GvConf *conf = gv_core_conf;
-
-	/* Stop watching for changes in objects */
-	gv_conf_unwatch(conf);
-}
-
-void
-gv_core_startup(void)
-{
-	GvConf        *conf         = gv_core_conf;
-	GvStationList *station_list = gv_core_station_list;
-
-	/* Load data files */
-	gv_conf_load(conf);
-	gv_station_list_load(station_list);
-
-	/* Apply configuration to objects */
-	gv_conf_apply(conf);
-
-	/* Watch for changes in objects */
-	gv_conf_watch(conf);
-}
-
-void
 gv_core_cleanup(void)
 {
 	/* Features */
@@ -88,19 +62,18 @@ gv_core_cleanup(void)
 
 	for (idx = 0, feature = features[0]; feature != NULL; feature = features[++idx]) {
 		gv_framework_features_remove(feature);
-		gv_framework_configurables_remove(feature);
 		gv_framework_errorables_remove(feature);
 		g_object_unref(feature);
 	}
 
 	/* Core objects */
 
-	GvConf        *conf         = gv_core_conf;
+	GSettings     *settings     = gv_core_settings;
+
 	GvEngine      *engine       = gv_core_engine;
 	GvPlayer      *player       = gv_core_player;
 	GvStationList *station_list = gv_core_station_list;
 
-	gv_framework_configurables_remove(player);
 	gv_framework_errorables_remove(player);
 	g_object_unref(player);
 
@@ -110,16 +83,15 @@ gv_core_cleanup(void)
 	gv_framework_errorables_remove(engine);
 	g_object_unref(engine);
 
-	gv_framework_errorables_remove(conf);
-	g_object_unref(conf);
+	g_object_unref(settings);
 
 	gv_core_application = NULL;
 
 	/* Ensure everything has been destroyed */
-	g_assert_null(gv_core_conf);
 	g_assert_null(gv_core_engine);
 	g_assert_null(gv_core_player);
 	g_assert_null(gv_core_station_list);
+	g_assert_null(gv_core_settings);
 	g_assert_null(gv_core_application);
 }
 
@@ -132,17 +104,16 @@ gv_core_init(GApplication *application)
 
 	gv_core_application = application;
 
-	gv_core_conf = gv_conf_new();
-	gv_framework_errorables_append(gv_core_conf);
+	gv_core_settings = g_settings_new(PACKAGE_APPLICATION_ID ".Core");
 
 	gv_core_engine = gv_engine_new();
 	gv_framework_errorables_append(gv_core_engine);
 
 	gv_core_station_list = gv_station_list_new();
+	gv_station_list_load(gv_core_station_list);
 	gv_framework_errorables_append(gv_core_station_list);
 
 	gv_core_player = gv_player_new(gv_core_engine, gv_core_station_list);
-	gv_framework_configurables_append(gv_core_player);
 	gv_framework_errorables_append(gv_core_player);
 
 
@@ -161,27 +132,23 @@ gv_core_init(GApplication *application)
 	idx = 0;
 
 #ifdef CONSOLE_OUTPUT_ENABLED
-	feature = gv_feature_new(GV_TYPE_CONSOLE_OUTPUT, FALSE);
+	feature = gv_console_output_new();
 	features[idx++] = feature;
 	gv_framework_features_append(feature);
-	gv_framework_configurables_append(feature);
 #endif
 #ifdef DBUS_SERVER_ENABLED
-	feature = gv_feature_new(GV_TYPE_DBUS_SERVER_NATIVE, TRUE);
+	feature = gv_dbus_server_native_new();
 	features[idx++] = feature;
 	gv_framework_features_append(feature);
-	gv_framework_configurables_append(feature);
 
-	feature = gv_feature_new(GV_TYPE_DBUS_SERVER_MPRIS2, TRUE);
+	feature = gv_dbus_server_mpris2_new();
 	features[idx++] = feature;
 	gv_framework_features_append(feature);
-	gv_framework_configurables_append(feature);
 #endif
 #ifdef INHIBITOR_ENABLED
-	feature = gv_feature_new(GV_TYPE_INHIBITOR, FALSE);
+	feature = gv_inhibitor_new();
 	features[idx++] = feature;
 	gv_framework_features_append(feature);
-	gv_framework_configurables_append(feature);
 	gv_framework_errorables_append(feature);
 #endif
 
@@ -191,8 +158,9 @@ gv_core_init(GApplication *application)
 	 * Make weak pointers to assert proper cleanup     *
 	 * ----------------------------------------------- */
 
-	g_object_add_weak_pointer(G_OBJECT(gv_core_conf),
-	                          (gpointer *) &gv_core_conf);
+	g_object_add_weak_pointer(G_OBJECT(gv_core_settings),
+	                          (gpointer *) &gv_core_settings);
+
 	g_object_add_weak_pointer(G_OBJECT(gv_core_engine),
 	                          (gpointer *) &gv_core_engine);
 	g_object_add_weak_pointer(G_OBJECT(gv_core_station_list),

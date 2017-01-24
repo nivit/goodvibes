@@ -30,4 +30,8 @@
 
 G_DECLARE_FINAL_TYPE(GvInhibitor, gv_inhibitor, GV, INHIBITOR, GvFeature)
 
+/* Public methods */
+
+GvFeature *gv_inhibitor_new(void);
+
 #endif /* __GOODVIBES_FEAT_GV_INHIBITOR_H__ */

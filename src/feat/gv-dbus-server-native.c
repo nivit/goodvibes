@@ -576,6 +576,16 @@ static GvDbusInterface dbus_interfaces[] = {
 };
 
 /*
+ * Public methods
+ */
+
+GvFeature *
+gv_dbus_server_native_new(void)
+{
+	return gv_feature_new(GV_TYPE_DBUS_SERVER_NATIVE, "DBusServerNative");
+}
+
+/*
  * GObject methods
  */
 

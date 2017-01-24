@@ -1,5 +1,4 @@
 SUBDIRS =	\
-	cli	\
 	data	\
 	libgszn	\
 	libcaphe\

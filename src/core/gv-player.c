@@ -20,15 +20,15 @@
 #include <math.h>
 #include <glib.h>
 #include <glib-object.h>
+#include <gio/gio.h>
 
 #include "additions/glib-object.h"
-
-#include "libgszn/gszn.h"
 
 #include "framework/gv-framework.h"
 
 #include "core/gv-engine.h"
 #include "core/gv-core-enum-types.h"
+#include "core/gv-core.h"
 #include "core/gv-metadata.h"
 #include "core/gv-station.h"
 #include "core/gv-station-list.h"
@@ -41,7 +41,7 @@
 
 #define DEFAULT_VOLUME   100
 #define DEFAULT_MUTE     FALSE
-#define DEFAULT_REPEAT   TRUE
+#define DEFAULT_REPEAT   FALSE
 #define DEFAULT_SHUFFLE  FALSE
 #define DEFAULT_AUTOPLAY FALSE
 
@@ -843,6 +843,20 @@ gv_player_constructed(GObject *object)
 	priv->autoplay = DEFAULT_AUTOPLAY;
 	priv->station  = NULL;
 
+	/* Bind settings */
+	g_settings_bind(gv_core_settings, "volume",
+	                self, "volume", G_SETTINGS_BIND_DEFAULT);
+	g_settings_bind(gv_core_settings, "mute",
+	                self, "mute", G_SETTINGS_BIND_DEFAULT);
+	g_settings_bind(gv_core_settings, "repeat",
+	                self, "repeat", G_SETTINGS_BIND_DEFAULT);
+	g_settings_bind(gv_core_settings, "shuffle",
+	                self, "shuffle", G_SETTINGS_BIND_DEFAULT);
+	g_settings_bind(gv_core_settings, "autoplay",
+	                self, "autoplay", G_SETTINGS_BIND_DEFAULT);
+	g_settings_bind(gv_core_settings, "station-uri",
+	                self, "station-uri", G_SETTINGS_BIND_DEFAULT);
+
 	/* Chain up */
 	G_OBJECT_CHAINUP_CONSTRUCTED(gv_player, object);
 }
@@ -892,32 +906,27 @@ gv_player_class_init(GvPlayerClass *class)
 	properties[PROP_VOLUME] =
 	        g_param_spec_uint("volume", "Volume In Percent", NULL,
 	                          0, 100, DEFAULT_VOLUME,
-	                          GV_PARAM_DEFAULT_FLAGS | GSZN_PARAM_SERIALIZE |
-	                          G_PARAM_READWRITE);
+	                          GV_PARAM_DEFAULT_FLAGS | G_PARAM_READWRITE);
 
 	properties[PROP_MUTE] =
 	        g_param_spec_boolean("mute", "Mute", NULL,
 	                             DEFAULT_MUTE,
-	                             GV_PARAM_DEFAULT_FLAGS | GSZN_PARAM_SERIALIZE |
-	                             G_PARAM_READWRITE);
+	                             GV_PARAM_DEFAULT_FLAGS | G_PARAM_READWRITE);
 
 	properties[PROP_REPEAT] =
 	        g_param_spec_boolean("repeat", "Repeat", NULL,
 	                             DEFAULT_REPEAT,
-	                             GV_PARAM_DEFAULT_FLAGS | GSZN_PARAM_SERIALIZE |
-	                             G_PARAM_READWRITE);
+	                             GV_PARAM_DEFAULT_FLAGS | G_PARAM_READWRITE);
 
 	properties[PROP_SHUFFLE] =
 	        g_param_spec_boolean("shuffle", "Shuffle", NULL,
 	                             DEFAULT_SHUFFLE,
-	                             GV_PARAM_DEFAULT_FLAGS | GSZN_PARAM_SERIALIZE |
-	                             G_PARAM_READWRITE);
+	                             GV_PARAM_DEFAULT_FLAGS | G_PARAM_READWRITE);
 
 	properties[PROP_AUTOPLAY] =
 	        g_param_spec_boolean("autoplay", "Autoplay On Startup", NULL,
 	                             DEFAULT_AUTOPLAY,
-	                             GV_PARAM_DEFAULT_FLAGS | GSZN_PARAM_SERIALIZE |
-	                             G_PARAM_READWRITE);
+	                             GV_PARAM_DEFAULT_FLAGS | G_PARAM_READWRITE);
 
 	properties[PROP_METADATA] =
 	        g_param_spec_object("metadata", "Current Metadata", NULL,
@@ -931,11 +940,9 @@ gv_player_class_init(GvPlayerClass *class)
 
 	properties[PROP_STATION_URI] =
 	        g_param_spec_string("station-uri", "Current Station Uri",
-	                            "This is a workaround for serialization, because we "
-	                            "can't serialize the 'station' property (GObject type)",
+	                            "This is used only to save the current station in conf",
 	                            NULL,
-	                            GV_PARAM_DEFAULT_FLAGS | GSZN_PARAM_SERIALIZE |
-	                            G_PARAM_READWRITE);
+	                            GV_PARAM_DEFAULT_FLAGS | G_PARAM_READWRITE);
 
 	properties[PROP_PREV_STATION] =
 	        g_param_spec_object("prev", "Previous Station", NULL,

@@ -80,7 +80,7 @@ EOF
 
 # File list
 if [ $# -eq 1 ]; then
-    files=$(find cli libgszn src -name \*.[ch])
+    files=$(find libgszn src -name \*.[ch])
 else
     files="${@:2}"
 fi

@@ -23,7 +23,6 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include "core/gv-conf.h"
 #include "core/gv-player.h"
 #include "core/gv-station.h"
 #include "core/gv-station-list.h"
@@ -31,18 +30,17 @@
 /* Global variables */
 
 extern GApplication  *gv_core_application;
-extern GvConf        *gv_core_conf;
+extern GSettings     *gv_core_settings;
+
 extern GvPlayer      *gv_core_player;
 extern GvStationList *gv_core_station_list;
 
 /* Functions */
 
-void gv_core_init    (GApplication *app);
-void gv_core_cleanup (void);
-void gv_core_startup (void);
-void gv_core_shutdown(void);
+void gv_core_init   (GApplication *app);
+void gv_core_cleanup(void);
 
-void gv_core_quit    (void);
+void gv_core_quit   (void);
 
 /*
  * Underlying audio backend

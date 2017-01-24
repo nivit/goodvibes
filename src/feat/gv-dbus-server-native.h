@@ -33,4 +33,8 @@
 G_DECLARE_FINAL_TYPE(GvDbusServerNative, gv_dbus_server_native, \
                      GV, DBUS_SERVER_NATIVE, GvDbusServer)
 
+/* Public methods */
+
+GvFeature *gv_dbus_server_native_new(void);
+
 #endif /* __GOODVIBES_FEAT_GV_DBUS_SERVER_NATIVE_H__ */

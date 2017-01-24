@@ -33,4 +33,8 @@
 G_DECLARE_FINAL_TYPE(GvDbusServerMpris2, gv_dbus_server_mpris2,       \
                      GV, DBUS_SERVER_MPRIS2, GvDbusServer)
 
+/* Public methods */
+
+GvFeature *gv_dbus_server_mpris2_new(void);
+
 #endif /* __GOODVIBES_FEAT_GV_DBUS_SERVER_MPRIS2_H__ */

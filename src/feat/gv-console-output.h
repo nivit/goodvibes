@@ -30,4 +30,8 @@
 
 G_DECLARE_FINAL_TYPE(GvConsoleOutput, gv_console_output, GV, CONSOLE_OUTPUT, GvFeature)
 
+/* Public methods */
+
+GvFeature *gv_console_output_new(void);
+
 #endif /* __GOODVIBES_FEAT_GV_CONSOLE_OUTPUT_H__ */
