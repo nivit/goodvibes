@@ -8,7 +8,6 @@ Makefile.in
 # Binaries and libraries
 /src/goodvibes
 /src/goodvibes-client
-/libgszn/libgszn.a
 /libcaphe/caphe/libcaphe.a
 /libcaphe/tests/caphe-test
 
