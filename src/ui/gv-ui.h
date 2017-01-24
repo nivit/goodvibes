@@ -17,21 +17,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * This header contains definitions to be used by ui users
+ */
+
 #ifndef __GOODVIBES_UI_GV_UI_H__
 #define __GOODVIBES_UI_GV_UI_H__
 
-#include <gio/gio.h>
 #include <gtk/gtk.h>
-
-#include "ui/gv-status-icon.h"
-
-/* Global variables */
-
-extern GSettings    *gv_ui_settings;
-
-extern GvStatusIcon *gv_ui_status_icon;
-extern GtkWidget    *gv_ui_main_window;
-extern GtkWidget    *gv_ui_prefs_window;
 
 /* Functions */
 

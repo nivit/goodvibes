@@ -28,7 +28,7 @@
 
 #include "core/gv-engine.h"
 #include "core/gv-core-enum-types.h"
-#include "core/gv-core.h"
+#include "core/gv-core-internal.h"
 #include "core/gv-metadata.h"
 #include "core/gv-station.h"
 #include "core/gv-station-list.h"

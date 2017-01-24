@@ -23,6 +23,7 @@
 
 #include "framework/gv-framework.h"
 
+#include "core/gv-core.h"
 #include "ui/gv-main-window.h"
 #include "ui/gv-about-dialog.h"
 #include "ui/gv-prefs-window.h"
@@ -44,6 +45,39 @@ GtkWidget    *gv_ui_prefs_window;
 
 static GvFeature *features[8];
 
+/*
+ * Underlying graphical toolkit
+ */
+
+GOptionGroup *
+gv_ui_toolkit_init_get_option_group(void)
+{
+	/* Very not sure about the argument to pass here. From my experience:
+	 * - if we don't use gtk_init(), we should pass TRUE.
+	 * - if we use gtk_init(), passing FALSE is ok.
+	 * Since we use GtkApplication which calls gtk_init() internally,
+	 * let's pass FALSE and pray that it works.
+	 */
+
+	return gtk_get_option_group(FALSE);
+}
+
+const gchar *
+gv_ui_toolkit_runtime_version_string(void)
+{
+	return gtk_get_runtime_version_string();
+}
+
+const gchar *
+gv_ui_toolkit_compile_version_string(void)
+{
+	return gtk_get_compile_version_string();
+}
+
+/*
+ * Ui public functions
+ */
+
 void
 gv_ui_hide(void)
 {
@@ -60,7 +94,9 @@ gv_ui_hide(void)
 void
 gv_ui_present_about(void)
 {
-	gv_show_about_dialog(GTK_WINDOW(gv_ui_main_window));
+	gv_show_about_dialog(GTK_WINDOW(gv_ui_main_window),
+	                     gv_core_audio_backend_runtime_version_string(),
+	                     gv_ui_toolkit_runtime_version_string());
 }
 
 void
@@ -204,33 +240,4 @@ gv_ui_init(GApplication *app, gboolean status_icon_mode)
 
 	g_object_add_weak_pointer(G_OBJECT(gv_ui_main_window),
 	                          (gpointer *) &gv_ui_main_window);
-}
-
-/*
- * Underlying toolkit
- */
-
-GOptionGroup *
-gv_ui_toolkit_init_get_option_group(void)
-{
-	/* Very not sure about the argument to pass here. From my experience:
-	 * - if we don't use gtk_init(), we should pass TRUE.
-	 * - if we use gtk_init(), passing FALSE is ok.
-	 * Since we use GtkApplication which calls gtk_init() internally,
-	 * let's pass FALSE and pray that it works.
-	 */
-
-	return gtk_get_option_group(FALSE);
-}
-
-const gchar *
-gv_ui_toolkit_runtime_version_string(void)
-{
-	return gtk_get_runtime_version_string();
-}
-
-const gchar *
-gv_ui_toolkit_compile_version_string(void)
-{
-	return gtk_get_compile_version_string();
 }

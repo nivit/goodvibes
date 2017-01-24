@@ -22,6 +22,7 @@
 
 #include <gtk/gtk.h>
 
-void gv_show_about_dialog(GtkWindow *parent);
+void gv_show_about_dialog(GtkWindow *parent, const gchar *audio_backend_string,
+                          const gchar *ui_toolkit_string);
 
 #endif /* __GOODVIBES_UI_GV_ABOUT_DIALOG_H__ */

@@ -17,15 +17,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GOODVIBES_UI_GV_UI_HELPERS_H__
-#define __GOODVIBES_UI_GV_UI_HELPERS_H__
-
-#include <gtk/gtk.h>
-
 /*
- * Gtk builder helpers
+ * This header contains definitions to be used internally by core files
  */
 
-void gv_builder_load(const char *filename, GtkBuilder **builder, gchar **uifile);
+#ifndef __GOODVIBES_CORE_GV_CORE_INTERNAL_H__
+#define __GOODVIBES_CORE_GV_CORE_INTERNAL_H__
 
-#endif /* __GOODVIBES_UI_GV_UI_HELPERS_H__ */
+#include <gio/gio.h>
+
+/* Global variables */
+
+extern GApplication  *gv_core_application;
+extern GSettings     *gv_core_settings;
+
+#endif /* __GOODVIBES_CORE_GV_CORE_INTERNAL_H__ */

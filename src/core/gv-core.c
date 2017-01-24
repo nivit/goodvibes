@@ -46,6 +46,44 @@ GvPlayer      *gv_core_player;
 static GvEngine  *gv_core_engine;
 static GvFeature *features[8];
 
+
+/*
+ * Underlying audio backend
+ */
+
+#include <gst/gst.h>
+
+#include "additions/gst.h"
+
+void
+gv_core_audio_backend_cleanup(void)
+{
+	if (gst_is_initialized())
+		gst_deinit();
+}
+
+GOptionGroup *
+gv_core_audio_backend_init_get_option_group(void)
+{
+	return gst_init_get_option_group();
+}
+
+const gchar *
+gv_core_audio_backend_runtime_version_string(void)
+{
+	return gst_get_runtime_version_string();
+}
+
+const gchar *
+gv_core_audio_backend_compile_version_string(void)
+{
+	return gst_get_compile_version_string();
+}
+
+/*
+ * Core public functions
+ */
+
 void
 gv_core_quit(void)
 {
@@ -167,37 +205,4 @@ gv_core_init(GApplication *application)
 	                          (gpointer *) &gv_core_station_list);
 	g_object_add_weak_pointer(G_OBJECT(gv_core_player),
 	                          (gpointer *) &gv_core_player);
-}
-
-/*
- * Underlying audio backend
- */
-
-#include <gst/gst.h>
-
-#include "additions/gst.h"
-
-void
-gv_core_audio_backend_cleanup(void)
-{
-	if (gst_is_initialized())
-		gst_deinit();
-}
-
-GOptionGroup *
-gv_core_audio_backend_init_get_option_group(void)
-{
-	return gst_init_get_option_group();
-}
-
-const gchar *
-gv_core_audio_backend_runtime_version_string(void)
-{
-	return gst_get_runtime_version_string();
-}
-
-const gchar *
-gv_core_audio_backend_compile_version_string(void)
-{
-	return gst_get_compile_version_string();
 }

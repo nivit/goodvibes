@@ -110,6 +110,7 @@ $(eval $(call make_types,framework/gv-framework-enum-types,$(gv_framework_types_
 
 gv_core_sources =					\
 	core/gv-core.c		core/gv-core.h		\
+				core/gv-core-internal.h	\
 	core/gv-engine.c	core/gv-engine.h	\
 	core/gv-metadata.c	core/gv-metadata.h	\
 	core/gv-player.c	core/gv-player.h	\
@@ -168,6 +169,7 @@ gv_ui_sources =								\
 	ui/gv-status-icon.c		ui/gv-status-icon.h		\
 	ui/gv-stock-icons.c		ui/gv-stock-icons.h		\
 	ui/gv-ui.c			ui/gv-ui.h			\
+					ui/gv-ui-internal.h		\
 	ui/gv-ui-helpers.c		ui/gv-ui-helpers.h
 
 # Enum Types

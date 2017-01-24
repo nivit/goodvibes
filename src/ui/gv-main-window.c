@@ -28,7 +28,7 @@
 
 #include "core/gv-core.h"
 
-#include "ui/gv-ui.h"
+#include "ui/gv-ui-internal.h"
 #include "ui/gv-ui-helpers.h"
 #include "ui/gv-main-window.h"
 #include "ui/gv-stations-tree-view.h"

@@ -20,7 +20,6 @@
 #include <gtk/gtk.h>
 
 #include "core/gv-core.h"
-#include "ui/gv-ui.h"
 
 static const gchar *authors[] = {
 	PACKAGE_AUTHOR_NAME " " PACKAGE_AUTHOR_EMAIL,
@@ -28,7 +27,8 @@ static const gchar *authors[] = {
 };
 
 void
-gv_show_about_dialog(GtkWindow *parent)
+gv_show_about_dialog(GtkWindow *parent, const gchar *audio_backend_string,
+                     const gchar *ui_toolkit_string)
 {
 	// WISHED "license-type" shouldn't be hardcoded
 
@@ -36,8 +36,8 @@ gv_show_about_dialog(GtkWindow *parent)
 
 	comments = g_strdup_printf("Audio Backend: %s\n"
 	                           "GUI Toolkit: %s",
-	                           gv_core_audio_backend_runtime_version_string(),
-	                           gv_ui_toolkit_runtime_version_string());
+	                           audio_backend_string,
+	                           ui_toolkit_string);
 
 	gtk_show_about_dialog(parent,
 	                      "authors", authors,
