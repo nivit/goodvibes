@@ -30,7 +30,7 @@ Some additional resources are handled with git submodules for convenience. They 
 
 You can pull the latest changes in each submodule anytime.
 
-	git submodule foreach git pull
+	git submodule foreach 'git pull --rebase && git checkout master'
 
 Among the submodules, you will find the wiki, which can be handy if you want to grep it.
 
