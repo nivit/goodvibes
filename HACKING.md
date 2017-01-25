@@ -155,7 +155,6 @@ The code is neatly split into different parts:
 - `ui`: the GTK+ user interface.
 - `feat`: features that can be enable/disabled at compile-time. I guess it's quite similar to the plugins you often find in music players on GNU/Linux. Except that I didn't dare to call it plugin, for plugins are usually something discovered and loaded at run-time, not compile-time.
 - `libcaphe`: a library to handle system sleep inhibition.
-- `libgszn`: a library for GObject serialization. It is used to read and write the configuration file, and the station list file.
 
 I suggest to have a look at [configure.ac](configure.ac) and [src/Makefile.am](src/Makefile.am) for more details.
 

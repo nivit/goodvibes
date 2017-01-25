@@ -17,12 +17,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * This header contains definitions to be used by core users
+ */
+
 #ifndef __GOODVIBES_CORE_GV_CORE_H__
 #define __GOODVIBES_CORE_GV_CORE_H__
 
 #include <glib.h>
 #include <gio/gio.h>
 
+#include "core/gv-metadata.h"
 #include "core/gv-player.h"
 #include "core/gv-station.h"
 #include "core/gv-station-list.h"
@@ -30,7 +35,6 @@
 /* Global variables */
 
 extern GApplication  *gv_core_application;
-extern GSettings     *gv_core_settings;
 
 extern GvPlayer      *gv_core_player;
 extern GvStationList *gv_core_station_list;

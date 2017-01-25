@@ -1,7 +1,7 @@
 /*
- * Libgszn
+ * Goodvibes Radio Player
  *
- * Copyright (C) 2015-2016 Arnaud Rebillout
+ * Copyright (C) 2015-2017 Arnaud Rebillout
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,17 +17,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __LIBGSZN_GSZN_BACKEND_KEYFILE_H__
-#define __LIBGSZN_GSZN_BACKEND_KEYFILE_H__
+/*
+ * This header contains definitions to be used internally by core files
+ */
 
-#include <glib-object.h>
+#ifndef __GOODVIBES_CORE_GV_CORE_INTERNAL_H__
+#define __GOODVIBES_CORE_GV_CORE_INTERNAL_H__
 
-#include "gszn-backend.h"
+#include <gio/gio.h>
 
-/* GObject declarations */
+/* Global variables */
 
-#define GSZN_TYPE_BACKEND_KEYFILE gszn_backend_keyfile_get_type()
+extern GApplication  *gv_core_application;
+extern GSettings     *gv_core_settings;
 
-G_DECLARE_FINAL_TYPE(GsznBackendKeyfile, gszn_backend_keyfile, GSZN, BACKEND_KEYFILE, GsznBackend)
-
-#endif /* __LIBGSZN_GSZN_BACKEND_KEYFILE_H__ */
+#endif /* __GOODVIBES_CORE_GV_CORE_INTERNAL_H__ */

@@ -1,7 +1,7 @@
 /*
- * Libgszn
+ * Goodvibes Radio Player
  *
- * Copyright (C) 2015-2016 Arnaud Rebillout
+ * Copyright (C) 2015-2017 Arnaud Rebillout
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,18 +17,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __LIBGSZN_GSZN_DEBUG_H__
-#define __LIBGSZN_GSZN_DEBUG_H__
+/*
+ * This header contains definitions to be used by feat users
+ */
 
-#include <glib.h>
+#ifndef __GOODVIBES_FEAT_GV_FEAT_H__
+#define __GOODVIBES_FEAT_GV_FEAT_H__
 
-#ifdef GSZN_ENABLE_DEBUG
-#define GSZN_DEBUG_ENABLED 1
-#else
-#define GSZN_DEBUG_ENABLED 0
-#endif
+#include "framework/gv-feature.h"
 
-#define GSZN_DEBUG(fmt, ...) \
-	do { if (GSZN_DEBUG_ENABLED) g_debug(fmt, ##__VA_ARGS__); } while (0)
+/* Functions */
 
-#endif /* __LIBGSZN_GSZN_DEBUG_H__ */
+void       gv_feat_init   (void);
+void       gv_feat_cleanup(void);
+
+GvFeature *gv_feat_find   (const gchar *name_to_find);
+
+#endif /* __GOODVIBES_FEAT_GV_FEAT_H__ */

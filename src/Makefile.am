@@ -110,6 +110,7 @@ $(eval $(call make_types,framework/gv-framework-enum-types,$(gv_framework_types_
 
 gv_core_sources =					\
 	core/gv-core.c		core/gv-core.h		\
+				core/gv-core-internal.h	\
 	core/gv-engine.c	core/gv-engine.h	\
 	core/gv-metadata.c	core/gv-metadata.h	\
 	core/gv-player.c	core/gv-player.h	\
@@ -132,14 +133,12 @@ $(eval $(call make_types,core/gv-core-enum-types,$(gv_core_types_prereqs)))
 # Compiler options
 
 gv_core_cflags = 		\
-	$(GSZN_CFLAGS)		\
 	$(GLIB_CFLAGS)		\
 	$(XML_CFLAGS)		\
 	$(LIBSOUP_CFLAGS)	\
 	$(GST_CFLAGS)
 
-gv_core_static_ldadd =		\
-	$(GSZN_LIBS)
+gv_core_static_ldadd =
 
 gv_core_shared_ldadd =		\
 	-lm			\
@@ -168,6 +167,7 @@ gv_ui_sources =								\
 	ui/gv-status-icon.c		ui/gv-status-icon.h		\
 	ui/gv-stock-icons.c		ui/gv-stock-icons.h		\
 	ui/gv-ui.c			ui/gv-ui.h			\
+					ui/gv-ui-internal.h		\
 	ui/gv-ui-helpers.c		ui/gv-ui-helpers.h
 
 # Enum Types
@@ -196,7 +196,7 @@ endif # UI_ENABLED
 
 # Core features
 
-gv_feat_sources =
+gv_feat_sources = feat/gv-feat.c feat/gv-feat.h
 gv_feat_cflags  =
 gv_feat_static_ldadd =
 gv_feat_shared_ldadd =

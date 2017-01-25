@@ -138,7 +138,7 @@ when_idle_disable_feature(gpointer user_data)
  * Property accessors
  */
 
-static const gchar *
+const gchar *
 gv_feature_get_name(GvFeature *self)
 {
 	GvFeaturePrivate *priv = gv_feature_get_instance_private(self);

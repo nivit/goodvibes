@@ -32,35 +32,24 @@
 #include "framework/log.h"
 #include "framework/uri-schemes.h"
 
-void gv_framework_init     (void);
-void gv_framework_cleanup  (void);
-
 /*
- * List accessors
+ * Global object list
  *
- * These lists are intended to solve the problem of shared resource
- * between core and ui.
- * Both core and ui provide some objects that can be grouped in categories:
- * features, and errorables.
- * The code that care about these objects needs to access all of them easily,
- * and doesn't care whether the object belongs to the core or the ui.
- * To solve that, the framework provides global lists, that are filled
- * at init time by the core and the ui.
- * These list are supposed to be constant after init time: they shouldn't
- * be modified, no object should be added or removed.
+ * This list contains all the global objects. It is completely filled
+ * after initialization has been completed, and therefore should only
+ * be accessed after this point. In other words, it's probably an error
+ * to access this list in a 'constructed()' method, it's too early.
+ *
+ * Of course this list is 'read-only' and shouldn't be modified.
  */
 
-extern GList *gv_framework_feature_list;
-extern GList *gv_framework_errorable_list;
+extern GList *gv_framework_object_list;
 
-#define gv_framework_features_append(item)       \
-	gv_framework_feature_list = g_list_append(gv_framework_feature_list, item)
-#define gv_framework_errorables_append(item)     \
-	gv_framework_errorable_list = g_list_append(gv_framework_errorable_list, item)
+/* Functions */
 
-#define gv_framework_features_remove(item)       \
-	gv_framework_feature_list = g_list_remove(gv_framework_feature_list, item)
-#define gv_framework_errorables_remove(item)     \
-	gv_framework_errorable_list = g_list_remove(gv_framework_errorable_list, item)
+void gv_framework_init    (void);
+void gv_framework_cleanup (void);
+
+void gv_framework_register(gpointer object);
 
 #endif /* __GOODVIBES_FRAMEWORK_GV_FRAMEWORK_H__ */

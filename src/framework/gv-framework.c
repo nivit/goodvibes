@@ -23,48 +23,43 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#include "libgszn/gszn.h"
-
 #include "framework/log.h"
 #include "framework/gv-framework.h"
 
-GList *gv_framework_feature_list;
-GList *gv_framework_errorable_list;
+GList *gv_framework_object_list;
 
-static void
-value_transform_bool_string_lowercase(const GValue *src_value, GValue *dest_value)
+void
+gv_framework_register(gpointer data)
 {
-	dest_value->data[1].v_uint = G_VALUE_NOCOPY_CONTENTS;
-	dest_value->data[0].v_pointer = src_value->data[0].v_int ? "true" : "false";
+	GObject *object = G_OBJECT(data);
+
+	/* Add to the object list (we don't take ownership) */
+	gv_framework_object_list = g_list_prepend(gv_framework_object_list, object);
+
+	/* Add a weak pointer */
+	g_object_add_weak_pointer(object, (gpointer *) &(gv_framework_object_list->data));
 }
 
 void
 gv_framework_cleanup(void)
 {
-	/* Lists should be empty by now */
-	if (gv_framework_feature_list)
-		WARNING("Feature list not empty, memory is leaked !");
-	if (gv_framework_errorable_list)
-		WARNING("Errorable list not empty, memory is leaked !");
+	GList *item;
 
-	/* Cleanup GObject Serialization */
-	gszn_cleanup();
+	/* Objects in list should be empty, thanks to the magic of weak pointers */
+	for (item = gv_framework_object_list; item; item = item->next) {
+		GObject *object = G_OBJECT(item->data);
+
+		if (object != NULL)
+			WARNING("Object of type '%s' has not been finalized !",
+			        G_OBJECT_TYPE_NAME(object));
+	}
+
+	/* Free list */
+	g_list_free(gv_framework_object_list);
 }
 
 void
 gv_framework_init(void)
 {
-	/* Register a custom function to transform boolean to string:
-	 * use lowercase instead of the default uppercase.
-	 * This function is used during serialization process, and therefore
-	 * controls the appearance of a boolean in the configuration file.
-	 * And lowercase looks better, that's all.
-	 */
-	g_value_register_transform_func(G_TYPE_BOOLEAN, G_TYPE_STRING,
-	                                value_transform_bool_string_lowercase);
-
-	/* Init GObject Serialization */
-	gszn_init();
-
-	/* Init lists - already intialized to NULL */
+	/* Dummy */
 }

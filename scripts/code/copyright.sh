@@ -15,9 +15,7 @@ unit_name()
 {
     local file="$1"
 
-    if echo $file | grep -q libgszn; then
-	echo "Libgszn"
-    elif echo $file | grep -q libcaphe; then
+    if echo $file | grep -q libcaphe; then
 	echo "Libcaphe"
     else
 	echo "Goodvibes Radio Player"
@@ -80,7 +78,7 @@ EOF
 
 # File list
 if [ $# -eq 1 ]; then
-    files=$(find libgszn src -name \*.[ch])
+    files=$(find libcaphe src -name \*.[ch])
 else
     files="${@:2}"
 fi

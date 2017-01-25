@@ -28,7 +28,7 @@
 
 #include "core/gv-engine.h"
 #include "core/gv-core-enum-types.h"
-#include "core/gv-core.h"
+#include "core/gv-core-internal.h"
 #include "core/gv-metadata.h"
 #include "core/gv-station.h"
 #include "core/gv-station-list.h"
@@ -60,7 +60,7 @@ enum {
 	PROP_AUTOPLAY,
 	PROP_METADATA,
 	PROP_STATION,
-	PROP_STATION_URI, /* For serialization only */
+	PROP_STATION_URI,
 	PROP_PREV_STATION,
 	PROP_NEXT_STATION,
 	PROP_STREAM_URI,

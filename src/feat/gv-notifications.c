@@ -29,8 +29,12 @@
 
 #include "feat/gv-notifications.h"
 
-#define ICON_PACKAGE PACKAGE_NAME /* "audio-x-generic" is also suitable */
-#define ICON_ERROR   "dialog-error"
+#define ICON_NAME PACKAGE_NAME
+
+/* Notice that other system icons are suitable:
+ * - "audio-x-generic" for sound notifications
+ * - "dialog-error"    for errors
+ */
 
 /*
  * GObject definitions
@@ -146,7 +150,6 @@ update_notification_metadata(GNotification *notif, GvMetadata *metadata)
 static gboolean
 update_notification_error(GNotification *notif, const gchar *error_string)
 {
-	// TODO Add application name ?
 	g_notification_set_body(notif, error_string);
 
 	return TRUE;
@@ -217,9 +220,18 @@ gv_notifications_disable(GvFeature *feature)
 {
 	GvNotificationsPrivate *priv = GV_NOTIFICATIONS(feature)->priv;
 	GvPlayer *player = gv_core_player;
+	GList *item;
 
-	/* Signal handlers */
-	g_signal_handlers_disconnect_list_by_data(gv_framework_errorable_list, feature);
+	/* Disconnect signal handlers */
+	for (item = gv_framework_object_list; item; item = item->next) {
+		GObject *object = G_OBJECT(item->data);
+
+		if (GV_IS_ERRORABLE(object) == FALSE)
+			continue;
+
+		g_signal_handlers_disconnect_by_data(object, feature);
+	}
+
 	g_signal_handlers_disconnect_by_data(player, feature);
 
 	/* Unref notifications */
@@ -239,25 +251,34 @@ gv_notifications_enable(GvFeature *feature)
 {
 	GvNotificationsPrivate *priv = GV_NOTIFICATIONS(feature)->priv;
 	GvPlayer *player = gv_core_player;
+	GList *item;
 
 	/* Chain up */
 	GV_FEATURE_CHAINUP_ENABLE(gv_notifications, feature);
 
 	/* Create notifications */
 	g_assert_null(priv->notif_station);
-	priv->notif_station = make_notification(_("Playing Station"), ICON_PACKAGE,
+	priv->notif_station = make_notification(_("Playing Station"), ICON_NAME,
 	                                        G_NOTIFICATION_PRIORITY_NORMAL);
 	g_assert_null(priv->notif_metadata);
-	priv->notif_metadata = make_notification(_("New Metadata"), ICON_PACKAGE,
+	priv->notif_metadata = make_notification(_("New Metadata"), ICON_NAME,
 	                       G_NOTIFICATION_PRIORITY_NORMAL);
 	g_assert_null(priv->notif_error);
-	priv->notif_error = make_notification(_("Error"), ICON_ERROR,
+	priv->notif_error = make_notification(_("Error"), ICON_NAME,
 	                                      G_NOTIFICATION_PRIORITY_NORMAL);
 
-	/* Signal handlers */
+	/* Connect to player 'notify' */
 	g_signal_connect(player, "notify", G_CALLBACK(on_player_notify), feature);
-	g_signal_connect_list(gv_framework_errorable_list, "error",
-	                      G_CALLBACK(on_errorable_error), feature);
+
+	/* Connect to objects that emit 'error' */
+	for (item = gv_framework_object_list; item; item = item->next) {
+		GObject *object = G_OBJECT(item->data);
+
+		if (GV_IS_ERRORABLE(object) == FALSE)
+			continue;
+
+		g_signal_connect(object, "error", G_CALLBACK(on_errorable_error), feature);
+	}
 }
 
 /*
