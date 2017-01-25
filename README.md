@@ -2,6 +2,7 @@ Goodvibes Radio Player
 ======================
 
 * [Installation](#installation)
+* [Dependencies](#dependencies)
 * [License](#license)
 * [Translations](#translations)
 * [Hacking](#hacking)
@@ -44,22 +45,37 @@ Installation is a one-liner, and must be run as root.
 
 Of course, you need to install the required dependencies.
 
-- For the core: `glib`, `libsoup`, `libxml2`, `gstreamer`
-- For the UI: `gtk+`, `libkeybinder`
-
-To install all the dependencies under Debian, run:
-
-	sudo apt install build-essential autoconf autopoint
-	sudo apt install libglib2.0-dev libsoup2.4-dev libxml2-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
-	sudo apt install libgtk-3-dev libkeybinder-3.0-dev
-
-For more details, please refer to the `configure.ac` file.
-
-If you're a packager and want to help, please get in touch.
-
 [release]:   https://github.com/elboulangero/goodvibes/releases
 [autotools]: https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html
 
+
+
+Dependencies
+------------
+
+Compile-time dependencies are:
+
+- For the core: `glib`, `libsoup`, `gstreamer`
+- For the user interface: `gtk+`, `libkeybinder`
+
+Additional run-time dependencies are listed below.
+
+For more gory details, please refer to the file [configure.ac](configure.ac).
+
+#### Install dependencies on Debian
+
+Compile-time dependencies:
+
+	sudo apt install build-essential autoconf autopoint
+	sudo apt install libglib2.0-dev libsoup2.4-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+	sudo apt install libgtk-3-dev libkeybinder-3.0-dev
+
+Run-time dependencies:
+
+	sudo apt install dconf-gsettings-backend   # to load/store configuration
+	sudo apt install gstreamer1.0-plugins-ugly # to listen to mp3 streams
+	sudo apt install gstreamer1.0-pulseaudio   # for pulseaudio users
+	sudo apt install gstreamer1.0-alsa         # for alsa users
 
 License
 -------

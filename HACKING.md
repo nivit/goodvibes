@@ -71,9 +71,37 @@ To have a full-featured build but disable notifications:
 
 Notice that disabling the UI will also disable all the UI-related features.
 
-For more details, please have a look into the file `configure.ac`, or run:
+For more details, please have a look into the file [configure.ac](configure.ac), or run:
 
         ./configure -h
+
+
+
+GSettings and DConf
+-------------------
+
+First and before all, are you stuck with this error message ?
+
+	[GLib-GIO] Settings schema 'com.elboulangero.Goodvibes.Core' is not installed
+
+Goodvibes uses GSettings and DConf to handle its configuration, and it makes it a bit tricky.
+
+[GSettings][] is part of GLib, and is the component in charge of handling the application settings. If Goodvibes is not installed, launching it will fail because GSettings doesn't find the schema file. So you need to tell the schema location explicitly, using an environment variable.
+
+	# Export once and for all
+	export GSETTINGS_SCHEMA_DIR=./data/glib-2.0/schemas/ 
+	# Now it works !
+	./src/goodvibes
+	# GSettings comes with a nice command-line tool
+	gsettings monitor com.elboulangero.Goodvibes.Core
+
+[DConf][] is the backend for GSettings. It's possible to play directly with the `dconf` command, therefore by-passing completely GSettings.
+	
+	dconf watch /com/elboulangero/Goodvibes/
+	dconf reset -f /com/elboulangero/Goodvibes/
+
+[gsettings]: https://developer.gnome.org/gio/stable/GSettings.html
+[dconf]: https://wiki.gnome.org/Projects/dconf
 
 
 
@@ -109,36 +137,6 @@ Hardcore GTK+ debugging can be done with [GtkInspector][]:
 [running gstreamer applications]: https://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gst-running.html
 [running gtk+ applications]: https://developer.gnome.org/gtk3/stable/gtk-running.html
 [gtkinspector]: https://wiki.gnome.org/Projects/GTK+/Inspector
-
-
-
-GSettings and DConf
--------------------
-
-These two guys are used to manage the configuration.
-
-[GSettings][] is part of GLib, and is the component in charge of handling the application settings. It comes with the command-line tools `gsettings`.
-
-Launching becomes tricky...
-
-	GSETTINGS_SCHEMA_DIR=./data/glib-2.0/schemas/ ./src/goodvibes
-
-GSettings deals with the schema files.
-
-	GSETTINGS_SCHEMA_DIR=./data/glib-2.0/schemas/ gsettings monitor com.elboulangero.Goodvibes.core
-
-Or...
-
-	gsettings --schemadir=./data/glib-2.0/schemas/ monitor com.elboulangero.Goodvibes.core
-
-
-[DConf][] is the backend for GSettings. It's possible to play directly with the `dconf` command, therefore by-passing completely GSettings.
-	
-	dconf watch /com/elboulangero/Goodvibes/
-	dconf reset -f /com/elboulangero/Goodvibes/
-
-[gsettings]: https://developer.gnome.org/gio/stable/GSettings.html
-[dconf]: https://wiki.gnome.org/Projects/dconf
 
 
 
