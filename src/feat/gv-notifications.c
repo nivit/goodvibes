@@ -29,8 +29,12 @@
 
 #include "feat/gv-notifications.h"
 
-#define ICON_PACKAGE PACKAGE_NAME /* "audio-x-generic" is also suitable */
-#define ICON_ERROR   "dialog-error"
+#define ICON_NAME PACKAGE_NAME
+
+/* Notice that other system icons are suitable:
+ * - "audio-x-generic" for sound notifications
+ * - "dialog-error"    for errors
+ */
 
 /*
  * GObject definitions
@@ -146,7 +150,6 @@ update_notification_metadata(GNotification *notif, GvMetadata *metadata)
 static gboolean
 update_notification_error(GNotification *notif, const gchar *error_string)
 {
-	// TODO Add application name ?
 	g_notification_set_body(notif, error_string);
 
 	return TRUE;
@@ -255,13 +258,13 @@ gv_notifications_enable(GvFeature *feature)
 
 	/* Create notifications */
 	g_assert_null(priv->notif_station);
-	priv->notif_station = make_notification(_("Playing Station"), ICON_PACKAGE,
+	priv->notif_station = make_notification(_("Playing Station"), ICON_NAME,
 	                                        G_NOTIFICATION_PRIORITY_NORMAL);
 	g_assert_null(priv->notif_metadata);
-	priv->notif_metadata = make_notification(_("New Metadata"), ICON_PACKAGE,
+	priv->notif_metadata = make_notification(_("New Metadata"), ICON_NAME,
 	                       G_NOTIFICATION_PRIORITY_NORMAL);
 	g_assert_null(priv->notif_error);
-	priv->notif_error = make_notification(_("Error"), ICON_ERROR,
+	priv->notif_error = make_notification(_("Error"), ICON_NAME,
 	                                      G_NOTIFICATION_PRIORITY_NORMAL);
 
 	/* Connect to player 'notify' */
