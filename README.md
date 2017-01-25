@@ -82,7 +82,7 @@ License
 
 Copyright (C) 2015-2017 Arnaud Rebillout <elboulangero@gmail.com>
 
-Goodvibes is released under the [General Public License (GPL) version 3](LICENSE).
+Goodvibes is released under the [General Public License (GPL) version 3](COPYING).
 
 
 

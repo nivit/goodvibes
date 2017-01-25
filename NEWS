@@ -1,0 +1,27 @@
+0.2 () - Doom Town / Wipers
+---------------------------
+
+This release will wipe out your conf !
+
+General
+ * Handle configuration with GSettings. #22
+ * Emit notifications with GNotification. #22
+ * Load/store station list with GMarkup. #22
+
+Fixes
+ * Fix desktop filename in mpris2 backend. #26
+
+Translations
+ * Goodvibes is now translated with the web-based translation service Weblate.
+
+Dependencies
+ * Drop compile-time libnotify.
+ * Drop compile-time libxml2.
+ * Add run-time dconf-gsettings-backend.
+
+
+
+0.1 (2017-01-13) - Positive Vibration / Bob Marley & The Wailers
+----------------------------------------------------------------
+
+ * Initial release.
