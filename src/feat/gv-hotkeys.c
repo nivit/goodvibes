@@ -22,7 +22,6 @@
 #include <keybinder.h>
 
 #include "framework/gv-framework.h"
-
 #include "core/gv-core.h"
 
 #include "feat/gv-hotkeys.h"

@@ -20,15 +20,13 @@
 #include <gtk/gtk.h>
 
 #include "additions/gtk.h"
-
 #include "framework/gv-framework.h"
-
 #include "core/gv-core.h"
-#include "ui/gv-main-window.h"
 #include "ui/gv-about-dialog.h"
+#include "ui/gv-main-window.h"
 #include "ui/gv-prefs-window.h"
-#include "ui/gv-stock-icons.h"
 #include "ui/gv-status-icon.h"
+#include "ui/gv-stock-icons.h"
 
 GSettings    *gv_ui_settings;
 

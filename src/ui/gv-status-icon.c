@@ -25,15 +25,13 @@
 
 #include "additions/gtk.h"
 #include "additions/glib-object.h"
-
 #include "framework/gv-framework.h"
-
 #include "core/gv-core.h"
-
-#include "ui/gv-ui-internal.h"
-#include "ui/gv-ui-helpers.h"
 #include "ui/gv-ui-enum-types.h"
+#include "ui/gv-ui-helpers.h"
+#include "ui/gv-ui-internal.h"
 #include "ui/gv-main-window.h"
+
 #include "ui/gv-status-icon.h"
 
 #define ICON_MIN_SIZE 16

@@ -26,14 +26,11 @@
 
 #include "additions/glib.h"
 #include "additions/glib-object.h"
-
 #include "framework/gv-framework.h"
-
+#include "core/gv-core.h"
 #ifdef UI_ENABLED
 #include "ui/gv-ui.h"
 #endif
-
-#include "core/gv-core.h"
 
 #include "feat/gv-dbus-server.h"
 #include "feat/gv-dbus-server-mpris2.h"

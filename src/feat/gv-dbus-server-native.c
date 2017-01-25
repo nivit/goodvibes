@@ -23,9 +23,7 @@
 
 #include "additions/glib.h"
 #include "additions/glib-object.h"
-
 #include "framework/gv-framework.h"
-
 #include "core/gv-core.h"
 
 #include "feat/gv-dbus-server.h"

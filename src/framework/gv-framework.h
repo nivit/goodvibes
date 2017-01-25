@@ -31,6 +31,7 @@
 
 #include "framework/log.h"
 #include "framework/uri-schemes.h"
+#include "framework/vt-codes.h"
 
 /*
  * Global object list

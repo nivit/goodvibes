@@ -23,15 +23,13 @@
 
 #include "additions/glib-object.h"
 #include "additions/gtk.h"
-
 #include "framework/gv-framework.h"
-
 #include "core/gv-core.h"
-
 #include "ui/gv-ui-internal.h"
 #include "ui/gv-ui-helpers.h"
-#include "ui/gv-main-window.h"
 #include "ui/gv-stations-tree-view.h"
+
+#include "ui/gv-main-window.h"
 
 #define UI_FILE "main-window.glade"
 

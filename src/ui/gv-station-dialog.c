@@ -24,13 +24,11 @@
 
 #include "additions/gtk.h"
 #include "additions/glib-object.h"
-
 #include "framework/gv-framework.h"
-
 #include "core/gv-core.h"
-
 #include "ui/gv-ui-internal.h"
 #include "ui/gv-ui-helpers.h"
+
 #include "ui/gv-station-dialog.h"
 
 #define UI_FILE "station-dialog.glade"

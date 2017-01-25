@@ -21,11 +21,9 @@
 #include <glib-object.h>
 
 #include "additions/glib-object.h"
-
 #include "framework/log.h"
 #include "framework/gv-list.h"
 #include "framework/gv-param-specs.h"
-
 
 /*
  * List implementation as an object, basically a list

@@ -22,7 +22,6 @@
 #include <gio/gio.h>
 
 #include "additions/glib-object.h"
-
 #include "framework/gv-framework.h"
 
 #include "feat/gv-dbus-server.h"

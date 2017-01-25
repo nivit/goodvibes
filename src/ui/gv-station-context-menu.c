@@ -23,13 +23,11 @@
 
 #include "additions/gtk.h"
 #include "additions/glib-object.h"
-
 #include "framework/gv-framework.h"
-
 #include "core/gv-core.h"
+#include "ui/gv-station-dialog.h"
 
 #include "ui/gv-station-context-menu.h"
-#include "ui/gv-station-dialog.h"
 
 #define ADD_STATION_LABEL    _("Add new station")
 #define REMOVE_STATION_LABEL _("Remove station")

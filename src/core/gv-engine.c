@@ -24,12 +24,11 @@
 
 #include "additions/glib-object.h"
 #include "additions/gst.h"
-
 #include "framework/gv-framework.h"
-
-#include "core/gv-engine.h"
 #include "core/gv-core-enum-types.h"
 #include "core/gv-metadata.h"
+
+#include "core/gv-engine.h"
 
 /* Uncomment to dump more stuff from GStreamer */
 

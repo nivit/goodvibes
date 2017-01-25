@@ -31,7 +31,6 @@
 #include <gio/gio.h>
 
 #include "additions/glib.h"
-
 #include "framework/gv-framework.h"
 #include "core/gv-core.h"
 #ifdef UI_ENABLED

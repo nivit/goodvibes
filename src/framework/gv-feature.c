@@ -22,7 +22,6 @@
 
 #include "additions/glib.h"
 #include "additions/glib-object.h"
-
 #include "framework/log.h"
 #include "framework/gv-feature.h"
 #include "framework/gv-framework-enum-types.h"

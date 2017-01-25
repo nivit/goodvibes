@@ -23,16 +23,13 @@
 
 #include "additions/gtk.h"
 #include "additions/glib-object.h"
-
 #include "framework/gv-framework.h"
-
 #include "core/gv-core.h"
 #include "feat/gv-feat.h"
-
 #include "ui/gv-ui-internal.h"
 #include "ui/gv-ui-helpers.h"
 #include "ui/gv-ui-enum-types.h"
-#include "ui/gv-status-icon.h"
+
 #include "ui/gv-prefs-window.h"
 
 #define UI_FILE "prefs-window.glade"

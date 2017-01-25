@@ -21,11 +21,10 @@
 #include <glib-object.h>
 
 #include "additions/glib-object.h"
-
 #include "framework/gv-framework.h"
+#include "core/gv-playlist.h"
 
 #include "core/gv-station.h"
-#include "core/gv-playlist.h"
 
 /*
  * Properties

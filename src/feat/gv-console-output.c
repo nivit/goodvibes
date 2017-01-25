@@ -24,10 +24,7 @@
 #include <glib-object.h>
 
 #include "additions/glib.h"
-
-#include "framework/vt-codes.h"
 #include "framework/gv-framework.h"
-
 #include "core/gv-core.h"
 
 #include "feat/gv-console-output.h"

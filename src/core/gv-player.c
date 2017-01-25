@@ -23,9 +23,7 @@
 #include <gio/gio.h>
 
 #include "additions/glib-object.h"
-
 #include "framework/gv-framework.h"
-
 #include "core/gv-engine.h"
 #include "core/gv-core-enum-types.h"
 #include "core/gv-core-internal.h"

@@ -28,11 +28,11 @@
 #include "feat/gv-dbus-server-native.h"
 #include "feat/gv-dbus-server-mpris2.h"
 #endif
-#ifdef INHIBITOR_ENABLED
-#include "feat/gv-inhibitor.h"
-#endif
 #ifdef HOTKEYS_ENABLED
 #include "feat/gv-hotkeys.h"
+#endif
+#ifdef INHIBITOR_ENABLED
+#include "feat/gv-inhibitor.h"
 #endif
 #ifdef NOTIFICATIONS_ENABLED
 #include "feat/gv-notifications.h"
