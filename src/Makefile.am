@@ -134,7 +134,6 @@ $(eval $(call make_types,core/gv-core-enum-types,$(gv_core_types_prereqs)))
 
 gv_core_cflags = 		\
 	$(GLIB_CFLAGS)		\
-	$(XML_CFLAGS)		\
 	$(LIBSOUP_CFLAGS)	\
 	$(GST_CFLAGS)
 
@@ -143,7 +142,6 @@ gv_core_static_ldadd =
 gv_core_shared_ldadd =		\
 	-lm			\
 	$(GLIB_LIBS)		\
-	$(XML_LIBS)		\
 	$(LIBSOUP_LIBS)		\
 	$(GST_LIBS)
 
