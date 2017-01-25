@@ -89,7 +89,7 @@ Goodvibes uses GSettings and DConf to handle its configuration, and it makes it 
 [GSettings][] is part of GLib, and is the component in charge of handling the application settings. If Goodvibes is not installed, launching it will fail because GSettings doesn't find the schema file. So you need to tell the schema location explicitly, using an environment variable.
 
 	# Export once and for all
-	export GSETTINGS_SCHEMA_DIR=./data/glib-2.0/schemas/ 
+	export GSETTINGS_SCHEMA_DIR=./data 
 	# Now it works !
 	./src/goodvibes
 	# GSettings comes with a nice command-line tool

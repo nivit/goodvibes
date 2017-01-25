@@ -18,13 +18,13 @@ Makefile.in
 *enum-types.[ch]
 
 # Data
-/data/dbus-1/services/*.service
-/data/desktop/*.desktop
-/data/desktop/*.desktop.in
-/data/glib-2.0/schemas/*.gschema.xml
-/data/glib-2.0/schemas/*.gschema.valid
-/data/glib-2.0/schemas/*.enums.xml
-/data/glib-2.0/schemas/gschemas.compiled
+/data/*.service
+/data/*.desktop
+/data/*.desktop.in
+/data/*.gschema.xml
+/data/*.gschema.valid
+/data/*.enums.xml
+/data/gschemas.compiled
 
 # M4 macros
 !/m4/gv-*.m4
