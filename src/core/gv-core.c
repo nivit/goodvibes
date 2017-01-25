@@ -80,37 +80,19 @@ gv_core_quit(void)
 void
 gv_core_cleanup(void)
 {
-	GSettings     *settings     = gv_core_settings;
-	GvEngine      *engine       = gv_core_engine;
-	GvPlayer      *player       = gv_core_player;
-	GvStationList *station_list = gv_core_station_list;
-
 	/* Destroy core objects */
 
-	gv_framework_errorables_remove(player);
-	g_object_unref(player);
-
-	gv_framework_errorables_remove(station_list);
-	g_object_unref(station_list);
-
-	gv_framework_errorables_remove(engine);
-	g_object_unref(engine);
+	g_object_unref(gv_core_player);
+	g_object_unref(gv_core_station_list);
+	g_object_unref(gv_core_engine);
 
 	/* Destroy settings */
 
-	g_object_unref(settings);
+	g_object_unref(gv_core_settings);
 
 	/* Clean application pointer */
 
 	gv_core_application = NULL;
-
-	/* Ensure everything has been destroyed */
-
-	g_assert_null(gv_core_engine);
-	g_assert_null(gv_core_player);
-	g_assert_null(gv_core_station_list);
-	g_assert_null(gv_core_settings);
-	g_assert_null(gv_core_application);
 }
 
 void
@@ -123,27 +105,18 @@ gv_core_init(GApplication *application)
 	/* Create settings */
 
 	gv_core_settings = g_settings_new(PACKAGE_APPLICATION_ID ".Core");
+	gv_framework_register(gv_core_settings);
 
 	/* Create core objects */
 
 	gv_core_engine = gv_engine_new();
-	gv_framework_errorables_append(gv_core_engine);
+	gv_framework_register(gv_core_engine);
 
 	gv_core_station_list = gv_station_list_new();
+	gv_framework_register(gv_core_station_list);
+
 	gv_station_list_load(gv_core_station_list);
-	gv_framework_errorables_append(gv_core_station_list);
 
 	gv_core_player = gv_player_new(gv_core_engine, gv_core_station_list);
-	gv_framework_errorables_append(gv_core_player);
-
-	/* Make weak pointers to assert proper cleanup */
-
-	g_object_add_weak_pointer(G_OBJECT(gv_core_settings),
-	                          (gpointer *) &gv_core_settings);
-	g_object_add_weak_pointer(G_OBJECT(gv_core_engine),
-	                          (gpointer *) &gv_core_engine);
-	g_object_add_weak_pointer(G_OBJECT(gv_core_station_list),
-	                          (gpointer *) &gv_core_station_list);
-	g_object_add_weak_pointer(G_OBJECT(gv_core_player),
-	                          (gpointer *) &gv_core_player);
+	gv_framework_register(gv_core_player);
 }

@@ -75,10 +75,7 @@ gv_feat_cleanup(void)
 		if (feature == NULL)
 			break;
 
-		gv_framework_errorables_remove(feature);
 		g_object_unref(feature);
-
-		g_assert_null(features[i]);
 	}
 }
 
@@ -86,44 +83,58 @@ void
 gv_feat_init(void)
 {
 	GvFeature *feature;
-	guint i;
+	guint i = 0;
 
-	/* Create every feature enabled at compile-time */
-	i = 0;
+	/*
+	 * Create every feature enabled at compile-time.
+	 *
+	 * Notice that some features don't really make sense if the program
+	 * has been compiled without ui. However we don't bother about that
+	 * here: all features are equals !
+	 * The distinction between 'core' features and 'ui' features is done
+	 * by the build system, see the `configure.ac` for more details.
+	 */
 
-	/* Core related features */
+	/*
+	 * 'Notifications' features must come first, so that they're up
+	 * and ready first, and can report errors from other features.
+	 */
 
 #ifdef CONSOLE_OUTPUT_ENABLED
 	feature = gv_console_output_new();
+	gv_framework_register(feature);
 	features[i++] = feature;
 
 #endif
+#ifdef NOTIFICATIONS_ENABLED
+	feature = gv_notifications_new();
+	gv_framework_register(feature);
+	features[i++] = feature;
+#endif
+
+	/* Now comes the rest of the features */
+
 #ifdef DBUS_SERVER_ENABLED
 	feature = gv_dbus_server_native_new();
+	gv_framework_register(feature);
 	features[i++] = feature;
 
 	feature = gv_dbus_server_mpris2_new();
+	gv_framework_register(feature);
 	features[i++] = feature;
 #endif
 #ifdef INHIBITOR_ENABLED
 	feature = gv_inhibitor_new();
+	gv_framework_register(feature);
 	features[i++] = feature;
-	gv_framework_errorables_append(feature);
 #endif
-
-	/* Ui related features */
-
 #ifdef HOTKEYS_ENABLED
 	feature = gv_hotkeys_new();
-	features[i++] = feature;
-	gv_framework_errorables_append(feature);
-#endif
-#ifdef NOTIFICATIONS_ENABLED
-	feature = gv_notifications_new();
+	gv_framework_register(feature);
 	features[i++] = feature;
 #endif
 
-	/* Additional work */
+	/* Sum up the situation */
 
 	for (i = 0; i < MAX_FEATURES; i++) {
 		feature = features[i];
@@ -131,9 +142,6 @@ gv_feat_init(void)
 			break;
 
 		INFO("Feature compiled in: '%s'", gv_feature_get_name(feature));
-
-		g_object_add_weak_pointer(G_OBJECT(features[i]),
-		                          (gpointer *) &features[i]);
 	}
 
 	/* Ensure features are not overflowing */

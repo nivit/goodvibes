@@ -184,9 +184,18 @@ static void
 gv_console_output_disable(GvFeature *feature)
 {
 	GvPlayer *player = gv_core_player;
+	GList *item;
 
-	/* Signal handlers */
-	g_signal_handlers_disconnect_list_by_data(gv_framework_errorable_list, feature);
+	/* Disconnect signal handlers */
+	for (item = gv_framework_object_list; item; item = item->next) {
+		GObject *object = G_OBJECT(item->data);
+
+		if (GV_IS_ERRORABLE(object) == FALSE)
+			continue;
+
+		g_signal_handlers_disconnect_by_data(object, feature);
+	}
+
 	g_signal_handlers_disconnect_by_data(player, feature);
 
 	/* Say good-bye */
@@ -200,6 +209,7 @@ static void
 gv_console_output_enable(GvFeature *feature)
 {
 	GvPlayer *player = gv_core_player;
+	GList *item;
 
 	/* Chain up */
 	GV_FEATURE_CHAINUP_ENABLE(gv_console_output, feature);
@@ -207,10 +217,19 @@ gv_console_output_enable(GvFeature *feature)
 	/* Say hello */
 	print_hello_line();
 
-	/* Signal handlers */
+	/* Connect to player 'notify' */
 	g_signal_connect(player, "notify", G_CALLBACK(on_player_notify), feature);
-	g_signal_connect_list(gv_framework_errorable_list, "error",
-	                      G_CALLBACK(on_errorable_error), feature);
+
+	/* Connect to objects that emit 'error' */
+	for (item = gv_framework_object_list; item; item = item->next) {
+		GObject *object = G_OBJECT(item->data);
+
+		if (GV_IS_ERRORABLE(object) == FALSE)
+			continue;
+
+		WARNING("Object '%s' is errorable", G_OBJECT_TYPE_NAME(object));
+		g_signal_connect(object, "error", G_CALLBACK(on_errorable_error), feature);
+	}
 }
 
 /*

@@ -26,18 +26,40 @@
 #include "framework/log.h"
 #include "framework/gv-framework.h"
 
-GList *gv_framework_errorable_list;
+GList *gv_framework_object_list;
+
+void
+gv_framework_register(gpointer data)
+{
+	GObject *object = G_OBJECT(data);
+
+	/* Add to the object list (we don't take ownership) */
+	gv_framework_object_list = g_list_prepend(gv_framework_object_list, object);
+
+	/* Add a weak pointer */
+	g_object_add_weak_pointer(object, (gpointer *) &(gv_framework_object_list->data));
+}
 
 void
 gv_framework_cleanup(void)
 {
-	/* Lists should be empty by now */
-	if (gv_framework_errorable_list)
-		WARNING("Errorable list not empty, memory is leaked !");
+	GList *item;
+
+	/* Objects in list should be empty, thanks to the magic of weak pointers */
+	for (item = gv_framework_object_list; item; item = item->next) {
+		GObject *object = G_OBJECT(item->data);
+
+		if (object != NULL)
+			WARNING("Object of type '%s' has not been finalized !",
+			        G_OBJECT_TYPE_NAME(object));
+	}
+
+	/* Free list */
+	g_list_free(gv_framework_object_list);
 }
 
 void
 gv_framework_init(void)
 {
-	/* Init lists - already intialized to NULL */
+	/* Dummy */
 }
