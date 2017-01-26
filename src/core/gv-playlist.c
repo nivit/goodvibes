@@ -34,6 +34,7 @@
 
 #include "additions/glib-object.h"
 #include "framework/gv-framework.h"
+#include "core/gv-core-internal.h"
 
 #include "core/gv-playlist.h"
 
@@ -501,7 +502,9 @@ gv_playlist_download(GvPlaylist *self)
 	SoupSession *session;
 	SoupMessage *msg;
 
-	session = soup_session_new();
+	session = soup_session_new_with_options(SOUP_SESSION_USER_AGENT,
+	                                        gv_core_user_agent,
+	                                        NULL);
 	msg = soup_message_new("GET", priv->uri);
 
 	soup_session_queue_message(session, msg,

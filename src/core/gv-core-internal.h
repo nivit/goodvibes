@@ -31,4 +31,6 @@
 extern GApplication  *gv_core_application;
 extern GSettings     *gv_core_settings;
 
+extern const gchar   *gv_core_user_agent;
+
 #endif /* __GOODVIBES_CORE_GV_CORE_INTERNAL_H__ */

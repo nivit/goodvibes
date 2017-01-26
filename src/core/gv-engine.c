@@ -26,6 +26,7 @@
 #include "additions/gst.h"
 #include "framework/gv-framework.h"
 #include "core/gv-core-enum-types.h"
+#include "core/gv-core-internal.h"
 #include "core/gv-metadata.h"
 
 #include "core/gv-engine.h"
@@ -427,7 +428,29 @@ gv_engine_new(void)
 }
 
 /*
- * Gst bus signal handlers
+ * GStreamer playbin signal handlers
+ */
+
+static void
+on_playbin_source_setup(GstElement *playbin G_GNUC_UNUSED,
+                        GstElement *source,
+                        GvEngine   *self G_GNUC_UNUSED)
+{
+	static gchar *user_agent;
+
+	if (user_agent == NULL) {
+		gchar *gst_version;
+
+		gst_version = gst_version_string();
+		user_agent = g_strdup_printf("%s %s", gv_core_user_agent, gst_version);
+		g_free(gst_version);
+	}
+
+	g_object_set(source, "user-agent", user_agent, NULL);
+}
+
+/*
+ * GStreamer bus signal handlers
  */
 
 static gboolean
@@ -771,6 +794,7 @@ gv_engine_finalize(GObject *object)
 	g_object_unref(priv->bus);
 
 	/* Unref the playbin */
+	g_signal_handlers_disconnect_by_data(priv->playbin, self);
 	g_object_unref(priv->playbin);
 
 	/* Chain up */
@@ -798,6 +822,9 @@ gv_engine_constructed(GObject *object)
 	g_assert_nonnull(playbin);
 	priv->playbin = g_object_ref_sink(playbin);
 
+	/* Connect playbin signal handlers */
+	g_signal_connect(playbin, "source-setup", G_CALLBACK(on_playbin_source_setup), self);
+
 	/* Disable video - returns floating ref */
 	fakesink = gst_element_factory_make("fakesink", "fakesink");
 	g_assert_nonnull(fakesink);
@@ -811,7 +838,7 @@ gv_engine_constructed(GObject *object)
 	/* Add a bus signal watch (so that 'message' signals are emitted) */
 	gst_bus_add_signal_watch(bus);
 
-	/* Connect to signals from the bus */
+	/* Connect bus signal handlers */
 	g_signal_connect(bus, "message::eos", G_CALLBACK(on_bus_message_eos), self);
 	g_signal_connect(bus, "message::error", G_CALLBACK(on_bus_message_error), self);
 	g_signal_connect(bus, "message::warning", G_CALLBACK(on_bus_message_warning), self);
