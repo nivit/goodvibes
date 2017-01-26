@@ -12,7 +12,8 @@ Makefile.in
 /libcaphe/tests/caphe-test
 
 # Extra
-/extra
+/extra/*
+!/extra/README.md
 
 # Generated files
 /AUTHORS
@@ -30,8 +31,8 @@ Makefile.in
 /data/gschemas.compiled
 
 # M4 macros
+/m4/*
 !/m4/gv-*.m4
-/m4/*.m4
 
 # Autotools stuff
 .dirstamp
