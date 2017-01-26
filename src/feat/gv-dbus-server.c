@@ -23,6 +23,7 @@
 
 #include "additions/glib-object.h"
 #include "framework/gv-framework.h"
+#include "core/gv-core.h"
 
 #include "feat/gv-dbus-server.h"
 
@@ -442,26 +443,6 @@ gv_dbus_server_unregister_objects(GvDbusServer *self)
  */
 
 static void
-on_bus_acquired(GDBusConnection *connection,
-                const gchar     *name,
-                gpointer         user_data)
-{
-	GvDbusServer         *self = GV_DBUS_SERVER(user_data);
-	GvDbusServerPrivate  *priv = gv_dbus_server_get_instance_private(self);
-	const gchar           *bus_name = connection ?
-	                                  g_dbus_connection_get_unique_name(connection) :
-	                                  "(null)";
-
-	TRACE("%s, %s, %p", bus_name, name, user_data);
-
-	/* Save DBus connection */
-	priv->bus_connection = g_object_ref(connection);
-
-	/* Register objects */
-	gv_dbus_server_register_objects(self);
-}
-
-static void
 on_name_acquired(GDBusConnection *connection,
                  const gchar     *name,
                  gpointer         user_data G_GNUC_UNUSED)
@@ -656,39 +637,33 @@ gv_dbus_server_enable(GvFeature *feature)
 {
 	GvDbusServer *self = GV_DBUS_SERVER(feature);
 	GvDbusServerPrivate *priv = gv_dbus_server_get_instance_private(self);
+	GDBusConnection *connection;
 
 	/* Chain up */
 	GV_FEATURE_CHAINUP_ENABLE(gv_dbus_server, feature);
 
+	/* Get dbus connection */
+	connection = g_application_get_dbus_connection(gv_core_application);
+	g_assert_nonnull(connection);
+
+	/* Add a reference */
+	priv->bus_connection = g_object_ref(connection);
+
+	/* Register objects */
+	gv_dbus_server_register_objects(self);
+
 	/* We might want to acquire a name or not */
 	if (priv->name) {
 		/* Acquire a name on the bus (objects will be registered in the callback) */
-		priv->bus_owner_id = g_bus_own_name(G_BUS_TYPE_SESSION,
-		                                    priv->name,
-		                                    G_BUS_NAME_OWNER_FLAGS_NONE,
-		                                    on_bus_acquired,
-		                                    on_name_acquired,
-		                                    on_name_lost,
-		                                    self,
-		                                    NULL);
+		priv->bus_owner_id = g_bus_own_name_on_connection
+		                     (connection,
+		                      priv->name,
+		                      G_BUS_NAME_OWNER_FLAGS_NONE,
+		                      on_name_acquired,
+		                      on_name_lost,
+		                      self,
+		                      NULL);
 		g_assert(priv->bus_owner_id > 0);
-
-	} else {
-		GDBusConnection *connection;
-		GError *err = NULL;
-
-		/* Get connection to the bus */
-		connection = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &err);
-		if (err) {
-			CRITICAL("Failed to get bus: %s", err->message);
-			g_error_free(err);
-			return;
-		}
-
-		priv->bus_connection = g_object_ref(connection);
-
-		/* Register objects */
-		gv_dbus_server_register_objects(self);
 	}
 }
 
