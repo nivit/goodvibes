@@ -953,7 +953,7 @@ gv_player_class_init(GvPlayerClass *class)
 	                            GV_PARAM_DEFAULT_FLAGS | G_PARAM_READABLE);
 
 	properties[PROP_STREAM_URI] =
-	        g_param_spec_string("stream-uri", "Curent Stream Uri", NULL, NULL,
+	        g_param_spec_string("stream-uri", "Current Stream Uri", NULL, NULL,
 	                            GV_PARAM_DEFAULT_FLAGS | G_PARAM_READABLE);
 
 	g_object_class_install_properties(object_class, PROP_N, properties);

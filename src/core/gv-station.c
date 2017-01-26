@@ -186,7 +186,7 @@ gv_station_set_uri(GvStation *self, const gchar *uri)
 		}
 	}
 
-	/*Set uri */
+	/* Set uri */
 	if (!g_strcmp0(priv->uri, uri))
 		return;
 
