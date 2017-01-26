@@ -580,27 +580,45 @@ gv_playlist_class_init(GvPlaylistClass *class)
  */
 
 GvPlaylistFormat
-gv_playlist_get_format(const gchar *uri)
+gv_playlist_get_format(const gchar *uri_string)
 {
-	char *ptr;
+	GvPlaylistFormat fmt = GV_PLAYLIST_FORMAT_UNKNOWN;
+	SoupURI *uri;
+	const gchar *path;
+	const gchar *ext;
 
-	/* Get format based on the uri extension */
-	ptr = strrchr(uri, '.');
-	if (!ptr)
+	/* Parse the uri */
+	uri = soup_uri_new(uri_string);
+	if (uri == NULL) {
+		INFO("Invalid uri '%s'", uri_string);
 		return GV_PLAYLIST_FORMAT_UNKNOWN;
-	ptr++;
+	}
 
-	if (!g_ascii_strcasecmp(ptr, "m3u") ||
-	    !g_ascii_strcasecmp(ptr, "m3u8"))
-		return GV_PLAYLIST_FORMAT_M3U;
-	else if (!g_ascii_strcasecmp(ptr, "ram"))
-		return GV_PLAYLIST_FORMAT_M3U;
-	else if (!g_ascii_strcasecmp(ptr, "pls"))
-		return GV_PLAYLIST_FORMAT_PLS;
-	else if (!g_ascii_strcasecmp(ptr, "asx"))
-		return GV_PLAYLIST_FORMAT_ASX;
-	else if (!g_ascii_strcasecmp(ptr, "xspf"))
-		return GV_PLAYLIST_FORMAT_XSPF;
+	/* Get the path */
+	path = soup_uri_get_path(uri);
 
-	return GV_PLAYLIST_FORMAT_UNKNOWN;
+	/* Get the extension of the path */
+	ext = strrchr(path, '.');
+	if (ext)
+		ext++;
+	else
+		ext = "\0";
+
+	/* Match with supported extensions */
+	if (!g_ascii_strcasecmp(ext, "m3u") ||
+	    !g_ascii_strcasecmp(ext, "m3u8"))
+		fmt = GV_PLAYLIST_FORMAT_M3U;
+	else if (!g_ascii_strcasecmp(ext, "ram"))
+		fmt = GV_PLAYLIST_FORMAT_M3U;
+	else if (!g_ascii_strcasecmp(ext, "pls"))
+		fmt = GV_PLAYLIST_FORMAT_PLS;
+	else if (!g_ascii_strcasecmp(ext, "asx"))
+		fmt = GV_PLAYLIST_FORMAT_ASX;
+	else if (!g_ascii_strcasecmp(ext, "xspf"))
+		fmt = GV_PLAYLIST_FORMAT_XSPF;
+
+	/* Cleanup */
+	soup_uri_free(uri);
+
+	return fmt;
 }
