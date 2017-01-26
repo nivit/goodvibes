@@ -23,16 +23,11 @@ To get the latest source, clone the repository from GitHub.
 
 	git clone https://github.com/elboulangero/goodvibes.git
 
-Some additional resources are handled with git submodules for convenience. They are not needed for the build, but in case you're curious you can get it with the following commands.
+You can grab extra resources with an helper script.
 
-	git submodule init
-	git submodule update
+	./scripts/extra.sh clone
 
-You can pull the latest changes in each submodule anytime.
-
-	git submodule foreach 'git pull --rebase && git checkout master'
-
-Among the submodules, you will find the wiki, which can be handy if you want to grep it.
+It will clone some goodvibes related repositories, such as dockerfiles, debian package, wiki.
 
 
 
