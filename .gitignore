@@ -11,6 +11,9 @@ Makefile.in
 /libcaphe/caphe/libcaphe.a
 /libcaphe/tests/caphe-test
 
+# Extra
+/extra
+
 # Generated files
 /AUTHORS
 
