@@ -34,6 +34,8 @@ GvPlayer      *gv_core_player;
 
 static GvEngine *gv_core_engine;
 
+gchar         *gv_core_user_agent;
+
 /*
  * Underlying audio backend
  */
@@ -68,6 +70,19 @@ gv_core_audio_backend_compile_version_string(void)
 }
 
 /*
+ * Helpers
+ */
+
+static gchar *
+make_user_agent(void)
+{
+	return g_strdup_printf("%s/%s (%s)",
+	                       PACKAGE_CAMEL_NAME,
+	                       PACKAGE_VERSION,
+	                       "Linux");
+}
+
+/*
  * Core public functions
  */
 
@@ -93,11 +108,20 @@ gv_core_cleanup(void)
 	/* Clean application pointer */
 
 	gv_core_application = NULL;
+
+	/* Free strings */
+
+	g_free(gv_core_user_agent);
 }
 
 void
 gv_core_init(GApplication *application)
 {
+	/* Create strings */
+
+	gv_core_user_agent = make_user_agent();
+	DEBUG("User agent: %s", gv_core_user_agent);
+
 	/* Keep a pointer toward application */
 
 	gv_core_application = application;

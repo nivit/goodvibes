@@ -26,6 +26,7 @@
 #include "additions/gst.h"
 #include "framework/gv-framework.h"
 #include "core/gv-core-enum-types.h"
+#include "core/gv-core-internal.h"
 #include "core/gv-metadata.h"
 
 #include "core/gv-engine.h"
@@ -435,23 +436,17 @@ on_playbin_source_setup(GstElement *playbin G_GNUC_UNUSED,
                         GstElement *source,
                         GvEngine   *self G_GNUC_UNUSED)
 {
-	static gchar *gv_user_agent;
+	static gchar *user_agent;
 
-	if (gv_user_agent == NULL) {
+	if (user_agent == NULL) {
 		gchar *gst_version;
 
 		gst_version = gst_version_string();
-		gv_user_agent = g_strdup_printf("%s/%s (%s) %s",
-		                                PACKAGE_CAMEL_NAME,
-		                                PACKAGE_VERSION,
-		                                "Linux",
-		                                gst_version);
+		user_agent = g_strdup_printf("%s %s", gv_core_user_agent, gst_version);
 		g_free(gst_version);
-
-		DEBUG("User-agent initialized: %s", gv_user_agent);
 	}
 
-	g_object_set(source, "user-agent", gv_user_agent, NULL);
+	g_object_set(source, "user-agent", user_agent, NULL);
 }
 
 /*
