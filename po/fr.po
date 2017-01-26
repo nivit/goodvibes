@@ -8,100 +8,106 @@ msgstr ""
 "Project-Id-Version: goodvibes 0.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-01-20 09:42+0700\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2017-01-26 16:56+0000\n"
+"Last-Translator: Étienne Deparis <etienne@depar.is>\n"
+"Language-Team: French "
+"<https://hosted.weblate.org/projects/goodvibes/translations/fr/>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 2.11-dev\n"
 
 #: data/desktop/com.elboulangero.Goodvibes.desktop.in:3 src/main.c:149
+#, fuzzy
 msgid "Goodvibes Radio Player"
-msgstr ""
+msgstr "Lecteur de radio Goodvibes"
 
 #: data/desktop/com.elboulangero.Goodvibes.desktop.in:4
+#, fuzzy
 msgid "Radio Player"
-msgstr ""
+msgstr "Lecteur radio"
 
 #: data/desktop/com.elboulangero.Goodvibes.desktop.in:5
 msgid "Play web radios"
-msgstr ""
+msgstr "Écouter des radios web"
 
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: data/desktop/com.elboulangero.Goodvibes.desktop.in:7
 msgid "Audio;Radio;Player;"
-msgstr ""
+msgstr "Audio;Radio;Player;"
 
 #: data/desktop/com.elboulangero.Goodvibes.desktop.in:11
 msgid "goodvibes"
-msgstr ""
+msgstr "goodvibes"
 
 #: data/ui/app-menu.glade:6 data/ui/menubar.glade:8 src/ui/gv-main-menu.c:32
 #: src/ui/gv-prefs-window.c:524
 msgid "Preferences"
-msgstr ""
+msgstr "Préférences"
 
 #: data/ui/app-menu.glade:12 data/ui/menubar.glade:27
 msgid "Online Help"
-msgstr ""
+msgstr "Aide en ligne"
 
 #: data/ui/app-menu.glade:16 data/ui/menubar.glade:33 src/ui/gv-main-menu.c:33
 msgid "About"
-msgstr ""
+msgstr "À propos"
 
 #: data/ui/app-menu.glade:20 data/ui/menubar.glade:14
 #: src/ui/gv-status-icon.c:557
 msgid "Close UI"
-msgstr ""
+msgstr "Fermer l'interface"
 
 #: data/ui/app-menu.glade:24 data/ui/menubar.glade:18 src/ui/gv-main-menu.c:34
 msgid "Quit"
-msgstr ""
+msgstr "Quitter"
 
 #: data/ui/main-window.glade:47 src/ui/gv-main-window.c:94
 msgid "No station selected"
-msgstr ""
+msgstr "Aucune station sélectionnée"
 
 #: data/ui/main-window.glade:62 src/ui/gv-main-window.c:117
 msgid "Stopped"
-msgstr ""
+msgstr "Arrêté"
 
 #: data/ui/menubar.glade:5
 msgid "File"
-msgstr ""
+msgstr "Fichier"
 
 #: data/ui/menubar.glade:24
 msgid "Help"
-msgstr ""
+msgstr "Aide"
 
 #: data/ui/prefs-window.glade:35
+#, fuzzy
 msgid "Autoplay on Startup"
-msgstr ""
+msgstr "Lancer l'écoute au démarrage"
 
 #: data/ui/prefs-window.glade:52
 msgid "Player"
-msgstr ""
+msgstr "Lecteur"
 
 #: data/ui/prefs-window.glade:87
 msgid "Prevent sleep while playing"
-msgstr ""
+msgstr "Empêcher la mise en veille lors de l'écoute"
 
 #: data/ui/prefs-window.glade:100
 msgid "System"
-msgstr ""
+msgstr "Système"
 
 #: data/ui/prefs-window.glade:145
 msgid "Native D-Bus Server"
-msgstr ""
+msgstr "Serveur D-Bus natif"
 
 #: data/ui/prefs-window.glade:157
 msgid "MPRIS2 D-Bus Server"
-msgstr ""
+msgstr "Serveur D-Bus MPRIS2"
 
 #: data/ui/prefs-window.glade:170
 msgid "D-Bus"
-msgstr ""
+msgstr "D-Bus"
 
 #: data/ui/prefs-window.glade:186
 msgid "Misc"
