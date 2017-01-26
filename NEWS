@@ -1,19 +1,20 @@
-0.2 () - Doom Town / Wipers
----------------------------
+0.2 (2017-01-26) - Doom Town / Wipers
+-------------------------------------
 
 This release will wipe out your conf !
 
 General
- * Handle configuration with GSettings. #22
- * Emit notifications with GNotification. #22
- * Load/store station list with GMarkup. #22
+ * #22 Handle configuration with GSettings.
+ * #22 Emit notifications with GNotification.
+ * #22 Load/store station list with GMarkup.
 
 Fixes
- * Fix desktop filename in mpris2 backend. #26
- * Handle queries and fragments in station uris. #29
+ * #26 Fix desktop filename in mpris2 backend.
+ * #29 Handle queries and fragments in station uris.
+ * #33 Add a proper user-agent in HTTP requests.
 
 Translations
- * Goodvibes is now translated with the web-based translation service Weblate.
+ * #14 Translations are now managed with Weblate.
 
 Dependencies
  * Drop compile-time dep 'libnotify'.

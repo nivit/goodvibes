@@ -3,7 +3,7 @@
 # Init autoconf
 # 2.60: obsoleting plenty of stuff
 AC_PREREQ([2.60])
-AC_INIT([goodvibes], [0.1])
+AC_INIT([goodvibes], [0.2])
 : ${CPPFLAGS="-std=gnu99 -Wall -Wextra -Wshadow"}
 
 # Init automake
