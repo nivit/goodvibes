@@ -59,7 +59,7 @@ gv_console_application_new(const gchar *application_id)
 static void
 gv_console_application_shutdown(GApplication *app)
 {
-	DEBUG_NO_CONTEXT(">>>> Main loop started <<<<");
+	DEBUG_NO_CONTEXT(">>>> Main loop terminated <<<<");
 
 	/* Cleanup */
 	DEBUG_NO_CONTEXT("---- Cleaning up ----");
@@ -106,17 +106,17 @@ gv_console_application_activate(GApplication *app G_GNUC_UNUSED)
 {
 	static gboolean first_invocation = TRUE;
 
-	/* First invocation, schedule a callback to play music.
-	 * DO NOT start playing now ! It's too early !
-	 * There's still some init code pending, and we want to ensure
-	 * (as much as possible) that this code is run before we start
-	 * the playback. Therefore we schedule with a low priority.
-	 */
 	if (first_invocation) {
-		DEBUG_NO_CONTEXT(">>>> Main loop started <<<<");
-
 		first_invocation = FALSE;
 
+		DEBUG_NO_CONTEXT(">>>> Main loop started <<<<");
+
+		/* Schedule a callback to play music.
+		 * DO NOT start playing now ! It's too early !
+		 * There's still some init code pending, and we want to ensure
+		 * (as much as possible) that this init code is run before we
+		 * start the playback. Therefore we schedule with a low priority.
+		 */
 		g_idle_add_full(G_PRIORITY_LOW, when_idle_go_player,
 		                (void *) options.uri_to_play, NULL);
 	}
