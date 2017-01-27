@@ -225,7 +225,7 @@ log_trace_property_access(const gchar *file, const gchar *func, GObject *object,
                           gboolean print_value)
 {
 	gchar *value_string;
-	guint max_len = 48;
+	guint max_len = 128;
 
 	if (LOG_LEVEL_TRACE > log_level)
 		return;
