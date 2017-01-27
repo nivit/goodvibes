@@ -55,7 +55,7 @@ static GOptionEntry entries[] = {
 #ifdef UI_ENABLED
 	{
 		"without-ui", 0, 0, G_OPTION_ARG_NONE, &options.without_ui,
-		"Disable graphical user interface", NULL
+		"Disable graphical user interface at startup", NULL
 	},
 	{
 		"status-icon", 0, 0, G_OPTION_ARG_NONE, &options.status_icon,
