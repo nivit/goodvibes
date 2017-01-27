@@ -210,23 +210,32 @@ gv_graphical_application_activate(GApplication *app G_GNUC_UNUSED)
 {
 	static gboolean first_invocation = TRUE;
 
-	/* Present the main window */
-	if (!options.without_ui)
-		gv_ui_present_main();
-
-	/* First invocation, schedule a callback to play music.
-	 * DO NOT start playing now ! It's too early !
-	 * There's still some init code pending, and we want to ensure
-	 * (as much as possible) that this code is run before we start
-	 * the playback. Therefore we schedule with a low priority.
-	 */
 	if (first_invocation) {
-		DEBUG_NO_CONTEXT(">>> Main loop started <<<<");
-
 		first_invocation = FALSE;
 
+		DEBUG_NO_CONTEXT(">>>> Main loop started <<<<");
+
+		/* Schedule a callback to play music.
+		 * DO NOT start playing now ! It's too early !
+		 * There's still some init code pending, and we want to ensure
+		 * (as much as possible) that this init code is run before we
+		 * start the playback. Therefore we schedule with a low priority.
+		 */
 		g_idle_add_full(G_PRIORITY_LOW, when_idle_go_player,
 		                (void *) options.uri_to_play, NULL);
+
+		/* Present the main window, depending on options */
+		if (!options.without_ui) {
+			DEBUG("Presenting main window");
+			gv_ui_present_main();
+		} else {
+			DEBUG("NOT presenting main window (--without-ui)");
+		}
+
+	} else {
+		/* Present the main window, unconditionally */
+		DEBUG("Presenting main window");
+		gv_ui_present_main();
 	}
 }
 
