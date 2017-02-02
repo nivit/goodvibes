@@ -114,13 +114,11 @@ g_variant_new_station(GvStation *station, GvMetadata *metadata)
 	if (station == NULL)
 		goto end;
 
-	g_object_get(station,
-	             "uri", &uri,
-	             "name", &name,
-	             NULL);
-
+	uri = gv_station_get_uri(station);
 	if (uri)
 		g_variant_builder_add_dictentry_string(&b, "uri", uri);
+
+	name = gv_station_get_name(station);
 	if (name)
 		g_variant_builder_add_dictentry_string(&b, "name", name);
 
@@ -128,25 +126,27 @@ g_variant_new_station(GvStation *station, GvMetadata *metadata)
 	if (metadata == NULL)
 		goto end;
 
-	g_object_get(metadata,
-	             "artist", &artist,
-	             "title", &title,
-	             "album", &album,
-	             "genre", &genre,
-	             "year", &year,
-	             "comment", &comment,
-	             NULL);
-
+	artist = gv_metadata_get_artist(metadata);
 	if (artist)
 		g_variant_builder_add_dictentry_string(&b, "artist", artist);
+
+	title = gv_metadata_get_title(metadata);
 	if (title)
 		g_variant_builder_add_dictentry_string(&b, "title", title);
+
+	album = gv_metadata_get_album(metadata);
 	if (album)
 		g_variant_builder_add_dictentry_string(&b, "album", album);
+
+	genre = gv_metadata_get_genre(metadata);
 	if (genre)
 		g_variant_builder_add_dictentry_string(&b, "genre", genre);
+
+	year = gv_metadata_get_year(metadata);
 	if (year)
 		g_variant_builder_add_dictentry_string(&b, "year", year);
+
+	comment = gv_metadata_get_comment(metadata);
 	if (comment)
 		g_variant_builder_add_dictentry_string(&b, "comment", comment);
 
