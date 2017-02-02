@@ -45,6 +45,7 @@ static const gchar *DBUS_INTROSPECTION =
         "            <arg direction='in' name='Station' type='s'/>"
         "        </method>"
         "        <method name='Stop'/>"
+        "        <method name='PlayStop'/>"
         "        <method name='Next'/>"
         "        <method name='Previous'/>"
         "        <property name='Current' type='a{sv}' access='read'/>"
@@ -226,6 +227,18 @@ method_stop(GvDbusServer  *dbus_server G_GNUC_UNUSED,
 }
 
 static GVariant *
+method_play_stop(GvDbusServer  *dbus_server G_GNUC_UNUSED,
+                 GVariant       *params G_GNUC_UNUSED,
+                 GError        **error G_GNUC_UNUSED)
+{
+	GvPlayer *player = gv_core_player;
+
+	gv_player_toggle(player);
+
+	return NULL;
+}
+
+static GVariant *
 method_next(GvDbusServer  *dbus_server G_GNUC_UNUSED,
             GVariant       *params G_GNUC_UNUSED,
             GError        **error  G_GNUC_UNUSED)
@@ -250,11 +263,12 @@ method_prev(GvDbusServer  *dbus_server G_GNUC_UNUSED,
 }
 
 static GvDbusMethod player_methods[] = {
-	{ "Play",     method_play },
-	{ "Stop",     method_stop },
-	{ "Next",     method_next },
-	{ "Previous", method_prev },
-	{ NULL,       NULL        }
+	{ "Play",     method_play      },
+	{ "Stop",     method_stop      },
+	{ "PlayStop", method_play_stop },
+	{ "Next",     method_next      },
+	{ "Previous", method_prev      },
+	{ NULL,       NULL             }
 };
 
 static GVariant *

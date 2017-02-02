@@ -72,6 +72,7 @@ help_and_exit(int exit_code)
 	COMMAND("play [<station>]", "Without argument, play the current station");
 	DESC   ("Otherwise, play the station given in argument");
 	COMMAND("stop", "Stop playback");
+	COMMAND("play-stop", "Toggle play/stop mode");
 	COMMAND("next", "Play next station");
 	COMMAND("prev(ious)", "Play previous station");
 	COMMAND("volume  [<value>]", "Get/set volume (in %)");
@@ -499,18 +500,19 @@ struct cmd root_cmds[] = {
 };
 
 struct cmd player_cmds[] = {
-	{ METHOD,   "play",     "Play",     parse_play_args, NULL          },
-	{ METHOD,   "stop",     "Stop",     NULL,            NULL          },
-	{ METHOD,   "next",     "Next",     NULL,            NULL          },
-	{ METHOD,   "prev",     "Previous", NULL,            NULL          },
-	{ METHOD,   "previous", "Previous", NULL,            NULL          },
-	{ PROPERTY, "current",  "Current",  NULL,            print_current },
-	{ PROPERTY, "playing",  "Playing",  NULL,            print_boolean },
-	{ PROPERTY, "repeat",   "Repeat",   parse_boolean,   print_boolean },
-	{ PROPERTY, "shuffle",  "Shuffle",  parse_boolean,   print_boolean },
-	{ PROPERTY, "volume",   "Volume",   parse_volume,    print_volume  },
-	{ PROPERTY, "mute",     "Mute",     parse_boolean,   print_boolean },
-	{ PROPERTY, NULL,       NULL,       NULL,            NULL          }
+	{ METHOD,   "play",      "Play",     parse_play_args, NULL          },
+	{ METHOD,   "stop",      "Stop",     NULL,            NULL          },
+	{ METHOD,   "play-stop", "PlayStop", NULL,            NULL          },
+	{ METHOD,   "next",      "Next",     NULL,            NULL          },
+	{ METHOD,   "prev",      "Previous", NULL,            NULL          },
+	{ METHOD,   "previous",  "Previous", NULL,            NULL          },
+	{ PROPERTY, "current",   "Current",  NULL,            print_current },
+	{ PROPERTY, "playing",   "Playing",  NULL,            print_boolean },
+	{ PROPERTY, "repeat",    "Repeat",   parse_boolean,   print_boolean },
+	{ PROPERTY, "shuffle",   "Shuffle",  parse_boolean,   print_boolean },
+	{ PROPERTY, "volume",    "Volume",   parse_volume,    print_volume  },
+	{ PROPERTY, "mute",      "Mute",     parse_boolean,   print_boolean },
+	{ PROPERTY, NULL,        NULL,       NULL,            NULL          }
 };
 
 struct cmd stations_cmds[] = {
