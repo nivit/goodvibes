@@ -341,12 +341,12 @@ g_variant_new_metadata_map(GvStation *station, GvMetadata *metadata)
 	gchar *track_id;
 	const gchar *uri;
 	const gchar *name;
-	gchar *artist;
-	gchar *title;
-	gchar *album;
-	gchar *genre;
-	gchar *year;
-	gchar *comment;
+	const gchar *artist;
+	const gchar *title;
+	const gchar *album;
+	const gchar *genre;
+	const gchar *year;
+	const gchar *comment;
 
 	g_variant_builder_init(&b, G_VARIANT_TYPE("a{sv}"));
 
@@ -370,34 +370,29 @@ g_variant_new_metadata_map(GvStation *station, GvMetadata *metadata)
 	if (metadata == NULL)
 		goto end;
 
-	g_object_get(metadata,
-	             "artist", &artist,
-	             "title", &title,
-	             "album", &album,
-	             "genre", &genre,
-	             "year", &year,
-	             "comment", &comment,
-	             NULL);
-
+	artist = gv_metadata_get_artist(metadata);
 	if (artist)
 		g_variant_builder_add_dictentry_array_string(&b, "xesam:artist", artist, NULL);
+
+	title = gv_metadata_get_title(metadata);
 	if (title)
 		g_variant_builder_add_dictentry_string(&b, "xesam:title", title);
+
+	album = gv_metadata_get_album(metadata);
 	if (album)
 		g_variant_builder_add_dictentry_string(&b, "xesam:album", album);
+
+	genre = gv_metadata_get_genre(metadata);
 	if (genre)
 		g_variant_builder_add_dictentry_array_string(&b, "xesam:genre", genre, NULL);
+
+	year = gv_metadata_get_year(metadata);
 	if (year)
 		g_variant_builder_add_dictentry_string(&b, "xesam:contentCreated", year);
+
+	comment = gv_metadata_get_comment(metadata);
 	if (comment)
 		g_variant_builder_add_dictentry_array_string(&b, "xesam:comment", comment, NULL);
-
-	g_free(artist);
-	g_free(title);
-	g_free(album);
-	g_free(genre);
-	g_free(year);
-	g_free(comment);
 
 end:
 	return g_variant_builder_end(&b);
