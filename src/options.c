@@ -86,6 +86,8 @@ options_parse(int *argc, char **argv[])
 
 	/* Create context & entries */
 	context = g_option_context_new("- Positive Vibration, Yeah !");
+	g_option_context_set_description(context, "To control goodvibes via the command line, "
+	                                 "see the goodvibes-client executable.");
 	g_option_context_add_main_entries(context, entries, NULL);
 
 	/* Add option groups and perform some init code at the same time */
