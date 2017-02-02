@@ -549,6 +549,10 @@ gv_main_window_setup_widgets(GvMainWindow *self)
 	                       (player_obj, "volume",
 	                        priv->volume_button, "value",
 	                        G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+
+	/* Set the station label */
+	set_station_label(GTK_LABEL(priv->station_label),
+	                  gv_player_get_station(gv_core_player));
 }
 
 static void

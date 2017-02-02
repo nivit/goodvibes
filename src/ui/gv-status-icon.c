@@ -611,6 +611,9 @@ gv_status_icon_constructed(GObject *object)
 	g_settings_bind(gv_ui_settings, "scroll-action",
 	                self, "scroll-action", G_SETTINGS_BIND_DEFAULT);
 
+	/* Init the tooltip */
+	gv_status_icon_update_icon_tooltip(self);
+
 	/* Chain up */
 	G_OBJECT_CHAINUP_CONSTRUCTED(gv_status_icon, object);
 }
