@@ -161,7 +161,7 @@ dbus_call(const char *bus_name,
 
 
 /*
- * Supported commands
+ * Supported DBus commands
  */
 
 enum cmd_type {
@@ -522,6 +522,153 @@ struct interface interfaces[] = {
 	{ NULL,                NULL          }
 };
 
+/*
+ * DBus related commands
+ */
+
+static int
+handle_launch(int argc, char *argv[] G_GNUC_UNUSED)
+{
+	GVariantBuilder b;
+	GVariant *args;
+	int err;
+
+	if (argc != 0)
+		help_and_exit(EXIT_FAILURE);
+
+	g_variant_builder_init(&b, G_VARIANT_TYPE_TUPLE);
+	g_variant_builder_add(&b, "s", DBUS_NAME);
+	g_variant_builder_add(&b, "u", 0);
+	args = g_variant_builder_end(&b);
+
+	err = dbus_call("org.freedesktop.DBus", "/org/freedesktop/DBus",
+	                "org.freedesktop.DBus", "StartServiceByName",
+	                args, NULL);
+
+	return err;
+}
+
+static int
+handle_dbus_command(int argc, char *argv[])
+{
+	struct interface *iface;
+	const struct cmd *cmd;
+	GVariant *args, *result;
+	int err = 0;
+
+	/* Find command in lists */
+	for (iface = interfaces; iface->name; iface++) {
+		for (cmd = iface->cmds; cmd->cmdline_name; cmd++) {
+			if (!strcmp(argv[0], cmd->cmdline_name))
+				break;
+		}
+		if (cmd->cmdline_name)
+			break;
+	}
+
+	if (iface->name == NULL)
+		help_and_exit(EXIT_FAILURE);
+
+	/* Discard arguments that has been processed */
+	argc -= 1;
+	argv += 1;
+
+	/* Process arguments left */
+	args = NULL;
+	switch (cmd->type) {
+	case METHOD:
+		/* For methods, if there's a parse function provided, we run it,
+		 * no matter the number of arguments left.
+		 */
+		if (cmd->parse_args) {
+			GVariantBuilder b;
+			g_variant_builder_init(&b, G_VARIANT_TYPE_TUPLE);
+			err = cmd->parse_args(argc, argv, &b);
+			args = g_variant_builder_end(&b);
+		} else if (argc > 0) {
+			help_and_exit(EXIT_FAILURE);
+		}
+		break;
+
+	case PROPERTY: {
+		/* For properties, it's the number of remaining argument which
+		 * determines if it's a get or a set. Zero argument means get.
+		 */
+		GVariantBuilder b;
+		g_variant_builder_init(&b, G_VARIANT_TYPE_TUPLE);
+		g_variant_builder_add(&b, "s", iface->name);
+		g_variant_builder_add(&b, "s", cmd->dbus_name);
+
+		if (argc > 0) {
+			if (cmd->parse_args)
+				err = cmd->parse_args(argc, argv, &b);
+			else
+				help_and_exit(EXIT_FAILURE);
+		}
+
+		args = g_variant_builder_end(&b);
+
+		break;
+	}
+	}
+
+	if (err)
+		help_and_exit(EXIT_FAILURE);
+
+	/* DBus action (method call, property get/set) */
+	result = NULL;
+	switch (cmd->type) {
+	case METHOD:
+		err = dbus_call(DBUS_NAME, DBUS_PATH, iface->name,
+		                cmd->dbus_name, args, &result);
+		break;
+	case PROPERTY:
+		if (argc == 0)
+			/* Get command */
+			err = dbus_call(DBUS_NAME, DBUS_PATH,
+			                "org.freedesktop.DBus.Properties",
+			                "Get", args, &result);
+		else
+			/* Set command */
+			err = dbus_call(DBUS_NAME, DBUS_PATH,
+			                "org.freedesktop.DBus.Properties",
+			                "Set", args, NULL);
+		break;
+	}
+
+	if (err)
+		exit(EXIT_FAILURE);
+
+	/* Print result */
+	if (result && cmd->print_result) {
+		// print("%s", g_variant_print(result, FALSE));
+
+		if (cmd->type == METHOD) {
+			cmd->print_result(result);
+		} else {
+			/* cmd->type == PROPERTY */
+			/* Result is always a GVariant, encapsulated in a tuple */
+			GVariant *tmp;
+			g_variant_get(result, "(v)", &tmp);
+			cmd->print_result(tmp);
+			g_variant_unref(tmp);
+		}
+	}
+
+	if (result)
+		g_variant_unref(result);
+
+	return 0;
+}
+
+/*
+ * Configuration related commands
+ *
+ * Here I sse GSettings through a subshell for convenience.
+ * It's a bit ugly, but maybe it's a strong hint that I should rewrite
+ * this client in a script language...
+ */
+
 static void
 capitalize_first_letters(gchar *str)
 {
@@ -619,9 +766,6 @@ handle_conf_command(int argc, char *argv[])
 int
 main(int argc, char *argv[])
 {
-	struct interface *iface;
-	const struct cmd *cmd;
-	GVariant *args, *result;
 	int err;
 
 	err = 0;
@@ -631,133 +775,31 @@ main(int argc, char *argv[])
 	if (argc < 2)
 		help_and_exit(EXIT_FAILURE);
 
-	/* Handle special commands */
-	if (!strcmp(argv[1], "launch")) {
-		/* Launch the application through DBus */
-		GVariantBuilder b;
-		g_variant_builder_init(&b, G_VARIANT_TYPE_TUPLE);
-		g_variant_builder_add(&b, "s", DBUS_NAME);
-		g_variant_builder_add(&b, "u", 0);
-		args = g_variant_builder_end(&b);
+	if (!strcmp(argv[1], "help")) {
+		/* Help command */
+		help_and_exit(EXIT_SUCCESS);
 
-		err = dbus_call("org.freedesktop.DBus", "/org/freedesktop/DBus",
-		                "org.freedesktop.DBus", "StartServiceByName",
-		                args, NULL);
+	} else if (!strcmp(argv[1], "launch")) {
+		/* Launch commmand */
+		argc -= 2;
+		argv += 2;
 
-		exit(err ? EXIT_FAILURE : EXIT_SUCCESS);
+		err = handle_launch(argc, argv);
 
 	} else if (!strcmp(argv[1], "conf")) {
+		/* Configuration related commands */
 		argc -= 2;
 		argv += 2;
 
 		err = handle_conf_command(argc, argv);
-		exit(err ? EXIT_FAILURE : EXIT_SUCCESS);
 
-	} else if (!strcmp(argv[1], "help")) {
-		help_and_exit(EXIT_SUCCESS);
+	} else {
+		/* DBus related command */
+		argc -= 1;
+		argv += 1;
+
+		err = handle_dbus_command(argc, argv);
 	}
 
-	/* Find command in lists */
-	for (iface = interfaces; iface->name; iface++) {
-		for (cmd = iface->cmds; cmd->cmdline_name; cmd++) {
-			if (!strcmp(argv[1], cmd->cmdline_name))
-				break;
-		}
-		if (cmd->cmdline_name)
-			break;
-	}
-
-	if (iface->name == NULL)
-		help_and_exit(EXIT_FAILURE);
-
-	/* Discard arguments that has been processed */
-	argc -= 2;
-	argv += 2;
-
-	/* Process arguments left */
-	args = NULL;
-	switch (cmd->type) {
-	case METHOD:
-		/* For methods, if there's a parse function provided, we run it,
-		 * no matter the number of arguments left.
-		 */
-		if (cmd->parse_args) {
-			GVariantBuilder b;
-			g_variant_builder_init(&b, G_VARIANT_TYPE_TUPLE);
-			err = cmd->parse_args(argc, argv, &b);
-			args = g_variant_builder_end(&b);
-		} else if (argc > 0) {
-			help_and_exit(EXIT_FAILURE);
-		}
-		break;
-
-	case PROPERTY: {
-		/* For properties, it's the number of remaining argument which
-		 * determines if it's a get or a set. Zero argument means get.
-		 */
-		GVariantBuilder b;
-		g_variant_builder_init(&b, G_VARIANT_TYPE_TUPLE);
-		g_variant_builder_add(&b, "s", iface->name);
-		g_variant_builder_add(&b, "s", cmd->dbus_name);
-
-		if (argc > 0) {
-			if (cmd->parse_args)
-				err = cmd->parse_args(argc, argv, &b);
-			else
-				help_and_exit(EXIT_FAILURE);
-		}
-
-		args = g_variant_builder_end(&b);
-
-		break;
-	}
-	}
-
-	if (err)
-		help_and_exit(EXIT_FAILURE);
-
-	/* DBus action (method call, property get/set) */
-	result = NULL;
-	switch (cmd->type) {
-	case METHOD:
-		err = dbus_call(DBUS_NAME, DBUS_PATH, iface->name,
-		                cmd->dbus_name, args, &result);
-		break;
-	case PROPERTY:
-		if (argc == 0)
-			/* Get command */
-			err = dbus_call(DBUS_NAME, DBUS_PATH,
-			                "org.freedesktop.DBus.Properties",
-			                "Get", args, &result);
-		else
-			/* Set command */
-			err = dbus_call(DBUS_NAME, DBUS_PATH,
-			                "org.freedesktop.DBus.Properties",
-			                "Set", args, NULL);
-		break;
-	}
-
-	if (err)
-		exit(EXIT_FAILURE);
-
-	/* Print result */
-	if (result && cmd->print_result) {
-		// print("%s", g_variant_print(result, FALSE));
-
-		if (cmd->type == METHOD) {
-			cmd->print_result(result);
-		} else {
-			/* cmd->type == PROPERTY */
-			/* Result is always a GVariant, encapsulated in a tuple */
-			GVariant *tmp;
-			g_variant_get(result, "(v)", &tmp);
-			cmd->print_result(tmp);
-			g_variant_unref(tmp);
-		}
-	}
-
-	if (result)
-		g_variant_unref(result);
-
-	return EXIT_SUCCESS;
+	return err ? EXIT_FAILURE : EXIT_SUCCESS;
 }
