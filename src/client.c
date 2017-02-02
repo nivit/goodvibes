@@ -62,9 +62,10 @@ help_and_exit(int exit_code)
 	NL();
 
 	TITLE  ("Base commands");
-	COMMAND("launch", "Launch " PACKAGE_CAMEL_NAME);
-	COMMAND("quit", "Quit " PACKAGE_CAMEL_NAME);
-	COMMAND("help", "Print this help message");
+	COMMAND("launch",     "Launch " PACKAGE_CAMEL_NAME);
+	COMMAND("quit",       "Quit " PACKAGE_CAMEL_NAME);
+	COMMAND("is-running", "Check whether " PACKAGE_CAMEL_NAME " is running");
+	COMMAND("help",       "Print this help message");
 	NL();
 
 	TITLE  ("Control");
@@ -558,6 +559,36 @@ handle_launch(int argc, char *argv[] G_GNUC_UNUSED)
 }
 
 static int
+handle_is_running(int argc, char *argv[] G_GNUC_UNUSED)
+{
+	GVariantBuilder b;
+	GVariant *args, *result;
+	int err;
+
+	if (argc != 0)
+		help_and_exit(EXIT_FAILURE);
+
+	g_variant_builder_init(&b, G_VARIANT_TYPE_TUPLE);
+	g_variant_builder_add(&b, "s", DBUS_NAME);
+	args = g_variant_builder_end(&b);
+
+	result = NULL;
+	err = dbus_call("org.freedesktop.DBus", "/",
+	                "org.freedesktop.DBus", "NameHasOwner",
+	                args, &result);
+
+	if (result) {
+		gboolean is_running;
+
+		g_variant_get(result, "(b)", &is_running);
+		g_variant_unref(result);
+		print("%s", is_running ? "true" : "false");
+	}
+
+	return err;
+}
+
+static int
 handle_dbus_command(int argc, char *argv[])
 {
 	struct interface *iface;
@@ -794,6 +825,13 @@ main(int argc, char *argv[])
 		argv += 2;
 
 		err = handle_launch(argc, argv);
+
+	} else if (!strcmp(argv[1], "is-running")) {
+		/* Launch commmand */
+		argc -= 2;
+		argv += 2;
+
+		err = handle_is_running(argc, argv);
 
 	} else if (!strcmp(argv[1], "conf")) {
 		/* Configuration related commands */
