@@ -23,6 +23,7 @@ Makefile.in
 
 # Data
 /data/*.service
+/data/*.service.in
 /data/*.desktop
 /data/*.desktop.in
 /data/*.gschema.xml

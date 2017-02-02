@@ -157,7 +157,7 @@ AC_CONFIG_FILES([
 AUTHORS
 Makefile
 data/Makefile
-data/$PACKAGE_APPLICATION_ID.service
+data/$PACKAGE_APPLICATION_ID.service.in
 data/$PACKAGE_APPLICATION_ID.desktop.in
 data/$PACKAGE_APPLICATION_ID.gschema.xml
 libcaphe/Makefile
