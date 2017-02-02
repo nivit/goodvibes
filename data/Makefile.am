@@ -1,6 +1,6 @@
-EXTRA_DIST =
-DISTCLEAN  =
-CLEANFILES =
+EXTRA_DIST     =
+DISTCLEANFILES =
+CLEANFILES     =
 
 # ----------------------------------------------------- #
 #         D-Bus Service File                            #
@@ -10,8 +10,8 @@ servicedir       = $(datadir)/dbus-1/services
 service_in_files = @PACKAGE_APPLICATION_ID@.service.in
 service_DATA     = $(service_in_files:.in=)
 
-EXTRA_DIST += $(service_in_files)
-DISTCLEAN  += $(service_DATA)
+EXTRA_DIST     += $(service_in_files)
+DISTCLEANFILES += $(service_DATA)
 
 # ----------------------------------------------------- #
 #         Desktop File                                  #
@@ -26,9 +26,9 @@ desktop_DATA        = $(desktop_in_files:.in=)
 %.desktop: %.desktop.in
 	msgfmt --desktop -d $(top_srcdir)/po --template $< -o $@ 
 
-EXTRA_DIST += $(desktop_in_in_files)
-DISTCLEAN  += $(desktop_in_files)
-CLEANFILES += $(desktop_DATA)
+EXTRA_DIST     += $(desktop_in_in_files)
+DISTCLEANFILES += $(desktop_in_files)
+CLEANFILES     += $(desktop_DATA)
 
 # ----------------------------------------------------- #
 #         GSettings Schemas                             #
@@ -46,9 +46,9 @@ gschemas.compiled: $(gsettings_SCHEMAS:.xml=.valid)
 
 all-local: gschemas.compiled
 
-EXTRA_DIST += $(gsettings_SCHEMAS).in
-DISTCLEAN  += $(gsettings_SCHEMAS)
-CLEANFILES += gschemas.compiled
+EXTRA_DIST     += $(gsettings_SCHEMAS).in
+DISTCLEANFILES += $(gsettings_SCHEMAS)
+CLEANFILES     += gschemas.compiled
 
 # ----------------------------------------------------- #
 #         Icons                                         #
