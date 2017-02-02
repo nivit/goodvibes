@@ -139,7 +139,7 @@ dbus_call(const char *bus_name,
 
 	result = g_dbus_connection_call_sync(c,
 	                                     bus_name, object_path, iface_name, method_name,
-	                                     args, NULL, G_DBUS_CALL_FLAGS_NONE, -1, NULL,
+	                                     args, NULL, G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
 	                                     &error);
 
 	if (error) {
