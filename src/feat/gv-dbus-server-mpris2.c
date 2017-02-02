@@ -340,6 +340,7 @@ g_variant_new_metadata_map(GvStation *station, GvMetadata *metadata)
 	GVariantBuilder b;
 	gchar *track_id;
 	const gchar *uri;
+	const gchar *name;
 	gchar *artist;
 	gchar *title;
 	gchar *album;
@@ -357,8 +358,13 @@ g_variant_new_metadata_map(GvStation *station, GvMetadata *metadata)
 	g_variant_builder_add_dictentry_object_path(&b, "mpris:trackid", track_id);
 	g_free(track_id);
 
+	name = gv_station_get_name(station);
+	if (name)
+		g_variant_builder_add_dictentry_string(&b, "goodvibes:station", name);
+
 	uri = gv_station_get_uri(station);
-	g_variant_builder_add_dictentry_string(&b, "xesam:url", uri);
+	if (uri)
+		g_variant_builder_add_dictentry_string(&b, "xesam:url", uri);
 
 	/* Metadata if any */
 	if (metadata == NULL)
