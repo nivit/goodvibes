@@ -1,3 +1,17 @@
+0.2.1 (2017-02-03) - Cradle Song / Tomahawk 
+-------------------------------------------
+
+General
+ * #37 Add 'play-stop' toggle command to the client.
+ *     Add 'is-running' command to the client.
+ *     Add station name in mpris2 metadata.
+
+Fixes
+ * #36 Fix exec path in dbus service file.
+ *     Some widgets were not initialized properly.
+
+
+
 0.2 (2017-01-26) - Doom Town / Wipers
 -------------------------------------
 
