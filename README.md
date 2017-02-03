@@ -1,7 +1,8 @@
 Goodvibes Radio Player
 ======================
 
-* [Installation](#installation)
+* [Installation From A Package Manager](#installation-from-a-package-manager)
+* [Installation From Source](#installation-from-source)
 * [Dependencies](#dependencies)
 * [License](#license)
 * [Translations](#translations)
@@ -24,12 +25,43 @@ The documentation is available at <https://github.com/elboulangero/goodvibes/wik
 
 
 
-Installation
-------------
+Installation From A Package Manager
+-----------------------------------
 
-The easiest way to install Goodvibes is to use an existing package for your distribution. You can check the [release][] pages to see what's available.
+The easiest way to install Goodvibes is to use an existing package for your distribution.
 
-If there's no package for you, you will need to grab the source code at first.
+At the moment, there's a PPA for Ubuntu users available on Launchpad. To install Goodvibes from there, please visit the following page and follow the instructions:<br>
+<https://launchpad.net/~elboulangero/+archive/ubuntu/goodvibes>
+
+Debian users running the unstable release can also install from this PPA by running the following commands.
+
+	# Be root
+	su -
+	
+	# Add repository
+	echo 'deb http://ppa.launchpad.net/elboulangero/goodvibes/ubuntu xenial main
+	' > /etc/apt/sources.list.d/goodvibes.list
+	
+	# Update and add key
+	MISSING_KEY=$(apt-get update 2>&1 | grep NO_PUBKEY | sed "s/.*NO_PUBKEY //")
+	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys $MISSING_KEY 
+	apt-get update
+	
+	# Install
+	apt-get install goodvibes
+
+
+There's also an ArchLinux package available:<br>
+<https://aur.archlinux.org/packages/goodvibes/>
+
+
+
+Installation From Source
+------------------------
+
+If there's no package for you, you will need to download the source code and compile by yourself.
+
+At first, grab the source code using git.
 
 	git clone https://github.com/elboulangero/goodvibes.git
 
@@ -45,7 +77,6 @@ Installation is a one-liner, and must be run as root.
 
 Of course, you need to install the required dependencies.
 
-[release]:   https://github.com/elboulangero/goodvibes/releases
 [autotools]: https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html
 
 
